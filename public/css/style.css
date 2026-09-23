@@ -1,0 +1,98 @@
+/* public/css/style.css
+   [Namtan - Frontend] Bare-minimum styling so the skeleton isn't
+   unstyled HTML - replace all of this with the real design. Keep the
+   phone-width rule in mind (the proposal's scope says every page must be
+   usable on a phone screen), so this file starts mobile-first: no fixed
+   widths, a max-width wrapper, and a nav that wraps instead of overflowing. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: #1c2430;
+  background: #f6f5f1;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e4e2;
+}
+
+.site-header .brand {
+  font-weight: 700;
+  text-decoration: none;
+  color: #2f5d5e;
+}
+
+.site-header nav a {
+  margin-right: 14px;
+  text-decoration: none;
+  color: #1c2430;
+}
+
+.page-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e1e4e2;
+}
+
+.stacked-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 420px;
+}
+
+.stacked-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.stacked-form input,
+.stacked-form select {
+  padding: 8px;
+  border: 1px solid #c9cdd0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #2f5d5e;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.site-footer {
+  text-align: center;
+  font-size: 12px;
+  color: #5c6673;
+  padding: 20px;
+}

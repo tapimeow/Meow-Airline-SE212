@@ -1,0 +1,39 @@
+<%- include('../partials/header', { title }) %>
+
+<h1>Passengers</h1>
+<p><a href="/passengers/new">+ Add passenger</a></p>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Passport No.</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Membership</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- [Namtan - Frontend] `passengers` is the array passed from
+         passengerController.list - loop over it the same way for any
+         other list page (flights, reservations, ...). -->
+    <% passengers.forEach(function(p) { %>
+      <tr>
+        <td><%= p.Name %></td>
+        <td><%= p.PassportNo %></td>
+        <td><%= p.PhoneNo %></td>
+        <td><%= p.Email %></td>
+        <td><%= p.MembershipStatus %></td>
+        <td>
+          <a href="/passengers/<%= p.PassengerID %>/edit">Edit</a>
+          <form action="/passengers/<%= p.PassengerID %>/delete" method="POST" style="display:inline">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }); %>
+  </tbody>
+</table>
+
+<%- include('../partials/footer') %>

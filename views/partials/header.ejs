@@ -1,0 +1,26 @@
+<!-- views/partials/header.ejs
+     [Namtan - Frontend] Shared nav/header, included at the top of every
+     page with <%- include('partials/header', { title }) %>. Add a link
+     here for every new section (flights, reservations, check-in, reports)
+     as those pages get built. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> · Meow Airline</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="brand">Meow Airline</a>
+    <nav>
+      <a href="/passengers">Passengers</a>
+      <!-- TODO [Namtan - Frontend]: add links as pages exist, e.g. -->
+      <!-- <a href="/flights">Flights</a> -->
+      <!-- <a href="/reservations">Bookings</a> -->
+      <!-- <a href="/checkin">Check-in</a> -->
+      <!-- <a href="/reports">Reports</a> -->
+    </nav>
+  </header>
+  <main class="page-content">
