@@ -9,7 +9,7 @@ Copy the shape of `views/passengers/`, and include `partials/header` and
 `partials/footer`.
 
 Pages to build:
-- form.ejs: Class, Price, Rule. Fares are listed on the flight detail page.
+- form.ejs: Class, Price, and one checkbox + fee box per fare condition (from FARE_CONDITION). Fares and their conditions are listed on the flight detail page.
 
 Rules:
 - Pages only show data the controller passes in. No SQL in `.ejs`.

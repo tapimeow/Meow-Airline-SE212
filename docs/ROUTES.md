@@ -12,7 +12,7 @@ table gives the overview.
 | Passengers *(Phase 0 practice, done)* | `/passengers` CRUD | passengerController | `views/passengers/` | BR5 |
 | Airports | `/airports` CRUD | airportController | `views/airports/` | BR1, BR2, BR7 |
 | Aircraft + seats | `/aircraft` CRUD, `/aircraft/:id/seats` | aircraftController, seatController | `views/aircraft/`, `views/seats/` | BR3, BR4, BR11 |
-| Flights + fares | `/flights` CRUD + search, `/flights/:id/fares` | flightController, fareController | `views/flights/`, `views/fares/` | BR7, BR15 |
+| Flights + fares | `/flights` CRUD + search, `/flights/:id/fares` (with fare conditions) | flightController, fareController | `views/flights/`, `views/fares/` | BR7, BR15, BR19 |
 | Booking | `/reservations` (new, detail, change, cancel) | reservationController | `views/reservations/` | BR5, BR6, BR10 |
 | Tickets | `/tickets/:id`, `/tickets/:id/issue` | ticketController | `views/tickets/` | BR8 |
 | Payments | `/reservations/:id/payments`, `/payments/:id/refund` | paymentController | `views/payments/` | BR8 |

@@ -36,7 +36,8 @@ The database and SQL come first. The web app comes after.
 
 Lecture 7: functional dependencies come from **business rules**, not sample data.
 
-- [ ] **All (Mon):** decide the open questions in `docs/DATABASE.md`, especially the **second M:N** (required by Lab 6)
+- [x] Second M:N decided: FARE ⇄ FARE_CONDITION via FARE_RULE (`docs/DATABASE.md`)
+- [ ] **All (Mon):** decide the remaining open questions in `docs/DATABASE.md`
 - [ ] **Patarawadee:** apply the fixes in `docs/DATABASE.md` → *ERD review* to the Draw.io file and re-export to `docs/erd/`
 - [ ] **Patarawadee:** write the relational model: every table, PK, FK (report §4)
 - [ ] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md`
@@ -87,4 +88,4 @@ Order (stop wherever time runs out): flights/fares → **reservations + tickets 
 ## Open items
 
 - [ ] Confirm the 15 Oct presentation date and the final report format with Aj. Pree
-- [ ] Decide the second M:N relationship (Mon 5, all three members)
+- [x] Decide the second M:N relationship: FARE ⇄ FARE_CONDITION

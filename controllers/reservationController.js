@@ -16,7 +16,7 @@
 //   -   2) insert RESERVATION (status Held)  3) insert TICKET row(s)  4) commit — rollback on any error.
 //   - One reservation may hold several tickets (connecting flights / family of 3 for the demo) — BR6.
 //   - Each ticket names its traveller (TICKET.PassengerID, BR18). The booking form asks for one passenger per seat; the reservation's PassengerID is the booker.
-//   - Cancel = set ReservationStatus Cancelled + all its tickets cancelled (+ refund PAYMENT if fare Rule allows), all in one transaction.
+//   - Cancel = set ReservationStatus Cancelled + all its tickets cancelled (+ refund PAYMENT if the fare has the 'Refundable' condition in FARE_RULE, minus its Fee), all in one transaction.
 //   - Save RESERVATION.BookingStaffID: the booking staff member who created it (EER "Created", BR16).
 //
 // TODO [Phase 4 · Backend · Kawintida]: write the functions.
