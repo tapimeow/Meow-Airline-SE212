@@ -11,6 +11,7 @@
 //   - render a view from views/checkin/ or redirect
 //
 // What this controller must enforce:
+//   - Find the ticket by the traveller's passport: TICKET.PassengerID -> PASSENGER.PassportNo.
 //   - BR13: only if TicketStatus = issued AND the flight has not departed.
 //   - CHECKIN is 1:1 with TICKET: a second check-in for the same ticket must be refused (UNIQUE TicketID). Save CHECKIN.CheckInStaffID (EER "Processes", BR17).
 //   - Lab 6 risk plan: if the backend is behind on Sun 11 Oct, this page becomes VIEW-ONLY.

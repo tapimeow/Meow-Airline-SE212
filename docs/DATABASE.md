@@ -15,6 +15,7 @@ Columns in **bold** were added in the SQL and are not in the EER yet. Add them t
 Patarawadee to remove them:
 
 - **FLIGHT.FlightNo** (`'MW101'`). The business question "seats free on flight MW101 on 20 October" needs a flight number that repeats every day. FlightID stays the surrogate PK.
+- **TICKET.PassengerID** → PASSENGER. The traveller on the ticket. RESERVATION.PassengerID stays as the person who booked, so a family of 3 on one reservation gets 3 named tickets (resolves open question 7).
 - **TICKET.FareID** → FARE. This gives each ticket its price, so income per route can be calculated (resolves open questions 3 and 4).
 - **TICKET.ActiveSeat**. A generated helper column so MySQL itself enforces BR10 (see below).
 - **StaffRole in each subtype table**. Lets MySQL enforce BR14 (see below).
@@ -28,7 +29,7 @@ Patarawadee to remove them:
 | SEAT | SeatID | SeatNo, SeatClass (Economy/Business/FirstClass) | AircraftID |
 | FARE | FareID | Class, Price, Rule (Refundable/Changeable) | FlightID |
 | RESERVATION | ReservationID | BookingDate, ReservationStatus (Held/Confirmed/Cancelled) | PassengerID, **BookingStaffID** |
-| TICKET *(bridge)* | TicketID | TicketIssueDate, TicketStatus (booked/issued/used/cancelled), **ActiveSeat** | ReservationID, FlightID, SeatID, **FareID** |
+| TICKET *(bridge)* | TicketID | TicketIssueDate, TicketStatus (booked/issued/used/cancelled), **ActiveSeat** | ReservationID, **PassengerID** (traveller), FlightID, SeatID, **FareID** |
 | PAYMENT | PaymentID | TotalAmount, PaymentMethod, TimeStamp, Status (Paid/Refunded) | ReservationID |
 | BAGGAGE | BaggageID | Weight, BaggageStatus | TicketID |
 | CHECKIN | CheckInID | CheckInTime, Gate, BoardingPassNo | TicketID (UNIQUE), **CheckInStaffID** |
@@ -47,7 +48,8 @@ Patarawadee to remove them:
 | Uses | AIRCRAFT → FLIGHT | 1:N | FLIGHT.AircraftID | RESTRICT |
 | Has | AIRCRAFT → SEAT | 1:N | SEAT.AircraftID | CASCADE: a seat cannot exist without its aircraft |
 | Offers | FLIGHT → FARE | 1:N | FARE.FlightID | CASCADE |
-| Makes | PASSENGER → RESERVATION | 1:N | RESERVATION.PassengerID | RESTRICT: keep booking history (demo Q16) |
+| Makes | PASSENGER → RESERVATION | 1:N | RESERVATION.PassengerID (the booker) | RESTRICT: keep booking history (demo Q16) |
+| *(new)* TravelsOn | PASSENGER → TICKET | 1:N | TICKET.PassengerID (the traveller) | RESTRICT: cannot delete a passenger who has tickets |
 | Created | BOOKINGSTAFF → RESERVATION | 1:N | RESERVATION.BookingStaffID (nullable) | SET NULL: NULL also means booked online |
 | Covers | RESERVATION → PAYMENT | 1:N | PAYMENT.ReservationID | RESTRICT: never lose money records |
 | BelongsTo | RESERVATION → TICKET | 1:N | TICKET.ReservationID | CASCADE (demo Q17) |
@@ -74,18 +76,22 @@ because MySQL does not allow CASCADE on columns that a CHECK uses (`FLIGHT_Route
 - **BR14, disjoint specialisation.** STAFF has `UNIQUE (StaffID, StaffRole)`. Each subtype table
   stores its own role (fixed by a CHECK) and references that pair, so a BookingStaff member cannot
   also be added to CHECKINSTAFF (error 1452).
+- **BR18, one seat per traveller per flight.** `UNIQUE (FlightID, PassengerID, ActiveSeat)` stops
+  the same passenger from holding two live tickets on one flight (error 1062, demo Q18c).
+  Like BR10, a cancelled ticket does not count.
 
 ## ERD review: fix before the report (Patarawadee, with all three reviewing)
 
 From `docs/erd/eer-chen.webp` and `docs/erd/erd-crowsfoot.png`:
 
 1. **Only one M:N.** Lab 6 requires at least two. See open question 1.
-2. **PAYMENT.Status is underlined** in the Chen EER. Only `PaymentID` should be underlined (the key).
-3. **Typos:** `DepartmentTime` → `DepartureTime`. `MemberShipStatus` → `MembershipStatus` (match the proposal and the SQL).
-4. **FLIGHT shows FK ovals** (AircraftID, OriginCode, DestinationCode). In Chen notation the FKs are expressed by the relationships, so remove these ovals (other entities such as TICKET do not show FK ovals). They belong in the relational model (§4).
-5. **The crow's-foot sketch disagrees with the EER on staff.** It draws the "many" end at STAFF for Staff–Reservation and Staff–CheckIn, and links STAFF directly. The EER says one BookingStaff creates many Reservations, and one CheckInStaff processes many CheckIns. Make the sketch match the EER, or stop using it.
-6. **Specialisation participation.** The single line from STAFF to the `d` circle means *partial* (a staff member could be neither type). If every staff member must be one of the two, draw a double line (*total*). Either way, update BR14 to say which.
-7. Add `1` / `N` labels next to each diamond if Aj. Pree wants classic Chen cardinality labels. The diagram currently uses crow's-foot line ends.
+2. **Add the TravelsOn relationship** (PASSENGER 1 : N TICKET, BR18). The SQL already has it.
+3. **PAYMENT.Status is underlined** in the Chen EER. Only `PaymentID` should be underlined (the key).
+4. **Typos:** `DepartmentTime` → `DepartureTime`. `MemberShipStatus` → `MembershipStatus` (match the proposal and the SQL).
+5. **FLIGHT shows FK ovals** (AircraftID, OriginCode, DestinationCode). In Chen notation the FKs are expressed by the relationships, so remove these ovals (other entities such as TICKET do not show FK ovals). They belong in the relational model (§4).
+6. **The crow's-foot sketch disagrees with the EER on staff.** It draws the "many" end at STAFF for Staff–Reservation and Staff–CheckIn, and links STAFF directly. The EER says one BookingStaff creates many Reservations, and one CheckInStaff processes many CheckIns. Make the sketch match the EER, or stop using it.
+7. **Specialisation participation.** The single line from STAFF to the `d` circle means *partial* (a staff member could be neither type). If every staff member must be one of the two, draw a double line (*total*). Either way, update BR14 to say which.
+8. Add `1` / `N` labels next to each diamond if Aj. Pree wants classic Chen cardinality labels. The diagram currently uses crow's-foot line ends.
 
 ## Business rules: where each one is enforced
 
@@ -109,6 +115,7 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 | BR15 | Fare belongs to one flight | DB: `NOT NULL` FK |
 | *new* BR16 | A BookingStaff member may create many Reservations; each Reservation is created by one BookingStaff | DB: FK `RESERVATION.BookingStaffID` (Kawintida adds the rule text, report §2) |
 | *new* BR17 | A CheckInStaff member may process many CheckIns; each CheckIn is processed by one CheckInStaff | DB: FK `CHECKIN.CheckInStaffID` |
+| *new* BR18 | A Passenger may travel on many Tickets; each Ticket is for exactly one Passenger, who holds at most one live Ticket per Flight | **DB:** FK `TICKET.PassengerID` + `TICKET_Passenger_On_Flight_UQ` |
 
 ## Open design questions: decide Mon 5 Oct (all three members)
 
@@ -120,7 +127,7 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 4. ~~Income per route~~ **Resolved in the SQL:** income = the fare price of each live ticket, grouped by the ticket's flight route (`queries.sql` Q3). Payments are used only for paid/unpaid status.
 5. **Subtype attributes.** What do BOOKINGSTAFF / CHECKINSTAFF store that STAFF does not? Without extra attributes the specialisation is hard to justify. Example: `Counter`, `Terminal`.
 6. **Baggage limits** per class (BR12): Economy 20 kg. `queries.sql` Q11 *assumes* Business 30 kg and FirstClass 40 kg. Confirm these.
-7. **Who is the traveller on each ticket?** A RESERVATION belongs to one passenger (the booker), but TICKET has no passenger column. For the family of 3 in the demo, the boarding list (Q7) shows the booker's name on all 3 seats, and check-in cannot tell who is flying. Option: add `TICKET.PassengerID` → PASSENGER (one more 1:N, with RESERVATION.PassengerID kept as the booker). **Decide with the second M:N question.**
+7. ~~Who is the traveller on each ticket?~~ **Resolved:** `TICKET.PassengerID` → PASSENGER (BR18). RESERVATION.PassengerID is the booker; each ticket names who flies. Add a **TravelsOn** relationship (PASSENGER 1:N TICKET) to the EER.
 
 ## Functional dependencies + 3NF check: Patarawadee fills this in (Lecture 7)
 

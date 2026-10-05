@@ -137,15 +137,18 @@ ORDER BY passengers DESC;
 -- C. Joins (Lecture 9)
 -- =====================================================================
 
--- Q7 [Kawintida] Boarding list for MW101 on 20 Oct: who sits where (4 tables)
---    NOTE: TICKET has no traveller column yet, so all 3 family tickets show
---    the booker's name. See docs/DATABASE.md, open question 7.
-SELECT f.FlightNo, s.SeatNo, s.SeatClass, p.Name AS booked_by, t.TicketStatus
+-- Q7 [Kawintida] Boarding list for MW101 on 20 Oct: who sits where, and who
+--    booked it. PASSENGER is joined twice with two aliases (like the self-join
+--    in Lecture 9): tr = the traveller on the ticket, bk = the booker.
+SELECT f.FlightNo, s.SeatNo, s.SeatClass,
+       tr.Name AS traveller, tr.PassportNo,
+       bk.Name AS booked_by, t.TicketStatus
 FROM FLIGHT f
-JOIN TICKET      t ON t.FlightID      = f.FlightID
-JOIN SEAT        s ON s.SeatID        = t.SeatID
-JOIN RESERVATION r ON r.ReservationID = t.ReservationID
-JOIN PASSENGER   p ON p.PassengerID   = r.PassengerID
+JOIN TICKET      t  ON t.FlightID      = f.FlightID
+JOIN SEAT        s  ON s.SeatID        = t.SeatID
+JOIN PASSENGER   tr ON tr.PassengerID  = t.PassengerID
+JOIN RESERVATION r  ON r.ReservationID = t.ReservationID
+JOIN PASSENGER   bk ON bk.PassengerID  = r.PassengerID
 WHERE f.FlightNo = 'MW101'
   AND DATE(f.DepartureTime) = '2026-10-20'
   AND t.TicketStatus <> 'cancelled'
@@ -170,10 +173,11 @@ ORDER BY reservations_created DESC;
 
 -- Q10 [Kornnaphat] Issued tickets on MW101 (20 Oct) that are NOT checked in yet
 --     (LEFT JOIN + IS NULL, BR13)
-SELECT t.TicketID, s.SeatNo, t.TicketStatus
+SELECT t.TicketID, p.Name AS traveller, s.SeatNo, t.TicketStatus
 FROM TICKET t
-JOIN FLIGHT f ON f.FlightID = t.FlightID
-JOIN SEAT   s ON s.SeatID   = t.SeatID
+JOIN FLIGHT    f ON f.FlightID    = t.FlightID
+JOIN SEAT      s ON s.SeatID      = t.SeatID
+JOIN PASSENGER p ON p.PassengerID = t.PassengerID
 LEFT JOIN CHECKIN c ON c.TicketID = t.TicketID
 WHERE f.FlightNo = 'MW101'
   AND DATE(f.DepartureTime) = '2026-10-20'
@@ -279,5 +283,11 @@ ROLLBACK;
 -- Q18b: sell seat 2A on MW101 (20 Oct) again, although ticket 6 already has it.
 --       Expected: Error Code 1062, duplicate entry for key
 --       'TICKET_Seat_On_Flight_UQ': the database itself prevents double booking (O1, BR10)
--- INSERT INTO TICKET (ReservationID, FlightID, SeatID, FareID, TicketStatus)
--- VALUES (8, 6, 5, 11, 'booked');
+-- INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketStatus)
+-- VALUES (8, 1, 6, 5, 11, 'booked');
+--
+-- Q18c: give Ladda a second seat (2D) on the same flight she already has a ticket for.
+--       Expected: Error Code 1062, duplicate entry for key
+--       'TICKET_Passenger_On_Flight_UQ' (BR18)
+-- INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketStatus)
+-- VALUES (5, 4, 6, 8, 11, 'booked');
