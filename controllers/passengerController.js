@@ -1,10 +1,10 @@
 // controllers/passengerController.js
 //
-// [Junior - Backend] Reference implementation for the practice CRUD page.
+// [Phase 4 · Backend · Kawintida] Reference implementation for the practice CRUD page.
 // Every function follows the same shape: run a query against `pool`, then
 // render or redirect. Copy this pattern for the real entities - reports
 // (seats sold, empty seats, income) are just a `list`-style function that
-// renders a different view with Mona's report queries instead of a plain
+// renders a different view with Patarawadee's report queries instead of a plain
 // SELECT.
 
 const pool = require('../config/db');
@@ -62,7 +62,7 @@ exports.remove = async (req, res) => {
   res.redirect('/passengers');
 };
 
-// TODO [Junior - Backend]: once RESERVATION/TICKET/PAYMENT tables exist,
+// TODO [Phase 4 · Backend · Kawintida]: once RESERVATION/TICKET/PAYMENT tables exist,
 // the real booking flow needs a transaction so two agents can never sell
 // the same seat (this is the double-booking problem from the proposal).
 // Sketch:
