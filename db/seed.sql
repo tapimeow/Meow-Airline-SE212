@@ -123,19 +123,21 @@ INSERT INTO RESERVATION (PassengerID, BookingStaffID, BookingDate, ReservationSt
   (1, 1,    '2026-10-04', 'Held');        -- 8  Somsak: held, NOT paid yet
 
 -- TICKET (bridge) ----------------------------------------------------
--- Columns: reservation, flight, seat, fare, issue date, status
-INSERT INTO TICKET (ReservationID, FlightID, SeatID, FareID, TicketIssueDate, TicketStatus) VALUES
-  (1, 1,  5,  1,  '2026-09-01', 'used'),       -- 1  MW101 seat 2A Economy
-  (1, 2,  6,  3,  '2026-09-01', 'used'),       -- 2  MW102 seat 2B Economy
-  (2, 3,  25, 6,  '2026-09-05', 'used'),       -- 3  MW201 seat 1A Business
-  (3, 4,  41, 7,  '2026-09-08', 'used'),       -- 4  MW301 seat 2A Economy
-  (4, 5,  13, 10, '2026-09-12', 'cancelled'),  -- 5  MW401 seat 1A Business (cancelled)
-  (5, 6,  5,  11, '2026-10-01', 'issued'),     -- 6  MW101 20 Oct seat 2A  (family)
-  (5, 6,  6,  11, '2026-10-01', 'issued'),     -- 7  MW101 20 Oct seat 2B  (family)
-  (5, 6,  7,  11, '2026-10-01', 'issued'),     -- 8  MW101 20 Oct seat 2C  (family)
-  (6, 8,  29, 15, NULL,         'booked'),     -- 9  MW201 21 Oct seat 2A (not paid, so not issued: BR8)
-  (7, 9,  49, 18, '2026-10-04', 'issued'),     -- 10 MW501 22 Oct seat 1A Business
-  (8, 10, 42, 19, NULL,         'booked');     -- 11 MW301 25 Oct seat 2B (not paid, so not issued: BR8)
+-- Columns: reservation, traveller, flight, seat, fare, issue date, status
+-- The traveller is usually the booker; the family tickets (6-8) are booked by
+-- Wichai (passenger 3) for himself, Ladda (4) and Mint (7).
+INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketIssueDate, TicketStatus) VALUES
+  (1, 1, 1,  5,  1,  '2026-09-01', 'used'),       -- 1  Somsak   MW101 seat 2A Economy
+  (1, 1, 2,  6,  3,  '2026-09-01', 'used'),       -- 2  Somsak   MW102 seat 2B Economy
+  (2, 2, 3,  25, 6,  '2026-09-05', 'used'),       -- 3  Nara     MW201 seat 1A Business
+  (3, 8, 4,  41, 7,  '2026-09-08', 'used'),       -- 4  Daniel   MW301 seat 2A Economy
+  (4, 5, 5,  13, 10, '2026-09-12', 'cancelled'),  -- 5  Siriporn MW401 seat 1A Business (cancelled)
+  (5, 3, 6,  5,  11, '2026-10-01', 'issued'),     -- 6  Wichai   MW101 20 Oct seat 2A (family)
+  (5, 4, 6,  6,  11, '2026-10-01', 'issued'),     -- 7  Ladda    MW101 20 Oct seat 2B (family)
+  (5, 7, 6,  7,  11, '2026-10-01', 'issued'),     -- 8  Mint     MW101 20 Oct seat 2C (family)
+  (6, 6, 8,  29, 15, NULL,         'booked'),     -- 9  Tom      MW201 21 Oct seat 2A (not paid, so not issued: BR8)
+  (7, 2, 9,  49, 18, '2026-10-04', 'issued'),     -- 10 Nara     MW501 22 Oct seat 1A Business
+  (8, 1, 10, 42, 19, NULL,         'booked');     -- 11 Somsak   MW301 25 Oct seat 2B (not paid, so not issued: BR8)
 
 -- PAYMENT ------------------------------------------------------------
 INSERT INTO PAYMENT (ReservationID, TotalAmount, PaymentMethod, TimeStamp, Status) VALUES
