@@ -4,79 +4,145 @@
 // Every function follows the same shape: run a query against `pool`, then
 // render or redirect. Copy this pattern for the real entities - reports
 // (seats sold, empty seats, income) are just a `list`-style function that
-// renders a different view with Patarawadee's report queries instead of a plain
-// SELECT.
+// renders a different view with the report queries from db/queries.sql
+// instead of a plain SELECT.
+//
+// Error handling: Express 4 does not catch errors thrown inside an async
+// function, and an uncaught one crashes the whole server. So every async
+// handler has a try/catch:
+//   - errors the user can fix (duplicate passport, passenger still has
+//     bookings) re-render the page with an `error` message
+//   - anything else goes to next(err), which server.js turns into a 500 page
 
 const pool = require('../config/db');
 
+// MySQL error codes we turn into friendly messages
+const DUPLICATE = 'ER_DUP_ENTRY';               // 1062: UNIQUE constraint (PassportNo)
+const STILL_USED = 'ER_ROW_IS_REFERENCED_2';    // 1451: ON DELETE RESTRICT (has bookings/tickets)
+
+// Empty form fields arrive as '' - store them as NULL instead
+const orNull = (value) => (value === undefined || value.trim() === '' ? null : value.trim());
+
 // GET /passengers - show every passenger in a table
-exports.list = async (req, res) => {
-  const [passengers] = await pool.execute('SELECT * FROM PASSENGER ORDER BY PassengerID');
-  res.render('passengers/list', { title: 'Passengers', passengers });
+exports.list = async (req, res, next) => {
+  try {
+    const [passengers] = await pool.execute('SELECT * FROM PASSENGER ORDER BY PassengerID');
+    res.render('passengers/list', { title: 'Passengers', passengers, error: null });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // GET /passengers/new - blank form
 exports.showCreateForm = (req, res) => {
-  res.render('passengers/form', { title: 'Add passenger', passenger: null });
+  res.render('passengers/form', { title: 'Add passenger', passenger: null, error: null });
 };
 
 // POST /passengers - insert a new row
 // Note the `?` placeholders - values are passed separately, never
 // concatenated into the SQL string, so user input can't be interpreted as
 // SQL (this is what stops SQL injection).
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
   const { Name, PassportNo, PhoneNo, Email, MembershipStatus } = req.body;
-  await pool.execute(
-    `INSERT INTO PASSENGER (Name, PassportNo, PhoneNo, Email, MembershipStatus)
-     VALUES (?, ?, ?, ?, ?)`,
-    [Name, PassportNo, PhoneNo, Email, MembershipStatus || 'Normal']
-  );
-  res.redirect('/passengers');
+  try {
+    await pool.execute(
+      `INSERT INTO PASSENGER (Name, PassportNo, PhoneNo, Email, MembershipStatus)
+       VALUES (?, ?, ?, ?, ?)`,
+      [Name.trim(), PassportNo.trim(), orNull(PhoneNo), orNull(Email), MembershipStatus || 'Normal']
+    );
+    res.redirect('/passengers');
+  } catch (err) {
+    if (err.code === DUPLICATE) {
+      // Show the form again with what the user typed, plus the message
+      return res.status(400).render('passengers/form', {
+        title: 'Add passenger',
+        passenger: req.body,
+        error: `Passport number ${PassportNo} is already registered.`,
+      });
+    }
+    next(err);
+  }
 };
 
 // GET /passengers/:id/edit - form pre-filled with one passenger's data
-exports.showEditForm = async (req, res) => {
-  const [rows] = await pool.execute(
-    'SELECT * FROM PASSENGER WHERE PassengerID = ?',
-    [req.params.id]
-  );
-  if (rows.length === 0) return res.status(404).send('Passenger not found');
-  res.render('passengers/form', { title: 'Edit passenger', passenger: rows[0] });
+exports.showEditForm = async (req, res, next) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM PASSENGER WHERE PassengerID = ?',
+      [req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).send('Passenger not found');
+    res.render('passengers/form', { title: 'Edit passenger', passenger: rows[0], error: null });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // POST /passengers/:id - update an existing row
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
   const { Name, PassportNo, PhoneNo, Email, MembershipStatus } = req.body;
-  await pool.execute(
-    `UPDATE PASSENGER
-     SET Name = ?, PassportNo = ?, PhoneNo = ?, Email = ?, MembershipStatus = ?
-     WHERE PassengerID = ?`,
-    [Name, PassportNo, PhoneNo, Email, MembershipStatus, req.params.id]
-  );
-  res.redirect('/passengers');
+  try {
+    await pool.execute(
+      `UPDATE PASSENGER
+       SET Name = ?, PassportNo = ?, PhoneNo = ?, Email = ?, MembershipStatus = ?
+       WHERE PassengerID = ?`,
+      [Name.trim(), PassportNo.trim(), orNull(PhoneNo), orNull(Email), MembershipStatus, req.params.id]
+    );
+    res.redirect('/passengers');
+  } catch (err) {
+    if (err.code === DUPLICATE) {
+      return res.status(400).render('passengers/form', {
+        title: 'Edit passenger',
+        passenger: { ...req.body, PassengerID: req.params.id },
+        error: `Passport number ${PassportNo} is already registered to another passenger.`,
+      });
+    }
+    next(err);
+  }
 };
 
 // POST /passengers/:id/delete
-exports.remove = async (req, res) => {
-  await pool.execute('DELETE FROM PASSENGER WHERE PassengerID = ?', [req.params.id]);
-  res.redirect('/passengers');
+// The database refuses (ON DELETE RESTRICT) if the passenger has
+// reservations or tickets - we show that as a message instead of crashing.
+exports.remove = async (req, res, next) => {
+  try {
+    await pool.execute('DELETE FROM PASSENGER WHERE PassengerID = ?', [req.params.id]);
+    res.redirect('/passengers');
+  } catch (err) {
+    if (err.code === STILL_USED) {
+      try {
+        const [passengers] = await pool.execute('SELECT * FROM PASSENGER ORDER BY PassengerID');
+        return res.status(409).render('passengers/list', {
+          title: 'Passengers',
+          passengers,
+          error: 'This passenger has bookings or tickets, so they cannot be deleted.',
+        });
+      } catch (listErr) {
+        return next(listErr);
+      }
+    }
+    next(err);
+  }
 };
 
-// TODO [Phase 4 · Backend · Kawintida]: once RESERVATION/TICKET/PAYMENT tables exist,
-// the real booking flow needs a transaction so two agents can never sell
-// the same seat (this is the double-booking problem from the proposal).
+// TODO [Phase 4 · Backend · Kawintida]: the real booking flow needs a
+// transaction so two agents can never sell the same seat (this is the
+// double-booking problem from the proposal). MySQL already rejects a
+// double-booked seat (error ER_DUP_ENTRY on TICKET_Seat_On_Flight_UQ, BR10);
+// catch that code and tell the agent "seat already taken".
 // Sketch:
 //
 //   const conn = await pool.getConnection();
 //   try {
 //     await conn.beginTransaction();
-//     // 1. check the seat isn't already ticketed on this flight
-//     // 2. insert the Ticket row
+//     // 1. insert the RESERVATION row
+//     // 2. insert one TICKET row per traveller + seat
 //     // 3. commit
 //     await conn.commit();
 //   } catch (err) {
 //     await conn.rollback();
-//     throw err;
+//     if (err.code === 'ER_DUP_ENTRY') { /* re-render: seat already taken */ }
+//     next(err);
 //   } finally {
 //     conn.release();
 //   }

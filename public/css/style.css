@@ -96,3 +96,13 @@ button {
   color: #5c6673;
   padding: 20px;
 }
+
+/* Message shown when the server refuses an action (duplicate passport,
+   passenger still has bookings, seat already taken, ...) */
+.error-message {
+  padding: 10px 12px;
+  border: 1px solid #e0b4b4;
+  border-radius: 6px;
+  background: #fff6f6;
+  color: #9f3a38;
+}

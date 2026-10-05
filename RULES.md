@@ -45,6 +45,10 @@ Who owns what: [`docs/TEAM.md`](docs/TEAM.md). When things are due: [`docs/PHASE
    runs in **one transaction**.
 5. Check that a column exists in `db/schema.sql` before you query it. Do not guess names.
 6. Changing a URL means updating `docs/ROUTES.md` and telling Kornnaphat.
+7. **Every `async` controller function has a `try/catch`.** Express 4 does not catch errors
+   from async code, and one uncaught error crashes the whole server. Show a message for
+   errors the user can fix (e.g. `ER_DUP_ENTRY` = seat already taken, `ER_ROW_IS_REFERENCED_2`
+   = still in use). Pass anything else to `next(err)`. Copy `controllers/passengerController.js`.
 
 ## 4. Frontend: Kornnaphat
 
@@ -53,6 +57,8 @@ Who owns what: [`docs/TEAM.md`](docs/TEAM.md). When things are due: [`docs/PHASE
 2. No SQL or business calculations in `.ejs` files. If a page needs other data, ask Kawintida.
 3. Every page must work at phone width. Check it with the browser's device toolbar before opening a PR.
 4. Use `<%= %>` (escaped) for data. Use `<%- %>` only for `include`.
+5. Never put an EJS tag inside an HTML comment (`<!-- <%= x %> -->`). EJS still runs it.
+6. Show the controller's `error` message at the top of the page, styled with the `.error-message` class (see `views/passengers/`).
 
 ## 5. Definition of done
 

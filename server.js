@@ -50,6 +50,14 @@ app.use((req, res) => {
   res.status(404).send('Page not found');
 });
 
+// Error handler: controllers call next(err) for errors the user cannot fix.
+// It must have 4 arguments so Express knows it handles errors. The details
+// go to the terminal; the browser only sees a short message.
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('Something went wrong. Check the server terminal for details.');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Meow Airline app running at http://localhost:${PORT}`);
