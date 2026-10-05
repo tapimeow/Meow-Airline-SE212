@@ -22,24 +22,24 @@ Each section has one owner. The owner writes it. Everyone proofreads it on Tue 1
 ## Requirements from the lectures (checklist)
 
 **Section 5–6, `db/schema.sql`** (Lecture 8 + 8.2 + 10) · Patarawadee
-- [ ] `CREATE DATABASE` + `USE`
-- [ ] `PRIMARY KEY` on every table (named `CONSTRAINT xxx_PK` is fine)
-- [ ] `FOREIGN KEY` with an explicit **`ON DELETE` / `ON UPDATE`** action, chosen on purpose (`RESTRICT` / `CASCADE` / `SET NULL`)
-- [ ] `CHECK` constraints (e.g. BR7 origin ≠ destination, Price > 0, Weight > 0)
-- [ ] `DEFAULT` values (e.g. `MembershipStatus 'Normal'`, `BookingDate CURRENT_DATE`)
-- [ ] `NOT NULL` / `UNIQUE` where the BRs require them (PassportNo, CHECKIN.TicketID)
-- [ ] `AUTO_INCREMENT` surrogate keys
-- [ ] Tables created **parents first**. Any `DROP TABLE` at the top runs **children first**
+- [x] `CREATE DATABASE` + `USE`
+- [x] `PRIMARY KEY` on every table (named `CONSTRAINT xxx_PK` is fine)
+- [x] `FOREIGN KEY` with an explicit **`ON DELETE` / `ON UPDATE`** action, chosen on purpose (`RESTRICT` / `CASCADE` / `SET NULL`)
+- [x] `CHECK` constraints (e.g. BR7 origin ≠ destination, Price > 0, Weight > 0)
+- [x] `DEFAULT` values (e.g. `MembershipStatus 'Normal'`, `BookingDate CURRENT_DATE`)
+- [x] `NOT NULL` / `UNIQUE` where the BRs require them (PassportNo, CHECKIN.TicketID)
+- [x] `AUTO_INCREMENT` surrogate keys
+- [x] Tables created **parents first**. Any `DROP TABLE` at the top runs **children first**
 - [ ] Table-creation steps from Lecture 8: data types → nullable → unique → PK/FK → defaults → domain checks
 
 **Section 7, `db/queries.sql`** (Lecture 8.2 + 9 + 10) · Kawintida + Kornnaphat
-- [ ] `INSERT` sample data for **every** table (lives in `db/seed.sql`, owned by Patarawadee)
-- [ ] `SELECT` with `WHERE`, `ORDER BY`, `LIMIT`, `GROUP BY` / `HAVING`, aggregates
-- [ ] `INNER JOIN` across 3–4 tables (through the TICKET bridge)
-- [ ] `LEFT JOIN … IS NULL` ("which X have no Y?")
-- [ ] `LIKE` wildcard search, `BETWEEN`, `IN`
-- [ ] at least one `VIEW`
-- [ ] `UPDATE` and `DELETE` examples **that show the constraints working**: one that succeeds, one rejected by `RESTRICT`, one that `CASCADE`s, one rejected by `CHECK`
+- [x] `INSERT` sample data for **every** table (lives in `db/seed.sql`, owned by Patarawadee)
+- [x] `SELECT` with `WHERE`, `ORDER BY`, `LIMIT`, `GROUP BY` / `HAVING`, aggregates
+- [x] `INNER JOIN` across 3–4 tables (through the TICKET bridge)
+- [x] `LEFT JOIN … IS NULL` ("which X have no Y?")
+- [x] `LIKE` wildcard search, `BETWEEN`, `IN`
+- [x] at least one `VIEW`
+- [x] `UPDATE` and `DELETE` examples **that show the constraints working**: one that succeeds, one rejected by `RESTRICT`, one that `CASCADE`s, one rejected by `CHECK`
 
 ## Priority order if time runs out
 

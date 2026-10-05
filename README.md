@@ -15,8 +15,9 @@ manager gets reports in seconds.
 
 ## Status: skeleton
 
-The only working feature is the **Passenger CRUD** (Phase 0 practice page).
-Every other file contains only comments that say **who** builds it,
+**Done:** the database. `db/schema.sql`, `db/seed.sql` and `db/queries.sql` run on MySQL 8.0,
+and the **Passenger CRUD** works (the Phase 0 practice page).
+Every other app file contains only comments that say **who** builds it,
 **in which phase**, and **which business rules** it must enforce.
 
 ## Read these first
@@ -62,11 +63,13 @@ docs/                   Plans and design notes                               [Al
 
 1. `npm install`
 2. Copy `.env.example` to `.env` and fill in your local MySQL credentials.
-3. Load the database (or paste both files into DBeaver):
+3. Load the database (or open the files in Workbench / DBeaver and run them in this order):
    ```
    mysql -u root -p < db/schema.sql
    mysql -u root -p meow_airline < db/seed.sql
+   mysql -u root -p meow_airline < db/queries.sql   # optional: runs every report query
    ```
+   Running `schema.sql` again resets all the data.
 4. `npm run dev`, then open http://localhost:3000/passengers
 
 ## Out of scope

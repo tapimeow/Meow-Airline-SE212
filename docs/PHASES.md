@@ -45,9 +45,11 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 
 ## Phase 3: Database built · Patarawadee · Wed 7 – Thu 8
 
-- [ ] `db/schema.sql`: all tables, with every constraint from the checklist in `docs/REPORT.md` (PK, FK + ON DELETE/UPDATE, CHECK, DEFAULT)
-- [ ] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
-- [ ] Runs top to bottom on an empty database. Screenshot the result in Workbench / DBeaver
+- [x] `db/schema.sql`: all tables, with every constraint from the checklist in `docs/REPORT.md` (PK, FK + ON DELETE/UPDATE, CHECK, DEFAULT). Tested on MySQL 8.0
+- [ ] Patarawadee reviews the columns added in the SQL (`docs/DATABASE.md` → Entities) and adds them to the EER
+- [x] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
+- [x] Runs top to bottom on an empty database
+- [ ] Screenshot the tables in Workbench / DBeaver for the report
 - [ ] **Thu evening:** tell the team the schema is frozen. After this point, schema changes go through Patarawadee only
 - [ ] (Optional) shared Railway database, with credentials sent over chat
 
@@ -61,7 +63,8 @@ Order (stop wherever time runs out): flights/fares → **reservations + tickets 
 
 ## Phase 5a: SQL queries · Kawintida + Kornnaphat · Fri 9 – Sun 11
 
-- [ ] Write the queries listed in `db/queries.sql` (each person owns their half)
+- [x] Queries written in `db/queries.sql`. All run against `seed.sql`
+- [ ] Each owner reads their half, makes sure they can explain it, and changes anything they disagree with
 - [ ] Run each one against `seed.sql` and take a screenshot for report §7
 - [ ] The UPDATE/DELETE examples must show the constraints working (Lecture 8.2)
 
