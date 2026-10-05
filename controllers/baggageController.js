@@ -13,7 +13,7 @@
 // What this controller must enforce:
 //   - BR12: sum of Weight for the ticket + new bag must not exceed the class limit (e.g. Economy 20 kg).
 //   - BR9: baggage is optional — a ticket with zero bags is valid.
-//   - Lab 6 risk plan: if behind at end of Week 7, this page becomes VIEW-ONLY.
+//   - Lab 6 risk plan: if the backend is behind on Sun 11 Oct, this page becomes VIEW-ONLY.
 //
 // TODO [Phase 4 · Backend · Kawintida]: write the functions.
 // TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.

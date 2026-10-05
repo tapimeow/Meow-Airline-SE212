@@ -16,7 +16,7 @@
 //   -   2) insert RESERVATION (status Held)  3) insert TICKET row(s)  4) commit — rollback on any error.
 //   - One reservation may hold several tickets (connecting flights / family of 3 for the demo) — BR6.
 //   - Cancel = set ReservationStatus Cancelled + all its tickets cancelled (+ refund PAYMENT if fare Rule allows), all in one transaction.
-//   - Open question (see docs/DATABASE.md): which BookingStaff created the reservation?
+//   - Save RESERVATION.BookingStaffID: the booking staff member who created it (EER "Created", BR16).
 //
 // TODO [Phase 4 · Backend · Kawintida]: write the functions.
 // TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.
