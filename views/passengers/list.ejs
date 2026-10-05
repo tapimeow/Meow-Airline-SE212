@@ -1,6 +1,9 @@
 <%- include('../partials/header', { title }) %>
 
 <h1>Passengers</h1>
+<% if (error) { %>
+  <p class="error-message"><%= error %></p>
+<% } %>
 <p><a href="/passengers/new">+ Add passenger</a></p>
 
 <table class="data-table">

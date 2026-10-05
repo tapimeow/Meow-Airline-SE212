@@ -1,13 +1,17 @@
 <%- include('../partials/header', { title }) %>
 
 <h1><%= title %></h1>
+<% if (error) { %>
+  <p class="error-message"><%= error %></p>
+<% } %>
 
 <!-- [Phase 5 · Frontend · Kornnaphat] Same form template handles both "add" and "edit":
      `passenger` is null on the add page (empty fields) and a real row on
      the edit page (pre-filled). The form posts to a different URL
-     depending on which case it is. -->
+     depending on which case it is. After a failed save, `passenger` holds
+     what the user typed, so nothing has to be typed again. -->
 <form
-  action="<%= passenger ? ('/passengers/' + passenger.PassengerID) : '/passengers' %>"
+  action="<%= passenger && passenger.PassengerID ? ('/passengers/' + passenger.PassengerID) : '/passengers' %>"
   method="POST"
   class="stacked-form"
 >
@@ -23,12 +27,12 @@
 
   <label>
     Phone
-    <input type="text" name="PhoneNo" value="<%= passenger ? passenger.PhoneNo : '' %>">
+    <input type="text" name="PhoneNo" value="<%= passenger && passenger.PhoneNo ? passenger.PhoneNo : '' %>">
   </label>
 
   <label>
     Email
-    <input type="email" name="Email" value="<%= passenger ? passenger.Email : '' %>">
+    <input type="email" name="Email" value="<%= passenger && passenger.Email ? passenger.Email : '' %>">
   </label>
 
   <label>
