@@ -2,8 +2,8 @@
 //
 // Owner:    [Phase 4 · Backend · Kawintida]
 // Reviewer: Patarawadee (checks the SQL matches db/schema.sql)
-// Table(s): FARE
-// Business rules: BR15   (see docs/DATABASE.md)
+// Table(s): FARE + FARE_RULE (bridge) + FARE_CONDITION
+// Business rules: BR15, BR19   (see docs/DATABASE.md)
 //
 // NOTHING IS IMPLEMENTED YET. Copy the shape of routes/passengers.js
 // (the Phase 0 practice page) when you start this file.

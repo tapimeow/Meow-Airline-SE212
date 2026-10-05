@@ -1,8 +1,8 @@
 // controllers/fareController.js
 //
 // Owner:    [Phase 4 · Backend · Kawintida]
-// Table(s): FARE
-// Business rules: BR15
+// Table(s): FARE + FARE_RULE (bridge) + FARE_CONDITION
+// Business rules: BR15, BR19
 //
 // NOTHING IS IMPLEMENTED YET. One exported function per route in
 // routes/fares.js. Follow controllers/passengerController.js:
@@ -12,7 +12,8 @@
 //
 // What this controller must enforce:
 //   - Price must be > 0.
-//   - Rule is Refundable / Changeable — it decides whether cancel gives a refund PAYMENT row.
+//   - A fare's conditions live in FARE_RULE (FareID, ConditionID, Fee), the second M:N (BR19).
+//     Creating or editing a fare = the FARE row + its FARE_RULE rows, in one transaction.
 //
 // TODO [Phase 4 · Backend · Kawintida]: write the functions.
 // TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.

@@ -9,8 +9,8 @@
 -- Owners (Phase 5a): each person checks their queries against the data,
 -- takes the result screenshots for the report, and explains them in the
 -- presentation.
---   Kawintida  : Q1–Q9
---   Kornnaphat : Q10–Q18
+--   Kawintida  : Q1–Q9, Q19
+--   Kornnaphat : Q10–Q18, Q20
 --
 -- Lecture coverage:
 --   L8.2  WHERE · AND/OR · BETWEEN · IN · LIKE · IS NULL · ORDER BY · LIMIT
@@ -291,3 +291,38 @@ ROLLBACK;
 --       'TICKET_Passenger_On_Flight_UQ' (BR18)
 -- INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketStatus)
 -- VALUES (5, 4, 6, 8, 11, 'booked');
+--
+-- Q18d: delete the 'Refundable' condition while Business fares still use it.
+--       Expected: Error Code 1451, foreign key 'FARE_RULE_CONDITION_FK' (RESTRICT)
+-- DELETE FROM FARE_CONDITION WHERE ConditionName = 'Refundable';
+
+-- =====================================================================
+-- F. The second M:N: FARE ⇄ FARE_CONDITION through the FARE_RULE bridge
+-- =====================================================================
+
+-- Q19 [Kawintida] What does each fare on MW101 (20 Oct) include, and what
+--     does each condition cost? (3 tables through the bridge, like
+--     orders -> order_details -> items in Lecture 9)
+SELECT fa.Class, fa.Price, fc.ConditionName, fr.Fee
+FROM FLIGHT f
+JOIN FARE           fa ON fa.FlightID    = f.FlightID
+JOIN FARE_RULE      fr ON fr.FareID      = fa.FareID
+JOIN FARE_CONDITION fc ON fc.ConditionID = fr.ConditionID
+WHERE f.FlightNo = 'MW101'
+  AND DATE(f.DepartureTime) = '2026-10-20'
+ORDER BY fa.Price, fc.ConditionName;
+
+-- Q20 [Kornnaphat] Upcoming fares that are NOT refundable: a passenger
+--     buying one gets no money back on cancel. (LEFT JOIN + IS NULL, with the
+--     condition name inside ON so every fare is kept)
+SELECT f.FlightNo, f.DepartureTime, fa.Class, fa.Price
+FROM FARE fa
+JOIN FLIGHT f ON f.FlightID = fa.FlightID
+LEFT JOIN (FARE_RULE fr
+           JOIN FARE_CONDITION fc
+             ON fc.ConditionID = fr.ConditionID
+            AND fc.ConditionName = 'Refundable')
+  ON fr.FareID = fa.FareID
+WHERE f.DepartureTime >= '2026-10-01'
+  AND fr.FareID IS NULL
+ORDER BY f.DepartureTime, fa.Class;

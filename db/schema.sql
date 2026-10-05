@@ -26,6 +26,8 @@ DROP TABLE IF EXISTS BAGGAGE;
 DROP TABLE IF EXISTS PAYMENT;
 DROP TABLE IF EXISTS TICKET;
 DROP TABLE IF EXISTS RESERVATION;
+DROP TABLE IF EXISTS FARE_RULE;
+DROP TABLE IF EXISTS FARE_CONDITION;
 DROP TABLE IF EXISTS FARE;
 DROP TABLE IF EXISTS FLIGHT;
 DROP TABLE IF EXISTS SEAT;
@@ -154,12 +156,41 @@ CREATE TABLE FARE (
   FlightID  INT            NOT NULL,                                            -- BR15
   Class     ENUM('Economy', 'Business', 'FirstClass') NOT NULL,
   Price     DECIMAL(10,2)  NOT NULL,
-  Rule      ENUM('Refundable', 'Changeable') NOT NULL DEFAULT 'Changeable',
+  -- The fare's conditions (refundable, changeable, ...) are in FARE_RULE below:
+  -- one fare can have several, so a single Rule column would not be atomic (1NF).
   CONSTRAINT FARE_PK PRIMARY KEY (FareID),
   CONSTRAINT FARE_Price_CK CHECK (Price > 0),
   CONSTRAINT FARE_FLIGHT_FK FOREIGN KEY (FlightID)
     REFERENCES FLIGHT (FlightID)
     ON DELETE CASCADE ON UPDATE CASCADE           -- a fare means nothing without its flight
+);
+
+-- FARE_CONDITION -----------------------------------------------------
+-- The list of conditions a fare can carry, e.g. 'Refundable', 'Changeable'.
+CREATE TABLE FARE_CONDITION (
+  ConditionID    INT           NOT NULL AUTO_INCREMENT,
+  ConditionName  VARCHAR(40)   NOT NULL,
+  Description    VARCHAR(200),
+  CONSTRAINT FARE_CONDITION_PK PRIMARY KEY (ConditionID),
+  CONSTRAINT FARE_CONDITION_Name_UQ UNIQUE (ConditionName)
+);
+
+-- FARE_RULE (bridge: FARE M:N FARE_CONDITION, BR19) -------------------
+-- One fare can have many conditions, and one condition applies to many fares.
+-- Fee is the extra attribute of the relationship: the price of using that
+-- condition on that fare (e.g. a 500 THB change fee on an Economy fare).
+CREATE TABLE FARE_RULE (
+  FareID       INT            NOT NULL,
+  ConditionID  INT            NOT NULL,
+  Fee          DECIMAL(10,2)  NOT NULL DEFAULT 0.00,
+  CONSTRAINT FARE_RULE_PK PRIMARY KEY (FareID, ConditionID),                    -- composite key, like ORDER_LINE in Lecture 8
+  CONSTRAINT FARE_RULE_Fee_CK CHECK (Fee >= 0),
+  CONSTRAINT FARE_RULE_FARE_FK FOREIGN KEY (FareID)
+    REFERENCES FARE (FareID)
+    ON DELETE CASCADE ON UPDATE CASCADE,          -- the rules go with their fare
+  CONSTRAINT FARE_RULE_CONDITION_FK FOREIGN KEY (ConditionID)
+    REFERENCES FARE_CONDITION (ConditionID)
+    ON DELETE RESTRICT ON UPDATE CASCADE          -- cannot delete a condition that fares still use
 );
 
 -- RESERVATION --------------------------------------------------------
@@ -264,6 +295,3 @@ CREATE TABLE CHECKIN (
     REFERENCES CHECKINSTAFF (StaffID)
     ON DELETE SET NULL ON UPDATE CASCADE
 );
-
--- TODO [Phase 2 · All]: the second M:N bridge table required by Lab 6
--- (docs/DATABASE.md, open question 1) goes here once the team decides it.

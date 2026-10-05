@@ -99,17 +99,50 @@ INSERT INTO FLIGHT (FlightNo, AircraftID, OriginCode, DestinationCode, Departure
   ('MW301', 4, 'BKK', 'SIN', '2026-10-25 13:00', '2026-10-25 16:20', 'OnTime');   -- 10
 
 -- FARE: FareID = 2 * FlightID - 1 (Economy) and 2 * FlightID (Business) -------
-INSERT INTO FARE (FlightID, Class, Price, Rule) VALUES
-  (1,  'Economy', 1500.00, 'Changeable'), (1,  'Business', 4500.00, 'Refundable'),  -- 1, 2
-  (2,  'Economy', 1500.00, 'Changeable'), (2,  'Business', 4500.00, 'Refundable'),  -- 3, 4
-  (3,  'Economy', 1800.00, 'Changeable'), (3,  'Business', 5200.00, 'Refundable'),  -- 5, 6
-  (4,  'Economy', 3900.00, 'Changeable'), (4,  'Business', 9800.00, 'Refundable'),  -- 7, 8
-  (5,  'Economy', 1200.00, 'Changeable'), (5,  'Business', 3500.00, 'Refundable'),  -- 9, 10
-  (6,  'Economy', 1500.00, 'Changeable'), (6,  'Business', 4500.00, 'Refundable'),  -- 11, 12
-  (7,  'Economy', 1500.00, 'Changeable'), (7,  'Business', 4500.00, 'Refundable'),  -- 13, 14
-  (8,  'Economy', 1800.00, 'Changeable'), (8,  'Business', 5200.00, 'Refundable'),  -- 15, 16
-  (9,  'Economy', 2500.00, 'Changeable'), (9,  'Business', 6500.00, 'Refundable'),  -- 17, 18
-  (10, 'Economy', 3900.00, 'Changeable'), (10, 'Business', 9800.00, 'Refundable');  -- 19, 20
+INSERT INTO FARE (FlightID, Class, Price) VALUES
+  (1,  'Economy', 1500.00), (1,  'Business', 4500.00),  -- 1, 2
+  (2,  'Economy', 1500.00), (2,  'Business', 4500.00),  -- 3, 4
+  (3,  'Economy', 1800.00), (3,  'Business', 5200.00),  -- 5, 6
+  (4,  'Economy', 3900.00), (4,  'Business', 9800.00),  -- 7, 8
+  (5,  'Economy', 1200.00), (5,  'Business', 3500.00),  -- 9, 10
+  (6,  'Economy', 1500.00), (6,  'Business', 4500.00),  -- 11, 12
+  (7,  'Economy', 1500.00), (7,  'Business', 4500.00),  -- 13, 14
+  (8,  'Economy', 1800.00), (8,  'Business', 5200.00),  -- 15, 16
+  (9,  'Economy', 2500.00), (9,  'Business', 6500.00),  -- 17, 18
+  (10, 'Economy', 3900.00), (10, 'Business', 9800.00);  -- 19, 20
+
+-- FARE_CONDITION -----------------------------------------------------
+INSERT INTO FARE_CONDITION (ConditionName, Description) VALUES
+  ('Refundable',          'Money back if the passenger cancels'),            -- 1
+  ('Changeable',          'Date or flight can be changed before departure'), -- 2
+  ('Free seat selection', 'Passenger chooses any free seat at no cost'),     -- 3
+  ('Priority boarding',   'Boards the aircraft first');                      -- 4
+
+-- FARE_RULE (bridge) -------------------------------------------------
+-- Economy fares (odd FareID): changeable for a 500 THB fee.
+-- Business fares (even FareID): refundable, changeable, free seat selection
+-- and priority boarding, all with no fee.
+INSERT INTO FARE_RULE (FareID, ConditionID, Fee) VALUES
+  (1, 2, 500.00),
+  (2, 1, 0.00), (2, 2, 0.00), (2, 3, 0.00), (2, 4, 0.00),
+  (3, 2, 500.00),
+  (4, 1, 0.00), (4, 2, 0.00), (4, 3, 0.00), (4, 4, 0.00),
+  (5, 2, 500.00),
+  (6, 1, 0.00), (6, 2, 0.00), (6, 3, 0.00), (6, 4, 0.00),
+  (7, 2, 500.00),
+  (8, 1, 0.00), (8, 2, 0.00), (8, 3, 0.00), (8, 4, 0.00),
+  (9, 2, 500.00),
+  (10, 1, 0.00), (10, 2, 0.00), (10, 3, 0.00), (10, 4, 0.00),
+  (11, 2, 500.00),
+  (12, 1, 0.00), (12, 2, 0.00), (12, 3, 0.00), (12, 4, 0.00),
+  (13, 2, 500.00),
+  (14, 1, 0.00), (14, 2, 0.00), (14, 3, 0.00), (14, 4, 0.00),
+  (15, 2, 500.00),
+  (16, 1, 0.00), (16, 2, 0.00), (16, 3, 0.00), (16, 4, 0.00),
+  (17, 2, 500.00),
+  (18, 1, 0.00), (18, 2, 0.00), (18, 3, 0.00), (18, 4, 0.00),
+  (19, 2, 500.00),
+  (20, 1, 0.00), (20, 2, 0.00), (20, 3, 0.00), (20, 4, 0.00);
 
 -- RESERVATION --------------------------------------------------------
 INSERT INTO RESERVATION (PassengerID, BookingStaffID, BookingDate, ReservationStatus) VALUES
@@ -145,7 +178,7 @@ INSERT INTO PAYMENT (ReservationID, TotalAmount, PaymentMethod, TimeStamp, Statu
   (2, 5200.00, 'QR',           '2026-09-05 14:02', 'Paid'),
   (3, 3900.00, 'Card',         '2026-09-08 09:40', 'Paid'),
   (4, 3500.00, 'Cash',         '2026-09-12 11:20', 'Paid'),
-  (4, 3500.00, 'Cash',         '2026-09-14 16:05', 'Refunded'),   -- Refundable fare, so money back
+  (4, 3500.00, 'Cash',         '2026-09-14 16:05', 'Refunded'),   -- Business fare 10 has the Refundable condition, so money back
   (5, 4500.00, 'BankTransfer', '2026-10-01 13:30', 'Paid'),       -- 3 x 1,500
   (7, 6500.00, 'Card',         '2026-10-04 19:45', 'Paid');
   -- reservations 6 and 8 have no payment yet (Q2)

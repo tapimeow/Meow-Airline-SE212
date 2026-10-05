@@ -7,7 +7,7 @@ Only Patarawadee changes `db/schema.sql`. Anyone may suggest changes to this fil
 
 ![Architecture](architecture.png)
 
-## Entities (12 + 2 subtype tables)
+## Entities (13 + 2 subtype tables + 1 bridge = 16 tables)
 
 Implemented in [`db/schema.sql`](../db/schema.sql) and tested on MySQL 8.0. The staff FKs on
 RESERVATION and CHECKIN come from the EER's **Created** and **Processes** relationships.
@@ -27,7 +27,9 @@ Patarawadee to remove them:
 | AIRCRAFT | AircraftID | AircraftModel, TotalSeat | — |
 | FLIGHT | FlightID | **FlightNo**, DepartureTime, ArrivalTime, Status (OnTime/Delayed/Canceled) | AircraftID, OriginCode, DestinationCode |
 | SEAT | SeatID | SeatNo, SeatClass (Economy/Business/FirstClass) | AircraftID |
-| FARE | FareID | Class, Price, Rule (Refundable/Changeable) | FlightID |
+| FARE | FareID | Class, Price *(the old `Rule` column moved to FARE_RULE)* | FlightID |
+| **FARE_CONDITION** | ConditionID | ConditionName (UNIQUE), Description | — |
+| **FARE_RULE** *(bridge)* | (FareID, ConditionID) | Fee | FareID, ConditionID |
 | RESERVATION | ReservationID | BookingDate, ReservationStatus (Held/Confirmed/Cancelled) | PassengerID, **BookingStaffID** |
 | TICKET *(bridge)* | TicketID | TicketIssueDate, TicketStatus (booked/issued/used/cancelled), **ActiveSeat** | ReservationID, **PassengerID** (traveller), FlightID, SeatID, **FareID** |
 | PAYMENT | PaymentID | TotalAmount, PaymentMethod, TimeStamp, Status (Paid/Refunded) | ReservationID |
@@ -37,7 +39,7 @@ Patarawadee to remove them:
 | BOOKINGSTAFF | StaffID | **StaffRole** (always 'BookingStaff'), other subtype attributes TBD | (StaffID, StaffRole) → STAFF |
 | CHECKINSTAFF | StaffID | **StaffRole** (always 'CheckInStaff'), other subtype attributes TBD | (StaffID, StaffRole) → STAFF |
 
-**Create order** (parents first): AIRPORT, AIRCRAFT, PASSENGER, STAFF → BOOKINGSTAFF, CHECKINSTAFF, SEAT, FLIGHT → FARE, RESERVATION → TICKET, PAYMENT → BAGGAGE, CHECKIN. **Drop order** is the reverse (Lecture 8.2).
+**Create order** (parents first): AIRPORT, AIRCRAFT, PASSENGER, STAFF → BOOKINGSTAFF, CHECKINSTAFF, SEAT, FLIGHT, FARE_CONDITION → FARE → FARE_RULE, RESERVATION → TICKET, PAYMENT → BAGGAGE, CHECKIN. **Drop order** is the reverse (Lecture 8.2).
 
 ## Relationships (from the Chen EER)
 
@@ -61,8 +63,11 @@ Patarawadee to remove them:
 | ISA (d) | STAFF → BOOKINGSTAFF / CHECKINSTAFF | disjoint | subtype (StaffID, StaffRole) | RESTRICT: MySQL forbids CASCADE on a column with a CHECK, so delete the subtype row first |
 
 | *(new)* | FARE → TICKET | 1:N | TICKET.FareID | RESTRICT |
+| *(new)* Has rule | FARE ⇄ FARE_CONDITION | **M:N** | bridge FARE_RULE (FareID → CASCADE, ConditionID → RESTRICT) | rules go with their fare; a condition in use cannot be deleted (demo Q18d) |
 
-M:N: RESERVATION ⇄ FLIGHT, resolved by TICKET.
+M:N relationships (Lab 6 needs at least two):
+1. RESERVATION ⇄ FLIGHT, resolved by **TICKET** (extra attributes: SeatID, PassengerID, FareID, issue date, status)
+2. FARE ⇄ FARE_CONDITION, resolved by **FARE_RULE** (extra attribute: Fee)
 
 On-update actions are CASCADE, except the two AIRPORT FKs on FLIGHT. Those use RESTRICT,
 because MySQL does not allow CASCADE on columns that a CHECK uses (`FLIGHT_Route_CK`, BR7).
@@ -84,7 +89,7 @@ because MySQL does not allow CASCADE on columns that a CHECK uses (`FLIGHT_Route
 
 From `docs/erd/eer-chen.webp` and `docs/erd/erd-crowsfoot.png`:
 
-1. **Only one M:N.** Lab 6 requires at least two. See open question 1.
+1. **Add the second M:N** to the EER: a FARE_CONDITION entity (ConditionID, ConditionName, Description) and a **Has rule** diamond between FARE and FARE_CONDITION (M:N) with the attribute **Fee** on the relationship. Remove the `Rule` oval from FARE.
 2. **Add the TravelsOn relationship** (PASSENGER 1 : N TICKET, BR18). The SQL already has it.
 3. **PAYMENT.Status is underlined** in the Chen EER. Only `PaymentID` should be underlined (the key).
 4. **Typos:** `DepartmentTime` → `DepartureTime`. `MemberShipStatus` → `MembershipStatus` (match the proposal and the SQL).
@@ -116,12 +121,11 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 | *new* BR16 | A BookingStaff member may create many Reservations; each Reservation is created by one BookingStaff | DB: FK `RESERVATION.BookingStaffID` (Kawintida adds the rule text, report §2) |
 | *new* BR17 | A CheckInStaff member may process many CheckIns; each CheckIn is processed by one CheckInStaff | DB: FK `CHECKIN.CheckInStaffID` |
 | *new* BR18 | A Passenger may travel on many Tickets; each Ticket is for exactly one Passenger, who holds at most one live Ticket per Flight | **DB:** FK `TICKET.PassengerID` + `TICKET_Passenger_On_Flight_UQ` |
+| *new* BR19 | A Fare may have many FareConditions and a FareCondition may apply to many Fares; each pairing records its Fee | **DB:** FARE_RULE composite PK + 2 FKs, `CHECK (Fee >= 0)` |
 
 ## Open design questions: decide Mon 5 Oct (all three members)
 
-1. **Second M:N relationship** (Lab 6 requirement). Candidates:
-   - STAFF ⇄ FLIGHT crew/gate duty: bridge `FLIGHT_ASSIGNMENT(StaffID, FlightID, DutyRole)`
-   - PASSENGER ⇄ FLIGHT is **not** valid, because it is already covered through RESERVATION/TICKET (a redundant path)
+1. ~~Second M:N relationship~~ **Resolved:** FARE ⇄ FARE_CONDITION through the FARE_RULE bridge (BR19). STAFF ⇄ FLIGHT duty was rejected because Lab 7 §2.2 puts staff scheduling out of scope. A fare can be both refundable and changeable, so the single `FARE.Rule` value also broke 1NF.
 2. ~~Who handled a booking or check-in?~~ **Resolved by the EER:** `BookingStaffID` and `CheckInStaffID` FKs.
 3. ~~Ticket price~~ **Resolved in the SQL:** `TICKET.FareID`. Revert if the team disagrees.
 4. ~~Income per route~~ **Resolved in the SQL:** income = the fare price of each live ticket, grouped by the ticket's flight route (`queries.sql` Q3). Payments are used only for paid/unpaid status.
@@ -150,4 +154,5 @@ Write one FD per business rule: *determinant → dependents*. Then check each ta
 | STAFF | | | | | |
 | BOOKINGSTAFF | | | | | |
 | CHECKINSTAFF | | | | | |
-| *(second M:N bridge)* | | | | | |
+| FARE_CONDITION | | | | | |
+| FARE_RULE | | | | | |
