@@ -1,56 +1,77 @@
-# Meow Airline
+# Meow Airline ✈️🐱
 
-Skeleton project for the SE212 term project. Stack: MySQL + Node.js/Express + EJS,
-matching section 4 of the Lab 7 proposal.
+SE212 / 953212 term project: a booking system for **Meow Airline**, a small
+regional airline with six aircraft. It replaces the shared Excel file and LINE
+chats with one MySQL database, so seats can't be double-booked and the
+manager gets reports in seconds.
 
-## What's already here
+**Team:** Patarawadee Kunna (682115034) · Kawintida Kantong (682115002) · Kornnaphat Uttama (682115001)
+**Stack:** MySQL · Node.js + Express · EJS/HTML/CSS/JS · Railway · GitHub · DBeaver / Workbench
 
-A full, working CRUD flow for **Passenger** - list, add, edit, delete - wired all the
-way from route to controller to database to EJS view. This is the practice round from
-the build plan (phase 1): everyone should run it locally once before starting the real
-features, so the whole chain has been touched by hand.
+> 📅 **Presentation + Mango submission (slides, report, source code): Thursday 15 October 2026.**
+> The day-by-day plan is in [`docs/PHASES.md`](docs/PHASES.md).
 
-Everything else is a stub or a `TODO` comment pointing at where the real code goes.
-Comments are tagged by who's likely to touch that part - `[Mona - Database]`,
-`[Junior - Backend]`, `[Namtan - Frontend]` - but they're a starting point, not a wall;
-read the whole file you're working in.
+![Architecture: Browser ⇄ Express ⇄ MySQL](docs/architecture.png)
+
+## Status: skeleton
+
+**Done:** the database. `db/schema.sql`, `db/seed.sql` and `db/queries.sql` run on MySQL 8.0,
+and the **Passenger CRUD** works (the Phase 0 practice page).
+Every other app file contains only comments that say **who** builds it,
+**in which phase**, and **which business rules** it must enforce.
+
+## Read these first
+
+| File | What's in it |
+|---|---|
+| [`RULES.md`](RULES.md) | Team rules: branches, PRs, who may edit what, coding rules |
+| [`docs/PHASES.md`](docs/PHASES.md) | Phases 0–6, owner and reviewer for each, checklists |
+| [`docs/TEAM.md`](docs/TEAM.md) | Who owns which files and how to find your TODOs |
+| [`docs/DATABASE.md`](docs/DATABASE.md) | Tables, relationships, ERD review fixes, where each BR is enforced, open questions, 3NF table |
+| [`docs/REPORT.md`](docs/REPORT.md) | Final report sections and owners, lecture checklists, slides, priority order |
+| [`docs/erd/`](docs/erd/) | The EER diagrams |
+| [`docs/ROUTES.md`](docs/ROUTES.md) | URL ↔ controller ↔ page contract for the backend and frontend |
+
+## Goals (from the proposal)
+
+- **O1** Zero double-booked seats in the first month
+- **O2** One booking in under 2 minutes (currently about 8)
+- **O3** Seats-sold-and-income report for any flight in under 10 seconds
+- **O4** Real-time free seats per flight, by class
+
+Reports the system must answer:
+1. How many seats are still free on flight MW101 on 20 October, and in which class?
+2. Which bookings has this passenger made, and which are not paid yet?
+3. How much did each route earn last month, and which route sold the fewest seats?
 
 ## Folder structure
 
 ```
-config/db.js          MySQL connection pool - the only place credentials live
-db/schema.sql         CREATE TABLE statements (PASSENGER + AIRPORT filled in as examples)
-db/seed.sql           Sample rows to develop against
-routes/               One file per entity, e.g. passengers.js
-controllers/          Query logic for each route file
-views/                EJS templates, one folder per entity + shared partials/
-public/css/           Stylesheet
-server.js             Wires everything together
+config/db.js            MySQL pool, the only place credentials are read      [Patarawadee]
+db/schema.sql           CREATE TABLEs (14 tables + 2nd M:N bridge)           [Patarawadee, Phase 3]
+db/seed.sql             Fake sample data                                     [Patarawadee, Phase 3]
+db/queries.sql          18 queries for report section 7                      [Kawintida + Kornnaphat, Phase 5a]
+routes/                 One file per entity: URL list                        [Kawintida, Phase 4]
+controllers/            One file per entity: SQL + business rules            [Kawintida, Phase 4]
+views/                  One folder per entity (each has a README of pages)   [Kornnaphat, Phase 5]
+public/css, public/js   Styling and small browser helpers                    [Kornnaphat, Phase 5]
+server.js               Wires routes together                                [Kawintida, Phase 4]
+docs/                   Plans and design notes                               [All]
 ```
 
-## Getting it running locally
+## Running locally
 
 1. `npm install`
 2. Copy `.env.example` to `.env` and fill in your local MySQL credentials.
-3. Create the database and load the schema + sample data:
+3. Load the database (or open the files in Workbench / DBeaver and run them in this order):
    ```
    mysql -u root -p < db/schema.sql
    mysql -u root -p meow_airline < db/seed.sql
+   mysql -u root -p meow_airline < db/queries.sql   # optional: runs every report query
    ```
-   (or paste both files into DBeaver's SQL editor)
-4. `npm run dev`
-5. Visit `http://localhost:3000/passengers`
+   Running `schema.sql` again resets all the data.
+4. `npm run dev`, then open http://localhost:3000/passengers
 
-## Next steps
+## Out of scope
 
-See the full build order and per-role task list in the team's build plan artifact.
-Short version:
-
-1. Mona finishes `db/schema.sql` for the remaining 13 tables and `db/seed.sql` with
-   realistic sample data for all of them.
-2. Junior and Namtan agree on the page/route contract for the real features
-   (flights, reservations, payments, check-in, reports) before writing them.
-3. Junior adds one `routes/<entity>.js` + `controllers/<entity>Controller.js` pair per
-   feature, copying the passengers pattern.
-4. Namtan adds one `views/<entity>/` folder per feature, copying the passengers
-   templates.
+Real bank/card payment (we only record payments) · native mobile app · payroll and staff scheduling.
