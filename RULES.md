@@ -1,59 +1,62 @@
 # Team rules
 
-Not code - just the ground rules for working in this repo across three people.
-Read this before your first commit; update it if the team agrees on something new.
+Ground rules for three people working in one repo. Read this before your
+first commit. If the team agrees on something new, add it here in a PR.
 
-## Everyone
+Who owns what: [`docs/TEAM.md`](docs/TEAM.md). When things are due: [`docs/PHASES.md`](docs/PHASES.md).
 
-1. Never commit `.env` or real database credentials. `.gitignore` already excludes
-   `.env` - only `.env.example` (placeholder values) goes into the repo.
-2. Branch off `main` per feature, named `<role>/<short-description>` -
-   e.g. `junior/flights-route`, `namtan/checkin-page`, `mona/schema-fare`.
-3. Open a pull request before merging to `main`; at least one other teammate
-   reviews it. No direct pushes to `main`.
-4. Tag new `TODO` comments the same way this skeleton does -
-   `[Mona - Database]`, `[Junior - Backend]`, `[Namtan - Frontend]` - so
-   ownership stays obvious to whoever opens the file next.
-5. Test your own feature locally against the shared `db/seed.sql` data
-   before opening a pull request.
-6. Check a column or table actually exists in `db/schema.sql` before
-   writing a query against it - ask Mona rather than guessing a name.
-7. Tick off the matching item in README.md's "Next steps" list once a
-   feature is merged, so the team can see progress at a glance.
+## 1. Everyone
 
-## Mona - Database
+1. **Stay in your phase's files.** Each folder has one owner (see `docs/TEAM.md`).
+   To change someone else's file, ask them first or open a PR and request
+   their review.
+2. **Never commit secrets.** `.env` is in `.gitignore`. Only `.env.example`
+   (placeholder values) goes in the repo. Share Railway credentials over chat.
+3. **Never commit real personal data.** Seed data is fake (Lab 6 B4.3).
+4. **Branch per task**, named `<name>/<short-task>`, e.g.
+   `patarawadee/schema-flight`, `kawintida/reservations-route`, `kornnaphat/checkin-page`.
+5. **No direct pushes to `main`.** Open a pull request. The phase's reviewer
+   (see `docs/PHASES.md`) approves it before merging.
+6. **Small PRs.** One table, one route file, or one page per PR is ideal.
+7. **Commit messages** start with the area: `db: add FLIGHT table (BR7)`,
+   `backend: reservations create route`, `frontend: flights list page`.
+8. **TODO comments** use the owner tag:
+   `// TODO [Phase 4 · Backend · Kawintida]: ...`. Delete the TODO when it is done.
+9. **Pull `main` before you start work each day** to avoid merge conflicts.
+10. **Tick the checkbox** in `docs/PHASES.md` in the same PR that finishes the item.
+11. **Stuck for more than 1 day?** Say so in the group chat. Do not wait until the deadline.
 
-1. Only Mona changes table structure in `db/schema.sql` (new tables,
-   columns, constraints). Junior or Namtan needing a schema change asks for
-   it rather than editing the file directly - two people changing table
-   structure at once is how migrations get out of sync.
-2. Every new table or column gets matching sample rows added to
-   `db/seed.sql` in the same pull request, so the app never points at
-   empty tables.
-3. Every constraint added to the schema gets a comment naming the business
-   rule it enforces (e.g. `-- BR11`), same as the existing examples -
-   that's what makes the schema traceable back to the proposal.
+## 2. Database: Patarawadee
 
-## Junior - Backend
+1. Only Patarawadee changes table structure in `db/schema.sql`. Others ask
+   for changes instead of editing it.
+2. Every constraint gets a comment naming its business rule, e.g. `-- BR7`.
+3. Every new table gets seed rows in `db/seed.sql` in the same PR.
+4. `schema.sql` must run top to bottom on an empty database without errors.
+5. Table names are `UPPERCASE`. Column names are `PascalCase`, matching the proposal (`PassengerID`, `DepartureTime`).
 
-1. One `routes/<entity>.js` + `controllers/<entity>Controller.js` pair per
-   entity - don't mix two entities' logic into one file.
-2. All database access goes through the shared pool in `config/db.js` -
-   never open a separate connection in a controller.
-3. Queries always use `?` placeholders with values passed separately
-   (`pool.execute(sql, [values])`) - never build a query by concatenating
-   request input into the SQL string.
-4. Any change that touches more than one table in one action (booking a
-   seat, cancelling a reservation) runs inside a transaction, so a failure
-   partway through can't leave the database half-updated.
+## 3. Backend: Kawintida
 
-## Namtan - Frontend
+1. One `routes/<entity>.js` + `controllers/<entity>Controller.js` pair per entity.
+2. All database access goes through `config/db.js`. Never open your own connection.
+3. **Always** use `?` placeholders: `pool.execute(sql, [values])`. Never put
+   request input into the SQL string (SQL injection).
+4. Anything that changes more than one table (booking, cancel, creating staff)
+   runs in **one transaction**.
+5. Check that a column exists in `db/schema.sql` before you query it. Do not guess names.
+6. Changing a URL means updating `docs/ROUTES.md` and telling Kornnaphat.
 
-1. One `views/<entity>/` folder per feature, reusing `partials/header.ejs`
-   and `partials/footer.ejs` for the page shell - don't copy the `<html>`
-   boilerplate into every new template.
-2. Every new page has to work at phone width (per the proposal's scope) -
-   check it by shrinking the browser window before opening a pull request.
-3. Views only display what the controller already passed in - no database
-   queries or business calculations inside an `.ejs` file. If a page needs
-   different data, that's a change to ask Junior for in the controller.
+## 4. Frontend: Kornnaphat
+
+1. One `views/<entity>/` folder per feature. Every page includes
+   `partials/header` and `partials/footer`.
+2. No SQL or business calculations in `.ejs` files. If a page needs other data, ask Kawintida.
+3. Every page must work at phone width. Check it with the browser's device toolbar before opening a PR.
+4. Use `<%= %>` (escaped) for data. Use `<%- %>` only for `include`.
+
+## 5. Definition of done
+
+A task is done when:
+- it runs locally against `db/seed.sql`,
+- the reviewer approved the PR and it is merged into `main`,
+- the TODO comment is removed and the checkbox in `docs/PHASES.md` is ticked.

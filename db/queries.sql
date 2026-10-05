@@ -1,0 +1,22 @@
+-- db/queries.sql
+--
+-- Milestone M5 (Lab 7): at least 10 SQL queries with results.
+-- Owners: Kawintida writes Q1–Q5, Kornnaphat writes Q6–Q10.
+--         Patarawadee reviews them against schema.sql.
+--
+-- NOTHING IS IMPLEMENTED YET. For each query: write the SQL, run it in
+-- DBeaver against seed.sql, and paste a screenshot of the result into the
+-- M5 report.
+--
+-- Q1  [Kawintida]  Free seats on one flight, by class (report Q1, O4)
+-- Q2  [Kawintida]  All reservations of one passenger + which are unpaid (report Q2)
+-- Q3  [Kawintida]  Income per route last month (report Q3, O3)
+-- Q4  [Kawintida]  Route that sold the fewest seats last month (report Q3)
+-- Q5  [Kawintida]  Check for double-booked seats — must return 0 rows (O1, BR10)
+-- Q6  [Kornnaphat] Flights departing in the next 24 hours with their load factor
+-- Q7  [Kornnaphat] Tickets not checked in yet for a given flight (BR13)
+-- Q8  [Kornnaphat] Total baggage weight per ticket vs. class limit (BR12)
+-- Q9  [Kornnaphat] Number of reservations handled per booking staff member (BR14)
+-- Q10 [Kornnaphat] Gold/Silver members and how much they spent this year
+--
+-- Each team member may swap a query for a better one. Update this list if you do.

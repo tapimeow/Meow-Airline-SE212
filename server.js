@@ -10,17 +10,24 @@ const path = require('path');
 
 const indexRoutes = require('./routes/index');
 const passengerRoutes = require('./routes/passengers');
-// TODO [Junior - Backend]: add one require + one app.use line here for
-// every new route file, following the passengers.js pattern:
-//   const flightRoutes = require('./routes/flights');
-//   const reservationRoutes = require('./routes/reservations');
-//   const paymentRoutes = require('./routes/payments');
-//   const checkinRoutes = require('./routes/checkin');
-//   const reportRoutes = require('./routes/reports');
+// TODO [Phase 4 · Backend · Kawintida]: add one app.use line here for
+// every route file as it gets built (see docs/ROUTES.md for the full list):
+//   app.use('/airports',     require('./routes/airports'));
+//   app.use('/aircraft',     require('./routes/aircraft'));
+//   app.use('/',             require('./routes/seats'));     // nested under /aircraft/:id/seats
+//   app.use('/flights',      require('./routes/flights'));
+//   app.use('/',             require('./routes/fares'));     // nested under /flights/:id/fares
+//   app.use('/reservations', require('./routes/reservations'));
+//   app.use('/tickets',      require('./routes/tickets'));
+//   app.use('/',             require('./routes/payments'));  // nested under /reservations/:id/payments
+//   app.use('/',             require('./routes/baggage'));   // nested under /tickets/:id/baggage
+//   app.use('/checkin',      require('./routes/checkin'));
+//   app.use('/staff',        require('./routes/staff'));
+//   app.use('/reports',      require('./routes/reports'));
 
 const app = express();
 
-// [Namtan - Frontend] Templates live in views/, using EJS. Shared markup
+// [Phase 5 · Frontend · Kornnaphat] Templates live in views/, using EJS. Shared markup
 // (nav, header, footer) belongs in views/partials/ so it's not repeated on
 // every page - see views/partials/header.ejs and footer.ejs.
 app.set('view engine', 'ejs');
