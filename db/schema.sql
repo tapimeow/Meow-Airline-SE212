@@ -182,6 +182,7 @@ CREATE TABLE RESERVATION (
 CREATE TABLE TICKET (
   TicketID         INT   NOT NULL AUTO_INCREMENT,
   ReservationID    INT   NOT NULL,
+  PassengerID      INT   NOT NULL,                -- BR18: the traveller on this ticket (RESERVATION.PassengerID is the booker)
   FlightID         INT   NOT NULL,
   SeatID           INT   NOT NULL,
   FareID           INT   NOT NULL,                -- the fare sold on this ticket: gives the price for income reports
@@ -194,9 +195,13 @@ CREATE TABLE TICKET (
   ActiveSeat       TINYINT AS (IF(TicketStatus = 'cancelled', NULL, 1)) STORED,
   CONSTRAINT TICKET_PK PRIMARY KEY (TicketID),
   CONSTRAINT TICKET_Seat_On_Flight_UQ UNIQUE (FlightID, SeatID, ActiveSeat),    -- BR10
+  CONSTRAINT TICKET_Passenger_On_Flight_UQ UNIQUE (FlightID, PassengerID, ActiveSeat), -- BR18: one live seat per traveller per flight
   CONSTRAINT TICKET_RESERVATION_FK FOREIGN KEY (ReservationID)
     REFERENCES RESERVATION (ReservationID)
     ON DELETE CASCADE ON UPDATE CASCADE,          -- deleting a reservation deletes its tickets
+  CONSTRAINT TICKET_PASSENGER_FK FOREIGN KEY (PassengerID)
+    REFERENCES PASSENGER (PassengerID)
+    ON DELETE RESTRICT ON UPDATE CASCADE,         -- cannot delete a passenger who has tickets
   CONSTRAINT TICKET_FLIGHT_FK FOREIGN KEY (FlightID)
     REFERENCES FLIGHT (FlightID)
     ON DELETE RESTRICT ON UPDATE CASCADE,
