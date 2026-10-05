@@ -85,18 +85,24 @@ because MySQL does not allow CASCADE on columns that a CHECK uses (`FLIGHT_Route
   the same passenger from holding two live tickets on one flight (error 1062, demo Q18c).
   Like BR10, a cancelled ticket does not count.
 
-## ERD review: fix before the report (Patarawadee, with all three reviewing)
+## ERD review: done in `docs/erd/meow-airline-eer.drawio`
 
-From `docs/erd/eer-chen.webp` and `docs/erd/erd-crowsfoot.png`:
+The new EER ([`erd/meow-airline-eer.png`](erd/meow-airline-eer.png), editable source
+`erd/meow-airline-eer.drawio`) fixes everything found in the first drafts
+(`eer-chen.webp`, `erd-crowsfoot.png`, kept for history):
 
-1. **Add the second M:N** to the EER: a FARE_CONDITION entity (ConditionID, ConditionName, Description) and a **Has rule** diamond between FARE and FARE_CONDITION (M:N) with the attribute **Fee** on the relationship. Remove the `Rule` oval from FARE.
-2. **Add the TravelsOn relationship** (PASSENGER 1 : N TICKET, BR18). The SQL already has it.
-3. **PAYMENT.Status is underlined** in the Chen EER. Only `PaymentID` should be underlined (the key).
-4. **Typos:** `DepartmentTime` → `DepartureTime`. `MemberShipStatus` → `MembershipStatus` (match the proposal and the SQL).
-5. **FLIGHT shows FK ovals** (AircraftID, OriginCode, DestinationCode). In Chen notation the FKs are expressed by the relationships, so remove these ovals (other entities such as TICKET do not show FK ovals). They belong in the relational model (§4).
-6. **The crow's-foot sketch disagrees with the EER on staff.** It draws the "many" end at STAFF for Staff–Reservation and Staff–CheckIn, and links STAFF directly. The EER says one BookingStaff creates many Reservations, and one CheckInStaff processes many CheckIns. Make the sketch match the EER, or stop using it.
-7. **Specialisation participation.** The single line from STAFF to the `d` circle means *partial* (a staff member could be neither type). If every staff member must be one of the two, draw a double line (*total*). Either way, update BR14 to say which.
-8. Add `1` / `N` labels next to each diamond if Aj. Pree wants classic Chen cardinality labels. The diagram currently uses crow's-foot line ends.
+1. ✅ **Second M:N added:** FARE_CONDITION entity + **HasRule** (FARE M : N FARE_CONDITION) with **Fee** on the relationship. The `Rule` oval is gone from FARE.
+2. ✅ **TravelsOn added** (PASSENGER 1 : N TICKET, BR18), plus **Sells** (FARE 1 : N TICKET, the `TICKET.FareID` FK).
+3. ✅ **PAYMENT.Status** is no longer underlined. Only keys are underlined.
+4. ✅ **Typos fixed:** `DepartureTime`, `MembershipStatus`. `FlightNo` added.
+5. ✅ **FK ovals removed** from FLIGHT. FKs are shown by the relationships, and listed in the relational model (§4).
+6. ✅ **The crow's-foot sketch is outdated.** Use the new EER only.
+7. ✅ **Specialisation is total + disjoint** (double line from STAFF to `d`): every staff member has a StaffRole (`NOT NULL` in the SQL) and only one (BR14). Kawintida: update BR14's wording to say every staff member is one of the two.
+8. ✅ **`1` / `N` / `M` labels** on every relationship, and **double lines for total participation** wherever the SQL column is `NOT NULL` (e.g. every TICKET must belong to a RESERVATION).
+
+Changes made in the EER are outlined in orange so the team can see them. If the team edits the
+diagram, open the `.drawio` file in draw.io (File → Open), then File → Export as → PNG
+over `meow-airline-eer.png`.
 
 ## Business rules: where each one is enforced
 
@@ -131,7 +137,7 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 4. ~~Income per route~~ **Resolved in the SQL:** income = the fare price of each live ticket, grouped by the ticket's flight route (`queries.sql` Q3). Payments are used only for paid/unpaid status.
 5. **Subtype attributes.** What do BOOKINGSTAFF / CHECKINSTAFF store that STAFF does not? Without extra attributes the specialisation is hard to justify. Example: `Counter`, `Terminal`.
 6. **Baggage limits** per class (BR12): Economy 20 kg. `queries.sql` Q11 *assumes* Business 30 kg and FirstClass 40 kg. Confirm these.
-7. ~~Who is the traveller on each ticket?~~ **Resolved:** `TICKET.PassengerID` → PASSENGER (BR18). RESERVATION.PassengerID is the booker; each ticket names who flies. Add a **TravelsOn** relationship (PASSENGER 1:N TICKET) to the EER.
+7. ~~Who is the traveller on each ticket?~~ **Resolved:** `TICKET.PassengerID` → PASSENGER (BR18). RESERVATION.PassengerID is the booker; each ticket names who flies. Shown as **TravelsOn** (PASSENGER 1:N TICKET) in the EER.
 
 ## Functional dependencies + 3NF check: Patarawadee fills this in (Lecture 7)
 

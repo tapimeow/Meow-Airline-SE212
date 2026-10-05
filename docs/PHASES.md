@@ -38,7 +38,8 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 
 - [x] Second M:N decided: FARE ⇄ FARE_CONDITION via FARE_RULE (`docs/DATABASE.md`)
 - [ ] **All (Mon):** decide the remaining open questions in `docs/DATABASE.md`
-- [ ] **Patarawadee:** apply the fixes in `docs/DATABASE.md` → *ERD review* to the Draw.io file and re-export to `docs/erd/`
+- [x] Apply the ERD review fixes: new EER in `docs/erd/meow-airline-eer.drawio` + `.png`
+- [ ] **All:** review the new EER
 - [ ] **Patarawadee:** write the relational model: every table, PK, FK (report §4)
 - [ ] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md`
 - [ ] **Kawintida:** update the business rules list with the staff rules (report §2)

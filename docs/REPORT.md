@@ -12,7 +12,7 @@ Each section has one owner. The owner writes it. Everyone proofreads it on Tue 1
 |---|---|---|---|
 | 1 | Introduction / Background | **Kornnaphat** | Lab 7 §1.1–1.3 (business, problem, motivation) + objectives O1–O4 |
 | 2 | Business rules | **Kawintida** | Lab 7 §3 BR1–BR15 **plus** the new staff rules from the ERD (BookingStaff creates Reservation, CheckInStaff processes CheckIn) BR18 (each ticket names its traveller) and BR19 (fare conditions, the second M:N). See `docs/DATABASE.md` |
-| 3 | ER diagram | **All**. Patarawadee exports the final version | `docs/erd/`: the Chen EER, with the fixes listed in `docs/DATABASE.md` → *ERD review* |
+| 3 | ER diagram | **All**. Patarawadee exports the final version | `docs/erd/meow-airline-eer.png` (source: `meow-airline-eer.drawio`) |
 | 4 | Relational model | **Patarawadee** | Every table with PK (underlined) and FK, the FD list, and the 3NF check (Lecture 7) |
 | 5 | SQL: create database | **Patarawadee** | Top of `db/schema.sql` |
 | 6 | SQL: create tables | **Patarawadee** | `db/schema.sql` |
