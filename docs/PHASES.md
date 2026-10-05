@@ -1,95 +1,87 @@
-# Project phases — who does what, and when
+# Project phases: who does what, and when
 
-Sources: **Lab 6 Part B** (SE212 project proposal, section B5) and **Lab 7**
-(Database Design Proposal, section 5). Lecture-schedule details will be
-added when the team receives them. See *Open items* at the bottom.
+Sources: Lab 6 Part B (B5), Lab 7 §5, Lectures 7–10.
 
-> **Two week numbers.** Lab 6 counts **project weeks** (Week 4 = ERD, Week 9 = demo).
-> Lab 7 counts **course weeks** (Week 7 = EER, Week 15 = presentation).
-> The table below shows both. Mango is the final authority on due dates.
+> **Hard deadline: Thursday 15 October 2026. Presentation, plus slides, report
+> and source code on Mango** (Lecture 10). Today is Mon 5 Oct, so there are
+> **10 days**. The Lab 6 / Lab 7 week numbers are replaced by the dates below.
+> Confirm the date with Aj. Pree. The same slide also shows an old final-exam
+> date ("17 Oct 2021").
 
-| Phase | What | Lab 6 week | Lab 7 milestone | Owner | Reviewer |
-|---|---|---|---|---|---|
-| 0 | Setup + learn MySQL, practice Passenger CRUD | Weeks 1–2 | — | **All** | — |
-| 1 | Proposal + 3-minute pitch | Next class | M1 (Week 6) ✅ | **All** | — |
-| 2 | EER diagram + 3NF schema | Week 4 | M2 (Week 7), M3 (Week 9) | **All** (EER), **Patarawadee** leads 3NF | Kawintida, Kornnaphat |
-| 3 | Database built + sample data | Week 6 | M4 (Week 11) | **Patarawadee** | Kawintida |
-| 4 | Backend routes + SQL | Week 7 | — | **Kawintida** | Patarawadee |
-| 5 | Frontend pages + 3 reports, ≥10 queries | Week 8 | M5 (Week 13) | **Kornnaphat** (pages), **Kawintida + Kornnaphat** (queries) | Patarawadee |
-| 6 | Demo, Q&A, short report / slides | Week 9 | M6 (Week 15) | **All** | — |
+| Phase | What | Dates | Owner | Reviewer |
+|---|---|---|---|---|
+| 0 | Setup, learn MySQL, practice Passenger CRUD | Mon 5 – Tue 6 | **All** | — |
+| 1 | Proposal + pitch | done ✅ | **All** | — |
+| 2 | Fix ERD, relational model, FDs + 3NF | Mon 5 – Tue 6 | **Patarawadee** leads, all decide open questions | Kawintida, Kornnaphat |
+| 3 | `schema.sql` + `seed.sql` running in MySQL | Wed 7 – Thu 8 | **Patarawadee** | Kawintida |
+| 4 | Backend routes + controllers | Fri 9 – Mon 12 | **Kawintida** | Patarawadee |
+| 5a | `queries.sql` (report §7) | Fri 9 – Sun 11 | **Kawintida + Kornnaphat** | Patarawadee |
+| 5b | Frontend pages + 3 report pages | Sat 10 – Mon 12 | **Kornnaphat** | Patarawadee |
+| 6 | Report doc, slides, rehearsal, Mango upload | Tue 13 – Wed 14 | **All** (see `docs/REPORT.md`) | — |
+| — | **Presentation** | **Thu 15 Oct** | **All** | — |
 
-Each phase **owner** is responsible for finishing it on time. Others may help,
-but they ask the owner first (see `RULES.md`). The **reviewer** approves the
-owner's pull requests for that phase.
+If time runs out, follow the priority order in [`docs/REPORT.md`](REPORT.md#priority-order-if-time-runs-out).
+The database and SQL come first. The web app comes after.
 
 ---
 
-## Phase 0 — Setup and practice · All
+## Phase 0: Setup and practice · All · Mon 5 – Tue 6
 
-From the Lab 7 risk plan: *"build one small CRUD page (Passenger) as practice
-before the real pages start."*
+- [ ] Install MySQL + MySQL Workbench or DBeaver (Lecture 8 shows Workbench), plus Node.js
+- [ ] Clone the repo and run the Passenger CRUD (`README.md` → *Running locally*)
+- [ ] Kawintida + Kornnaphat: while Patarawadee works on Phase 2, do the Lab 8/9 SQL exercises (Pine Valley, `om`). They teach exactly the JOINs that Phase 5a needs
+- [ ] Kawintida + Kornnaphat: agree the URL list in `docs/ROUTES.md`
 
-- [ ] Each member installs Node.js, MySQL and DBeaver, then clones the repo
-- [ ] Each member runs the existing Passenger CRUD locally (`README.md` → *Running locally*)
-- [ ] Each member finishes a short Express + MySQL + EJS tutorial
-- [ ] Each member makes one small practice change on their own branch and opens a PR (to practise the workflow)
+## Phase 2: Relational model + 3NF · Patarawadee leads · Mon 5 – Tue 6
 
-Files: `routes/passengers.js`, `controllers/passengerController.js`, `views/passengers/`
+Lecture 7: functional dependencies come from **business rules**, not sample data.
 
-## Phase 1 — Proposal · All ✅
+- [ ] **All (Mon):** decide the open questions in `docs/DATABASE.md`, especially the **second M:N** (required by Lab 6)
+- [ ] **Patarawadee:** apply the fixes in `docs/DATABASE.md` → *ERD review* to the Draw.io file and re-export to `docs/erd/`
+- [ ] **Patarawadee:** write the relational model: every table, PK, FK (report §4)
+- [ ] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md`
+- [ ] **Kawintida:** update the business rules list with the staff rules (report §2)
+- [ ] **Kawintida + Kornnaphat:** review the 3NF table
 
-- [x] Lab 6 Part B printed, signed by Aj. Pree, pitched (4 slides)
-- [x] Lab 7 proposal PDF uploaded to Mango by **every** member
+## Phase 3: Database built · Patarawadee · Wed 7 – Thu 8
 
-## Phase 2 — EER diagram + 3NF schema · All, led by Patarawadee
+- [ ] `db/schema.sql`: all tables, with every constraint from the checklist in `docs/REPORT.md` (PK, FK + ON DELETE/UPDATE, CHECK, DEFAULT)
+- [ ] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
+- [ ] Runs top to bottom on an empty database. Screenshot the result in Workbench / DBeaver
+- [ ] **Thu evening:** tell the team the schema is frozen. After this point, schema changes go through Patarawadee only
+- [ ] (Optional) shared Railway database, with credentials sent over chat
 
-- [ ] **All:** finish the Draw.io EER (Chen notation) with all 12 entities, the Staff specialisation, and cardinalities from BR1–BR15
-- [ ] **All:** resolve the open design questions in `docs/DATABASE.md` (especially the **second M:N relationship**, which Lab 6 requires)
-- [ ] **Patarawadee:** convert the EER to relational tables, list every PK/FK, and write down the 3NF check for each table in `docs/DATABASE.md`
-- [ ] **Kawintida + Kornnaphat:** review the 3NF table list
-- [ ] Export the EER as PNG to `docs/erd/` and submit to Mango
+## Phase 4: Backend · Kawintida · Fri 9 – Mon 12
 
-## Phase 3 — Database built · Patarawadee
+Order (stop wherever time runs out): flights/fares → **reservations + tickets (transaction)** → payments → reports → staff → check-in → baggage → airports/aircraft/seats admin.
 
-- [ ] `db/schema.sql`: all 14 `CREATE TABLE`s (12 entities + `BOOKINGSTAFF` / `CHECKINSTAFF`), each constraint commented with its BR number
-- [ ] `db/seed.sql`: realistic fake data (6 aircraft, real airport codes, fake passengers) with enough rows to test a full booking end to end
-- [ ] Verify everything in DBeaver, then screenshot the tables for the deliverable
-- [ ] Set up the shared Railway MySQL and send the credentials to the team **over chat, never in GitHub**
-- [ ] Update `config/db.js` comments / `.env.example` if any connection setting changes
+- [ ] Booking, change, and cancel run in **one transaction** (O1)
+- [ ] Each rule marked "backend" in `docs/DATABASE.md` is enforced
+- [ ] Test each route in the browser and check the rows in the DB
 
-## Phase 4 — Backend routes · Kawintida
+## Phase 5a: SQL queries · Kawintida + Kornnaphat · Fri 9 – Sun 11
 
-Files: `routes/*.js`, `controllers/*Controller.js`, `server.js`
+- [ ] Write the queries listed in `db/queries.sql` (each person owns their half)
+- [ ] Run each one against `seed.sql` and take a screenshot for report §7
+- [ ] The UPDATE/DELETE examples must show the constraints working (Lecture 8.2)
 
-- [ ] Agree the URL list in `docs/ROUTES.md` with Kornnaphat **before** coding
-- [ ] Order: airports → aircraft/seats → flights/fares → reservations/tickets → payments → staff → check-in → baggage → reports
-- [ ] Booking, change, and cancel run inside **one transaction** (O1: zero double bookings)
-- [ ] Every business rule marked "backend" in `docs/DATABASE.md` is enforced in a controller
-- [ ] Test each route in the browser and check the rows in DBeaver
-- [ ] **Checkpoint (end of Lab 6 Week 7):** if behind schedule, make Baggage and Check-in view-only (risk plan)
+## Phase 5b: Frontend · Kornnaphat · Sat 10 – Mon 12
 
-## Phase 5 — Frontend + reports · Kornnaphat (+ Kawintida for queries)
+- [ ] The 3 report pages first (they are the demo), then booking, payment, check-in
+- [ ] One `views/<entity>/` folder per feature. Each folder's README lists its pages
+- [ ] Nav links in `views/partials/header.ejs`. Test at phone width
 
-Files: `views/**`, `public/css/style.css`, `public/js/main.js`, `db/queries.sql`
+## Phase 6: Report, slides, submission · All · Tue 13 – Wed 14
 
-- [ ] **Kornnaphat:** one `views/<entity>/` folder per feature (each folder has a README listing its pages)
-- [ ] **Kornnaphat:** add nav links in `views/partials/header.ejs`
-- [ ] **Kornnaphat:** build the 3 report pages (`views/reports/`) with real MySQL data
-- [ ] **Kornnaphat:** test every page at phone width
-- [ ] **Kawintida:** queries Q1–Q5 in `db/queries.sql`
-- [ ] **Kornnaphat:** queries Q6–Q10 in `db/queries.sql`
-- [ ] Both: put the query results (screenshots) into the M5 deliverable
-
-## Phase 6 — Demo and presentation · All
-
-- [ ] Deploy to Railway; the demo runs from the URL, not a laptop
-- [ ] Rehearse the live script: **book a family of 3 → pay → check in → show the 3 reports**
-- [ ] Slides + short report; every member speaks
-- [ ] Every member uploads the deliverables to Mango
+- [ ] **Tue:** feature freeze. Assemble the report (`docs/REPORT.md` → section owners)
+- [ ] **Tue:** slides (each member owns their part)
+- [ ] **Wed:** full rehearsal with a timer, including the live demo: book a family of 3 → pay → check in → 3 reports
+- [ ] **Wed:** every member uploads the slides, report, and source code (zip of `main`) to Mango
+- [ ] **Thu 15:** present
 
 ---
 
 ## Open items
 
-- [ ] **Lecture schedule:** waiting for the lecture material. Add any lecture requirements here and adjust the weeks above.
-- [ ] Confirm whether the Lab 6 "project weeks" and Lab 7 "course weeks" refer to the same deadlines (ask Aj. Pree / TA).
+- [ ] Confirm the 15 Oct presentation date and the final report format with Aj. Pree
+- [ ] Decide the second M:N relationship (Mon 5, all three members)

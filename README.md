@@ -6,7 +6,12 @@ chats with one MySQL database, so seats can't be double-booked and the
 manager gets reports in seconds.
 
 **Team:** Patarawadee Kunna (682115034) · Kawintida Kantong (682115002) · Kornnaphat Uttama (682115001)
-**Stack:** MySQL · Node.js + Express · EJS/HTML/CSS/JS · Railway · GitHub · DBeaver
+**Stack:** MySQL · Node.js + Express · EJS/HTML/CSS/JS · Railway · GitHub · DBeaver / Workbench
+
+> 📅 **Presentation + Mango submission (slides, report, source code): Thursday 15 October 2026.**
+> The day-by-day plan is in [`docs/PHASES.md`](docs/PHASES.md).
+
+![Architecture: Browser ⇄ Express ⇄ MySQL](docs/architecture.png)
 
 ## Status: skeleton
 
@@ -21,7 +26,9 @@ Every other file contains only comments that say **who** builds it,
 | [`RULES.md`](RULES.md) | Team rules: branches, PRs, who may edit what, coding rules |
 | [`docs/PHASES.md`](docs/PHASES.md) | Phases 0–6, owner and reviewer for each, checklists |
 | [`docs/TEAM.md`](docs/TEAM.md) | Who owns which files and how to find your TODOs |
-| [`docs/DATABASE.md`](docs/DATABASE.md) | Entities, BR1–BR15 and where each is enforced, open design questions |
+| [`docs/DATABASE.md`](docs/DATABASE.md) | Tables, relationships, ERD review fixes, where each BR is enforced, open questions, 3NF table |
+| [`docs/REPORT.md`](docs/REPORT.md) | Final report sections and owners, lecture checklists, slides, priority order |
+| [`docs/erd/`](docs/erd/) | The EER diagrams |
 | [`docs/ROUTES.md`](docs/ROUTES.md) | URL ↔ controller ↔ page contract for the backend and frontend |
 
 ## Goals (from the proposal)
@@ -40,9 +47,9 @@ Reports the system must answer:
 
 ```
 config/db.js            MySQL pool, the only place credentials are read      [Patarawadee]
-db/schema.sql           CREATE TABLEs (14 tables)                            [Patarawadee, Phase 3]
+db/schema.sql           CREATE TABLEs (14 tables + 2nd M:N bridge)           [Patarawadee, Phase 3]
 db/seed.sql             Fake sample data                                     [Patarawadee, Phase 3]
-db/queries.sql          ≥10 queries for milestone M5                         [Kawintida + Kornnaphat, Phase 5]
+db/queries.sql          18 queries for report section 7                      [Kawintida + Kornnaphat, Phase 5a]
 routes/                 One file per entity: URL list                        [Kawintida, Phase 4]
 controllers/            One file per entity: SQL + business rules            [Kawintida, Phase 4]
 views/                  One folder per entity (each has a README of pages)   [Kornnaphat, Phase 5]

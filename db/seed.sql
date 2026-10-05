@@ -20,6 +20,10 @@ INSERT INTO AIRPORT (AirportCode, City, Country) VALUES
   ('CNX', 'Chiang Mai','Thailand'),
   ('HKT', 'Phuket',    'Thailand');
 
--- TODO [Phase 3 · Database · Patarawadee]: add seed rows for AIRCRAFT, FLIGHT, SEAT,
--- RESERVATION, FARE, TICKET, BAGGAGE, PAYMENT, CHECKIN, STAFF and its two
--- subtype tables once those CREATE TABLE statements exist in schema.sql.
+-- TODO [Phase 3 · Database · Patarawadee] (Wed 7 – Thu 8 Oct): INSERT rows for
+-- EVERY table (report section 7 requires it), in the same parent-first order as
+-- schema.sql: AIRCRAFT (6 of them), STAFF + BOOKINGSTAFF + CHECKINSTAFF, SEAT,
+-- FLIGHT, FARE, RESERVATION, TICKET, PAYMENT, BAGGAGE, CHECKIN.
+-- Include rows the queries in db/queries.sql need, e.g. an unpaid reservation
+-- (Q2), a ticket not checked in (Q10), an aircraft with no flights (Q12), and
+-- a family of 3 on one reservation for the demo.

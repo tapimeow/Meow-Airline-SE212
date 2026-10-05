@@ -2,7 +2,7 @@
 //
 // Owner:    [Phase 4 · Backend · Kawintida] for the routes and controller
 //           [Phase 5 · Frontend · Kornnaphat] for the report pages
-// SQL:      db/queries.sql (Milestone M5 — Kawintida + Kornnaphat)
+// SQL:      db/queries.sql Q1–Q3 (Kawintida), report section 7
 //
 // NOTHING IS IMPLEMENTED YET.
 //
