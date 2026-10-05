@@ -1,6 +1,6 @@
 -- db/seed.sql
 --
--- [Mona - Database] Sample rows so Junior and Namtan can build against real
+-- [Phase 3 · Database · Patarawadee] Sample rows so Kawintida and Kornnaphat can build against real
 -- data instead of an empty database. Run this after schema.sql:
 --
 --   mysql -u root -p meow_airline < db/seed.sql
@@ -20,6 +20,6 @@ INSERT INTO AIRPORT (AirportCode, City, Country) VALUES
   ('CNX', 'Chiang Mai','Thailand'),
   ('HKT', 'Phuket',    'Thailand');
 
--- TODO [Mona - Database]: add seed rows for AIRCRAFT, FLIGHT, SEAT,
+-- TODO [Phase 3 · Database · Patarawadee]: add seed rows for AIRCRAFT, FLIGHT, SEAT,
 -- RESERVATION, FARE, TICKET, BAGGAGE, PAYMENT, CHECKIN, STAFF and its two
 -- subtype tables once those CREATE TABLE statements exist in schema.sql.

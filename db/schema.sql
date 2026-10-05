@@ -1,8 +1,8 @@
 -- db/schema.sql
 --
--- [Mona - Database] This is the M3/M4 deliverable turned into real SQL.
+-- [Phase 3 · Database · Patarawadee] This is the M3/M4 deliverable turned into real SQL.
 -- PASSENGER and AIRPORT are filled in below as a worked example - copy the
--- same pattern for the rest of the 15 tables from the ERD. Keep this file
+-- same pattern for the rest of the 14 tables (12 entities + 2 staff subtypes) from the ERD. Keep this file
 -- as the single source of truth for the schema; run it top to bottom on a
 -- fresh database with:
 --
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS AIRPORT (
 );
 
 -- ---------------------------------------------------------------------
--- TODO [Mona - Database]: add the remaining tables from the ERD, same
+-- TODO [Phase 3 · Database · Patarawadee]: add the remaining tables from the ERD, same
 -- pattern as above - PRIMARY KEY on the underlined attribute, FOREIGN KEY
 -- for every FK column, and a CHECK/ENUM wherever a business rule
 -- constrains the values a column can hold.
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS AIRPORT (
 --   DestinationCode CHAR(3) NOT NULL,
 --   DepartureTime   DATETIME NOT NULL,
 --   ArrivalTime     DATETIME NOT NULL,
---   Status          ENUM('Scheduled','Departed','Arrived','Cancelled') NOT NULL DEFAULT 'Scheduled',
+--   Status          ENUM('OnTime','Delayed','Canceled') NOT NULL DEFAULT 'OnTime',
 --   FOREIGN KEY (AircraftID) REFERENCES AIRCRAFT(AircraftID),
 --   FOREIGN KEY (OriginCode) REFERENCES AIRPORT(AirportCode),
 --   FOREIGN KEY (DestinationCode) REFERENCES AIRPORT(AirportCode),
