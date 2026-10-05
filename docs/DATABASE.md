@@ -144,21 +144,48 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 Write one FD per business rule: *determinant → dependents*. Then check each table:
 **1NF** (atomic values, no repeating groups) → **2NF** (no partial dependency on part of a composite key) → **3NF** (no transitive dependency, non-key → non-key).
 
+> **Draft from `db/schema.sql`. Patarawadee to check, then all three review.** ✓ = passes,
+> ⚠ = passes only because of a team decision listed under *Decisions the 3NF check depends on*,
+> ✗ = a known exception with its justification.
+> Candidate keys are listed because a determinant that is a candidate key never breaks 3NF.
+
 | Table | FDs | 1NF | 2NF | 3NF | Notes |
 |---|---|---|---|---|---|
-| PASSENGER | | | | | |
-| AIRPORT | | | | | |
-| AIRCRAFT | | | | | |
-| FLIGHT | | | | | |
-| SEAT | | | | | |
-| FARE | | | | | |
-| RESERVATION | | | | | |
-| TICKET | | | | | |
-| PAYMENT | | | | | |
-| BAGGAGE | | | | | |
-| CHECKIN | | | | | |
-| STAFF | | | | | |
-| BOOKINGSTAFF | | | | | |
-| CHECKINSTAFF | | | | | |
-| FARE_CONDITION | | | | | |
-| FARE_RULE | | | | | |
+| PASSENGER | PassengerID → Name, PassportNo, PhoneNo, Email, MembershipStatus<br>PassportNo → PassengerID | ✓ | ✓ | ✓ | Candidate keys: PassengerID, PassportNo (`UNIQUE`). Single-column keys, so no partial dependency |
+| AIRPORT | AirportCode → City, Country | ✓ | ✓ | ⚠ | City → Country is **not** taken as an FD: city names are not unique worldwide (decision A) |
+| AIRCRAFT | AircraftID → AircraftModel, TotalSeat | ✓ | ✓ | ⚠ | AircraftModel → TotalSeat is **not** taken as an FD: two aircraft of one model can have different cabin layouts (decision B) |
+| FLIGHT | FlightID → FlightNo, AircraftID, OriginCode, DestinationCode, DepartureTime, ArrivalTime, Status<br>(FlightNo, DepartureTime) → FlightID | ✓ | ⚠ | ⚠ | Candidate keys: FlightID, (FlightNo, DepartureTime). Holds only if FlightNo does **not** fix the route (decision C). In `seed.sql` it does: MW101 is always BKK → CNX |
+| SEAT | SeatID → AircraftID, SeatNo, SeatClass<br>(AircraftID, SeatNo) → SeatID | ✓ | ✓ | ✓ | Candidate keys: SeatID, (AircraftID, SeatNo). SeatClass depends on the whole (AircraftID, SeatNo), not on SeatNo alone |
+| FARE | FareID → FlightID, Class, Price | ✓ | ✓ | ✓ | BR15. The old multi-valued `Rule` column broke 1NF; it moved to FARE_RULE |
+| RESERVATION | ReservationID → PassengerID, BookingStaffID, BookingDate, ReservationStatus | ✓ | ✓ | ✓ | BR5, BR16. PassengerID is the booker; travellers are on TICKET |
+| TICKET | TicketID → ReservationID, PassengerID, FlightID, SeatID, FareID, TicketIssueDate, TicketStatus<br>**FareID → FlightID** (BR15)<br>**TicketStatus → ActiveSeat** | ✓ | ✓ | ✗ | Two transitive FDs, both kept on purpose. **ActiveSeat** is a generated column: MySQL computes it from TicketStatus, so it can never disagree (no update anomaly). **FlightID** is kept because the BR10 and BR18 `UNIQUE` constraints need it in this table. The risk is a ticket whose fare belongs to another flight; today only the backend stops that (decision D) |
+| PAYMENT | PaymentID → ReservationID, TotalAmount, PaymentMethod, TimeStamp, Status | ✓ | ✓ | ✓ | TotalAmount is stored, not derived: it is what was actually paid |
+| BAGGAGE | BaggageID → TicketID, Weight, BaggageStatus | ✓ | ✓ | ✓ | BR9 |
+| CHECKIN | CheckInID → TicketID, CheckInStaffID, CheckInTime, Gate, BoardingPassNo<br>TicketID → CheckInID<br>BoardingPassNo → CheckInID | ✓ | ✓ | ✓ | Candidate keys: CheckInID, TicketID, BoardingPassNo, so every determinant is a key. Gate really belongs to the flight (decision E) |
+| STAFF | StaffID → StaffName, StaffRole | ✓ | ✓ | ✓ | (StaffID, StaffRole) is `UNIQUE` only as the target of the subtype FKs (BR14) |
+| BOOKINGSTAFF | StaffID → StaffRole | ✓ | ✓ | ✓ | StaffRole is always 'BookingStaff' (CHECK). Subtype attributes are still open question 5 |
+| CHECKINSTAFF | StaffID → StaffRole | ✓ | ✓ | ✓ | StaffRole is always 'CheckInStaff' (CHECK). Subtype attributes are still open question 5 |
+| FARE_CONDITION | ConditionID → ConditionName, Description<br>ConditionName → ConditionID | ✓ | ✓ | ✓ | Candidate keys: ConditionID, ConditionName (`UNIQUE`) |
+| FARE_RULE | (FareID, ConditionID) → Fee | ✓ | ✓ | ✓ | BR19. The only composite PK. Fee needs **both** parts (a change fee differs per fare), so there is no partial dependency |
+
+### Decisions the 3NF check depends on
+
+Lecture 7: FDs come from business rules, not sample data. These are the places where the
+sample data *looks* like an FD. The team decides whether each one is a business rule.
+
+- **A. City → Country.** Draft says no, since city names repeat across countries. If the team
+  says yes, AIRPORT needs a separate CITY table to reach 3NF.
+- **B. AircraftModel → TotalSeat.** Draft says no, since airlines fit the same model with
+  different layouts. If yes, split out an AIRCRAFT_MODEL table.
+- **C. FlightNo → OriginCode, DestinationCode.** At real airlines a flight number is a fixed
+  route, and `seed.sql` follows that. If the team agrees, FLIGHT breaks 2NF (part of the
+  candidate key (FlightNo, DepartureTime) decides the route). The fix is a ROUTE table
+  (FlightNo PK, OriginCode, DestinationCode) with FLIGHT.FlightNo → ROUTE. If the team says
+  no, write it as a rule: "a flight number may be reused on a different route".
+- **D. TICKET.FareID → FlightID.** Recommended fix, using the same trick as the staff subtypes:
+  add `UNIQUE (FareID, FlightID)` to FARE, and change TICKET's fare FK to
+  `FOREIGN KEY (FareID, FlightID) REFERENCES FARE (FareID, FlightID)`. MySQL then rejects a
+  fare from another flight, so the redundancy stays safe. The table stays ✗ in theory, but the
+  report can say the anomaly is blocked by the database.
+- **E. CHECKIN.Gate.** Not a 3NF violation in this table (TicketID is a candidate key), but every
+  passenger on one flight repeats the same gate. Moving Gate to FLIGHT removes the repetition.
