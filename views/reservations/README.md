@@ -9,7 +9,7 @@ Copy the shape of `views/passengers/`, and include `partials/header` and
 `partials/footer`.
 
 Pages to build:
-- list.ejs, detail.ejs, form.ejs (choose passenger, flight, seat from FREE seats only), cancel confirm.
+- list.ejs, detail.ejs, form.ejs (choose the booker, the flight, then one traveller + one FREE seat per ticket), cancel confirm.
 - Goal O2: one booking in under 2 minutes — keep the form to one page.
 
 Rules:
