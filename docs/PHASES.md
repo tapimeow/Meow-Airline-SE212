@@ -37,7 +37,7 @@ The database and SQL come first. The web app comes after.
 Lecture 7: functional dependencies come from **business rules**, not sample data.
 
 - [x] Second M:N decided: FARE ⇄ FARE_CONDITION via FARE_RULE (`docs/DATABASE.md`)
-- [ ] **All (Mon):** decide the remaining open questions in `docs/DATABASE.md`
+- [x] **All (Mon):** decide the remaining open questions in `docs/DATABASE.md` (Tue 6 Oct: A no, C yes → ROUTE table, Q5 SalesOffice / CounterNo, Q6 20/30/40 kg, B no, E Gate → FLIGHT)
 - [x] Apply the ERD review fixes: new EER in `docs/erd/meow-airline-eer.drawio` + `.png`
 - [ ] **All:** review the new EER
 - [x] **Patarawadee:** write the relational model: every table, PK, FK (report §4) → `docs/RELATIONAL_MODEL.md`

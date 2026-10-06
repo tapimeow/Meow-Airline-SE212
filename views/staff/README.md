@@ -9,7 +9,7 @@ Copy the shape of `views/passengers/`, and include `partials/header` and
 `partials/footer`.
 
 Pages to build:
-- list.ejs, form.ejs (role is a radio button — only one can be picked).
+- list.ejs, form.ejs (role is a radio button — only one can be picked; show a Sales office field for BookingStaff or a Counter no. field for CheckInStaff).
 
 Rules:
 - Pages only show data the controller passes in. No SQL in `.ejs`.
