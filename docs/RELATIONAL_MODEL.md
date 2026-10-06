@@ -32,7 +32,7 @@
 **ROUTE** (<u>FlightNo</u>, *OriginCode*, *DestinationCode*)
 - OriginCode → AIRPORT · DestinationCode → AIRPORT
 
-**FLIGHT** (<u>FlightID</u>, *FlightNo*, *AircraftID*, DepartureTime, ArrivalTime, Status)
+**FLIGHT** (<u>FlightID</u>, *FlightNo*, *AircraftID*, DepartureTime, ArrivalTime, Status, Gate)
 - FlightNo → ROUTE · AircraftID → AIRCRAFT
 - UQ: (FlightNo, DepartureTime)
 
@@ -61,7 +61,7 @@
 **BAGGAGE** (<u>BaggageID</u>, *TicketID*, Weight, BaggageStatus)
 - TicketID → TICKET
 
-**CHECKIN** (<u>CheckInID</u>, *TicketID*, *CheckInStaffID*, CheckInTime, Gate, BoardingPassNo)
+**CHECKIN** (<u>CheckInID</u>, *TicketID*, *CheckInStaffID*, CheckInTime, BoardingPassNo)
 - TicketID → TICKET · CheckInStaffID → CHECKINSTAFF (nullable)
 - UQ: TicketID (1:1 with TICKET) · BoardingPassNo
 

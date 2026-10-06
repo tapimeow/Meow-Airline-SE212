@@ -97,19 +97,19 @@ INSERT INTO ROUTE (FlightNo, OriginCode, DestinationCode) VALUES
   ('MW501', 'BKK', 'VTE');
 
 -- FLIGHT: dated departures of the routes above ---------------------------
-INSERT INTO FLIGHT (FlightNo, AircraftID, DepartureTime, ArrivalTime, Status) VALUES
+INSERT INTO FLIGHT (FlightNo, AircraftID, DepartureTime, ArrivalTime, Status, Gate) VALUES
   -- September 2026 (already flown)
-  ('MW101', 1, '2026-09-10 08:00', '2026-09-10 09:15', 'OnTime'),   -- 1
-  ('MW102', 1, '2026-09-10 10:30', '2026-09-10 11:45', 'OnTime'),   -- 2
-  ('MW201', 3, '2026-09-15 09:00', '2026-09-15 10:25', 'Delayed'),  -- 3
-  ('MW301', 4, '2026-09-20 13:00', '2026-09-20 16:20', 'OnTime'),   -- 4
-  ('MW401', 2, '2026-09-25 15:00', '2026-09-25 16:00', 'OnTime'),   -- 5
+  ('MW101', 1, '2026-09-10 08:00', '2026-09-10 09:15', 'OnTime', 'A1'),   -- 1
+  ('MW102', 1, '2026-09-10 10:30', '2026-09-10 11:45', 'OnTime', 'B2'),   -- 2
+  ('MW201', 3, '2026-09-15 09:00', '2026-09-15 10:25', 'Delayed', 'A3'),  -- 3
+  ('MW301', 4, '2026-09-20 13:00', '2026-09-20 16:20', 'OnTime', 'C1'),   -- 4
+  ('MW401', 2, '2026-09-25 15:00', '2026-09-25 16:00', 'OnTime', 'D2'),   -- 5
   -- October 2026 (upcoming)
-  ('MW101', 1, '2026-10-20 08:00', '2026-10-20 09:15', 'OnTime'),   -- 6  <- Q1 example
-  ('MW102', 1, '2026-10-20 10:30', '2026-10-20 11:45', 'OnTime'),   -- 7
-  ('MW201', 3, '2026-10-21 09:00', '2026-10-21 10:25', 'OnTime'),   -- 8
-  ('MW501', 5, '2026-10-22 11:00', '2026-10-22 12:10', 'OnTime'),   -- 9
-  ('MW301', 4, '2026-10-25 13:00', '2026-10-25 16:20', 'OnTime');   -- 10
+  ('MW101', 1, '2026-10-20 08:00', '2026-10-20 09:15', 'OnTime', 'A2'),   -- 6  <- Q1 example
+  ('MW102', 1, '2026-10-20 10:30', '2026-10-20 11:45', 'OnTime', 'B1'),   -- 7
+  ('MW201', 3, '2026-10-21 09:00', '2026-10-21 10:25', 'OnTime', 'A4'),   -- 8
+  ('MW501', 5, '2026-10-22 11:00', '2026-10-22 12:10', 'OnTime', 'C2'),   -- 9
+  ('MW301', 4, '2026-10-25 13:00', '2026-10-25 16:20', 'OnTime', 'C3');   -- 10
 
 -- FARE: FareID = 2 * FlightID - 1 (Economy) and 2 * FlightID (Business) -------
 INSERT INTO FARE (FlightID, Class, Price) VALUES
@@ -205,8 +205,8 @@ INSERT INTO BAGGAGE (TicketID, Weight, BaggageStatus) VALUES
   (4, 19.50, 'Arrived');
 
 -- CHECKIN (one per ticket; only September tickets so far) ---------------
-INSERT INTO CHECKIN (TicketID, CheckInStaffID, CheckInTime, Gate, BoardingPassNo) VALUES
-  (1, 3, '2026-09-10 06:45', 'A1', 'BP260910-001'),
-  (2, 3, '2026-09-10 09:05', 'B2', 'BP260910-002'),
-  (3, 4, '2026-09-15 07:30', 'A3', 'BP260915-001'),
-  (4, 4, '2026-09-20 11:10', 'C1', 'BP260920-001');
+INSERT INTO CHECKIN (TicketID, CheckInStaffID, CheckInTime, BoardingPassNo) VALUES
+  (1, 3, '2026-09-10 06:45', 'BP260910-001'),
+  (2, 3, '2026-09-10 09:05', 'BP260910-002'),
+  (3, 4, '2026-09-15 07:30', 'BP260915-001'),
+  (4, 4, '2026-09-20 11:10', 'BP260920-001');

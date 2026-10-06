@@ -44,7 +44,7 @@ empty. Only 7 columns are nullable (plus the generated ActiveSeat, which is `NUL
 | FARE_CONDITION.Description | The name is enough |
 | RESERVATION.BookingStaffID | Booked online, or the staff member has left (partial participation in **Created**) |
 | CHECKIN.CheckInStaffID | Self check-in (partial participation in **Processes**) |
-| CHECKIN.Gate | Not assigned yet |
+| FLIGHT.Gate | Not assigned yet (the airport sets it close to departure) |
 | TICKET.TicketIssueDate | Empty until the ticket is issued after payment (BR8) |
 
 Every foreign key for a **total participation** in the EER is `NOT NULL`. For example, a ROUTE
