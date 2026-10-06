@@ -13,9 +13,9 @@ Each section has one owner. The owner writes it. Everyone proofreads it on Tue 1
 | 1 | Introduction / Background | **Kornnaphat** | Lab 7 §1.1–1.3 (business, problem, motivation) + objectives O1–O4 |
 | 2 | Business rules | **Kawintida** | Lab 7 §3 BR1–BR15 **plus** the new staff rules from the ERD (BookingStaff creates Reservation, CheckInStaff processes CheckIn) BR18 (each ticket names its traveller) and BR19 (fare conditions, the second M:N). See `docs/DATABASE.md` |
 | 3 | ER diagram | **All**. Patarawadee exports the final version | `docs/erd/meow-airline-eer.png` (source: `meow-airline-eer.drawio`) |
-| 4 | Relational model | **Patarawadee** | Every table with PK (underlined) and FK, the FD list, and the 3NF check (Lecture 7) |
+| 4 | Relational model | **Patarawadee** | Every table with PK (underlined) and FK, the FD list, and the 3NF check (Lecture 7). Drafts: `docs/RELATIONAL_MODEL.md` + `docs/DATABASE.md` |
 | 5 | SQL: create database | **Patarawadee** | Top of `db/schema.sql` |
-| 6 | SQL: create tables | **Patarawadee** | `db/schema.sql` |
+| 6 | SQL: create tables | **Patarawadee** | `db/schema.sql`, explained step by step in `docs/TABLE_CREATION.md` |
 | 7 | SQL: queries | **Kawintida + Kornnaphat** | `db/queries.sql` + a screenshot of each result |
 | 8 | RESTful CRUD API (Node.js + Express + MySQL) | **Kawintida** (API), **Kornnaphat** (pages) | Lecture 8 says *"if we have time"*. See the priority order below |
 
@@ -30,7 +30,7 @@ Each section has one owner. The owner writes it. Everyone proofreads it on Tue 1
 - [x] `NOT NULL` / `UNIQUE` where the BRs require them (PassportNo, CHECKIN.TicketID)
 - [x] `AUTO_INCREMENT` surrogate keys
 - [x] Tables created **parents first**. Any `DROP TABLE` at the top runs **children first**
-- [ ] Table-creation steps from Lecture 8: data types → nullable → unique → PK/FK → defaults → domain checks
+- [x] Table-creation steps from Lecture 8: data types → nullable → unique → PK/FK → defaults → domain checks → `docs/TABLE_CREATION.md`
 
 **Section 7, `db/queries.sql`** (Lecture 8.2 + 9 + 10) · Kawintida + Kornnaphat
 - [x] `INSERT` sample data for **every** table (lives in `db/seed.sql`, owned by Patarawadee)

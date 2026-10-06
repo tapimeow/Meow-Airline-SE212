@@ -29,6 +29,7 @@ Every other app file contains only comments that say **who** builds it,
 | [`docs/TEAM.md`](docs/TEAM.md) | Who owns which files and how to find your TODOs |
 | [`docs/DATABASE.md`](docs/DATABASE.md) | Tables, relationships, ERD review fixes, where each BR is enforced, open questions, 3NF table |
 | [`docs/RELATIONAL_MODEL.md`](docs/RELATIONAL_MODEL.md) | Relational model for report §4: every table, PK, FK and FK action, and how the EER maps to tables |
+| [`docs/TABLE_CREATION.md`](docs/TABLE_CREATION.md) | Report §5–6: how `schema.sql` was built, step by step (types, NULL, UNIQUE, PK/FK, defaults, CHECKs) |
 | [`docs/REPORT.md`](docs/REPORT.md) | Final report sections and owners, lecture checklists, slides, priority order |
 | [`docs/erd/`](docs/erd/) | The EER diagram: `meow-airline-eer.png`, editable `meow-airline-eer.drawio` |
 | [`docs/ROUTES.md`](docs/ROUTES.md) | URL ↔ controller ↔ page contract for the backend and frontend |
