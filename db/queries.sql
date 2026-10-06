@@ -61,15 +61,18 @@ JOIN ROUTE       ro ON ro.FlightNo     = f.FlightNo
 WHERE p.PassengerID = 1
 ORDER BY f.DepartureTime;
 
--- Q2b: payment status of each booking (LEFT JOIN keeps unpaid bookings)
+-- Q2b: payment status of each booking (LEFT JOIN keeps unpaid bookings).
+--      A refund is its own PAYMENT row, so it is subtracted (same as Q13).
 SELECT r.ReservationID, r.ReservationStatus,
        COUNT(pay.PaymentID)            AS payments,
-       COALESCE(SUM(pay.TotalAmount), 0) AS amount_paid,
-       CASE WHEN COUNT(pay.PaymentID) = 0 THEN 'NOT PAID' ELSE 'Paid' END AS payment_status
+       COALESCE(SUM(CASE WHEN pay.Status = 'Paid' THEN pay.TotalAmount
+                         ELSE -pay.TotalAmount END), 0) AS amount_paid,
+       CASE WHEN COUNT(pay.PaymentID) = 0          THEN 'NOT PAID'
+            WHEN SUM(pay.Status = 'Refunded') > 0  THEN 'Refunded'
+            ELSE 'Paid' END                       AS payment_status
 FROM RESERVATION r
 LEFT JOIN PAYMENT pay
   ON pay.ReservationID = r.ReservationID
- AND pay.Status = 'Paid'
 WHERE r.PassengerID = 1
 GROUP BY r.ReservationID, r.ReservationStatus
 ORDER BY r.ReservationID;
@@ -115,11 +118,13 @@ LIMIT 1;
 -- =====================================================================
 
 -- Q4 [Kawintida] Flights departing in October 2026, earliest first (BETWEEN, ORDER BY)
+--    The end is written to the second: '23:59' alone would mean 23:59:00 and
+--    miss a flight at 23:59:30. (DATETIME here has no fractions of a second.)
 --    The route comes from ROUTE, joined on the flight number.
 SELECT f.FlightNo, ro.OriginCode, ro.DestinationCode, f.DepartureTime, f.Status
 FROM FLIGHT f
 JOIN ROUTE ro ON ro.FlightNo = f.FlightNo
-WHERE f.DepartureTime BETWEEN '2026-10-01 00:00' AND '2026-10-31 23:59'
+WHERE f.DepartureTime BETWEEN '2026-10-01 00:00:00' AND '2026-10-31 23:59:59'
 ORDER BY f.DepartureTime;
 
 -- Q5 [Kawintida] LIKE and IS NULL
@@ -133,11 +138,13 @@ SELECT PassengerID, Name, PhoneNo
 FROM PASSENGER
 WHERE Email IS NULL;
 
--- Q6 [Kawintida] Passengers per membership level, only levels with 2 or more (GROUP BY + HAVING)
+-- Q6 [Kawintida] Passengers per membership level, only levels with 3 or more (GROUP BY + HAVING)
+--    With the sample data Normal (4) is kept and Gold (2) and Silver (2) are
+--    dropped, so the screenshot shows HAVING removing groups.
 SELECT MembershipStatus, COUNT(*) AS passengers
 FROM PASSENGER
 GROUP BY MembershipStatus
-HAVING COUNT(*) >= 2
+HAVING COUNT(*) >= 3
 ORDER BY passengers DESC;
 
 -- =====================================================================
