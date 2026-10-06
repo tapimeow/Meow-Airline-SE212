@@ -1,18 +1,3 @@
-// controllers/paymentController.js
-//
-// Owner:    [Phase 4 · Backend · Kawintida]
-// Table(s): PAYMENT
-// Business rules: BR8
-//
-// NOTHING IS IMPLEMENTED YET. One exported function per route in
-// routes/payments.js. Follow controllers/passengerController.js:
-//   - import the shared pool from config/db.js (never open your own connection)
-//   - use pool.execute(sql, [values]) with ? placeholders — no string concatenation
-//   - render a view from views/payments/ or redirect
-//
-// What this controller must enforce:
-//   - Records amount / method / status only — NO real bank or card gateway (out of scope).
-//   - After a Paid payment, the reservation can move Held -> Confirmed and tickets can be issued (BR8).
-//
-// TODO [Phase 4 · Backend · Kawintida]: write the functions.
-// TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.
+const pool=require('../config/db');
+exports.create=async(req,res,next)=>{const {TotalAmount,PaymentMethod}=req.body;const amount=Number(TotalAmount);if(!(amount>0)||!['Cash','Card','BankTransfer','QR'].includes(PaymentMethod))return res.status(400).json({error:'A positive amount and valid payment method are required.'});try{const [r]=await pool.execute(`INSERT INTO PAYMENT (ReservationID,TotalAmount,PaymentMethod) SELECT ReservationID,?,? FROM RESERVATION WHERE ReservationID=? AND ReservationStatus<>'Cancelled'`,[amount,PaymentMethod,req.params.reservationId]);if(!r.affectedRows)return res.status(404).json({error:'Active reservation not found.'});res.status(201).json({PaymentID:r.insertId});}catch(e){next(e);}};
+exports.refund=async(req,res,next)=>{try{const conn=await pool.getConnection();try{await conn.beginTransaction();const [p]=await conn.execute(`SELECT * FROM PAYMENT WHERE PaymentID=? FOR UPDATE`,[req.params.id]);if(!p.length){await conn.rollback();return res.status(404).json({error:'Payment not found.'});}if(p[0].Status!=='Paid'){await conn.rollback();return res.status(409).json({error:'Only paid transactions can be refunded.'});}const [prior]=await conn.execute(`SELECT PaymentID FROM PAYMENT WHERE ReservationID=? AND Status='Refunded' AND TotalAmount=?`,[p[0].ReservationID,p[0].TotalAmount]);if(prior.length){await conn.rollback();return res.status(409).json({error:'A refund for this amount is already recorded.'});}const [r]=await conn.execute(`INSERT INTO PAYMENT (ReservationID,TotalAmount,PaymentMethod,Status) VALUES (?,?,?,'Refunded')`,[p[0].ReservationID,p[0].TotalAmount,p[0].PaymentMethod]);await conn.commit();res.status(201).json({RefundPaymentID:r.insertId});}catch(e){await conn.rollback();throw e;}finally{conn.release();}}catch(e){next(e);}};

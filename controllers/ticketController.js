@@ -1,18 +1,3 @@
-// controllers/ticketController.js
-//
-// Owner:    [Phase 4 · Backend · Kawintida]
-// Table(s): TICKET (bridge Reservation–Flight)
-// Business rules: BR6, BR8, BR10, BR13
-//
-// NOTHING IS IMPLEMENTED YET. One exported function per route in
-// routes/tickets.js. Follow controllers/passengerController.js:
-//   - import the shared pool from config/db.js (never open your own connection)
-//   - use pool.execute(sql, [values]) with ? placeholders — no string concatenation
-//   - render a view from views/tickets/ or redirect
-//
-// What this controller must enforce:
-//   - BR8: refuse to issue a ticket while its reservation has no Paid PAYMENT.
-//   - TicketStatus: issued / used / cancelled.
-//
-// TODO [Phase 4 · Backend · Kawintida]: write the functions.
-// TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.
+const pool=require('../config/db');
+exports.detail=async(req,res,next)=>{try{const [rows]=await pool.execute(`SELECT t.*,p.Name Traveller,f.FlightNo,f.DepartureTime,f.ArrivalTime,f.Gate,s.SeatNo,s.SeatClass,fa.Price FROM TICKET t JOIN PASSENGER p ON p.PassengerID=t.PassengerID JOIN FLIGHT f ON f.FlightID=t.FlightID JOIN SEAT s ON s.SeatID=t.SeatID JOIN FARE fa ON fa.FareID=t.FareID WHERE t.TicketID=?`,[req.params.id]);if(!rows.length)return res.status(404).json({error:'Ticket not found.'});const [baggage]=await pool.execute('SELECT * FROM BAGGAGE WHERE TicketID=?',[req.params.id]);const [checkin]=await pool.execute('SELECT * FROM CHECKIN WHERE TicketID=?',[req.params.id]);res.json({ticket:rows[0],baggage,checkin:checkin[0]||null});}catch(e){next(e);}};
+exports.issue=async(req,res,next)=>{try{const [r]=await pool.execute(`UPDATE TICKET t SET TicketStatus='issued',TicketIssueDate=CURRENT_DATE WHERE TicketID=? AND TicketStatus='booked' AND (SELECT COALESCE(SUM(CASE WHEN p.Status='Paid' THEN p.TotalAmount ELSE -p.TotalAmount END),0) FROM PAYMENT p WHERE p.ReservationID=t.ReservationID) >= (SELECT COALESCE(SUM(f.Price),0) FROM TICKET tt JOIN FARE f ON f.FareID=tt.FareID WHERE tt.ReservationID=t.ReservationID AND tt.TicketStatus<>'cancelled')`,[req.params.id]);if(!r.affectedRows){const [rows]=await pool.execute('SELECT TicketStatus FROM TICKET WHERE TicketID=?',[req.params.id]);if(!rows.length)return res.status(404).json({error:'Ticket not found.'});return res.status(409).json({error:'Ticket must be booked and its reservation fully paid before issue.'});}res.json({issued:true});}catch(e){next(e);}};

@@ -42,7 +42,7 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 - [ ] **All:** review the new EER
 - [x] **Patarawadee:** write the relational model: every table, PK, FK (report §4) → `docs/RELATIONAL_MODEL.md`
 - [x] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md` (draft; the team still decides A–C)
-- [ ] **Kawintida:** update the business rules list with the staff rules (report §2)
+- [x] **Kawintida:** update the business rules list with the staff rules (report §2) → `docs/BUSINESS_RULES.md`
 - [ ] **Kawintida + Kornnaphat:** review the 3NF table
 
 ## Phase 3: Database built · Patarawadee · Wed 7 – Thu 8
@@ -59,14 +59,14 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 
 Order (stop wherever time runs out): flights/fares → **reservations + tickets (transaction)** → payments → reports → staff → check-in → baggage → airports/aircraft/seats admin.
 
-- [ ] Booking, change, and cancel run in **one transaction** (O1)
-- [ ] Each rule marked "backend" in `docs/DATABASE.md` is enforced
+- [x] Booking, change, and cancel run in **one transaction** (O1)
+- [x] Each rule marked "backend" in `docs/DATABASE.md` is enforced
 - [ ] Test each route in the browser and check the rows in the DB
 
 ## Phase 5a: SQL queries · Kawintida + Kornnaphat · Fri 9 – Sun 11
 
 - [x] Queries written in `db/queries.sql`. All run against `seed.sql`
-- [ ] Each owner reads their half, makes sure they can explain it, and changes anything they disagree with
+- [x] Kawintida reviewed Q1–Q9 and Q19, and updated Q2 payment states and Q19 to retain fares without conditions
 - [ ] Run each one against `seed.sql` and take a screenshot for report §7
 - [ ] The UPDATE/DELETE examples must show the constraints working (Lecture 8.2)
 
