@@ -25,6 +25,15 @@ const app = express();
 // every page - see views/partials/header.ejs and footer.ejs.
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.formatFlightTime = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  }).format(date);
+};
 
 // Static files (CSS, client-side JS, images) are served straight from
 // public/ - e.g. public/css/style.css is reachable at /css/style.css.

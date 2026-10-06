@@ -24,10 +24,9 @@ table gives the overview.
 
 ## Conventions
 
-The backend endpoints return JSON for the Phase 5 pages to consume. All updates use POST so they also work with plain HTML forms.
-Reservation creation accepts `{ "PassengerID": 1, "BookingStaffID": 2, "Tickets": [{ "PassengerID": 1, "FlightID": 6, "SeatID": 5, "FareID": 11 }] }`.
-Flight search accepts optional `origin`, `destination` and `date=YYYY-MM-DD` query parameters. Fare creation accepts `Class`, `Price`, and optional `Rules: [{ "ConditionID": 1, "Fee": 0 }]`.
-Staff creation accepts `StaffName`, `StaffRole`, and the matching subtype field (`SalesOffice` or `CounterNo`). Reports take `flightId`, `passengerId`, or `month=YYYY-MM` as appropriate.
+The agreed browser experience is server-rendered EJS, matching the Passenger CRUD; Namtan owns the templates. The current implementation still returns JSON, so convert browser-facing handlers to `res.render`/redirect before treating the EJS pages as integrated. The required view names and locals are documented in [`EJS_VIEW_CONTRACT.md`](EJS_VIEW_CONTRACT.md).
+
+All updates use POST so they work with plain HTML forms. The reservation create payload in the current controller is `{ "PassengerID": 1, "BookingStaffID": 2, "Tickets": [{ "PassengerID": 1, "FlightID": 6, "SeatID": 5, "FareID": 11 }] }`. Flight search accepts optional `origin`, `destination` and `date=YYYY-MM-DD` parameters. Fare create/update accepts `Class`, `Price`, and optional `Rules: [{ "ConditionID": 1, "Fee": 0 }]`. Staff creation accepts `StaffName`, `StaffRole`, and the matching subtype field (`SalesOffice` or `CounterNo`). Reports take `flightId`, `passengerId`, or `month=YYYY-MM` as appropriate.
 
 - Forms use `POST` (HTML forms cannot send PUT or DELETE): `POST /x/:id` updates, `POST /x/:id/delete` deletes.
 - Each controller passes `title` and the data the page needs. The names of the variables passed to a view are written in the view folder's README once they are agreed.
