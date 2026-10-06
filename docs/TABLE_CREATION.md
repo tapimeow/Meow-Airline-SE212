@@ -13,7 +13,7 @@ USE meow_airline;
 ```
 
 The script then drops any old tables **children first** (CHECKIN, BAGGAGE, PAYMENT, TICKET, …,
-AIRPORT last), so it can be re-run on a database that already has data. It creates the 16 tables
+AIRPORT last), so it can be re-run on a database that already has data. It creates the 17 tables
 **parents first**, because a foreign key can only point at a table that already exists
 (Lecture 8.2).
 
@@ -47,8 +47,9 @@ empty. Only 7 columns are nullable (plus the generated ActiveSeat, which is `NUL
 | CHECKIN.Gate | Not assigned yet |
 | TICKET.TicketIssueDate | Empty until the ticket is issued after payment (BR8) |
 
-Every foreign key for a **total participation** in the EER is `NOT NULL`. For example, a FLIGHT
-must have an aircraft and two airports (BR1–BR3), and a TICKET must belong to a reservation.
+Every foreign key for a **total participation** in the EER is `NOT NULL`. For example, a ROUTE
+must have two airports (BR1–BR2), a FLIGHT must have a route and an aircraft (BR3), and a TICKET
+must belong to a reservation.
 
 ### Step 3: Mark the values that must be unique
 
@@ -71,9 +72,9 @@ ignores `NULL`s. So a cancelled ticket frees its seat, but two live tickets for 
 ### Step 4: Add the primary and foreign keys
 
 - **Primary keys:** every table has one, named `<TABLE>_PK`. Most are `AUTO_INCREMENT` surrogates.
-  AIRPORT uses its natural key AirportCode. FARE_RULE has the only composite PK
+  AIRPORT uses its natural key AirportCode, and ROUTE uses FlightNo (`'MW101'`). FARE_RULE has the only composite PK
   (FareID, ConditionID). The two staff subtypes reuse StaffID from STAFF.
-- **Foreign keys:** 20 FKs, each named `<CHILD>_<PARENT>_FK`, and each with an `ON DELETE` and
+- **Foreign keys:** 21 FKs, each named `<CHILD>_<PARENT>_FK`, and each with an `ON DELETE` and
   `ON UPDATE` action chosen on purpose:
   - **CASCADE** when the child means nothing without its parent: seats with their aircraft,
     fares with their flight, tickets with their reservation, bags and check-ins with their ticket.
@@ -109,7 +110,7 @@ ignores `NULL`s. So a cancelled ticket frees its seat, but two live tickets for 
 
 | Constraint | Rule | Business reason |
 |---|---|---|
-| `FLIGHT_Route_CK` | OriginCode <> DestinationCode | **BR7** |
+| `ROUTE_Airports_CK` | OriginCode <> DestinationCode | **BR7** |
 | `FLIGHT_Times_CK` | ArrivalTime > DepartureTime | A flight lands after it leaves |
 | `AIRCRAFT_TotalSeat_CK` | TotalSeat > 0 | An aircraft has seats |
 | `FARE_Price_CK` | Price > 0 | No free fares |

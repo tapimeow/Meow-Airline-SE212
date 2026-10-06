@@ -5,7 +5,7 @@
 [`docs/DATABASE.md`](DATABASE.md#functional-dependencies--3nf-check-patarawadee-fills-this-in-lecture-7).
 
 **Notation:** <u>underlined</u> = primary key · *italic* = foreign key (→ the table it references) ·
-`UQ` = other candidate key (`UNIQUE`). 16 relations, listed parents first (the create order).
+`UQ` = other candidate key (`UNIQUE`). 17 relations, listed parents first (the create order).
 
 ## 1. Relations
 
@@ -19,18 +19,21 @@
 **STAFF** (<u>StaffID</u>, StaffName, StaffRole)
 - UQ: (StaffID, StaffRole), the target of the two subtype FKs
 
-**BOOKINGSTAFF** (<u>*StaffID*</u>, *StaffRole*)
+**BOOKINGSTAFF** (<u>*StaffID*</u>, *StaffRole*, SalesOffice)
 - (StaffID, StaffRole) → STAFF (StaffID, StaffRole) · StaffRole is always 'BookingStaff'
 
-**CHECKINSTAFF** (<u>*StaffID*</u>, *StaffRole*)
+**CHECKINSTAFF** (<u>*StaffID*</u>, *StaffRole*, CounterNo)
 - (StaffID, StaffRole) → STAFF (StaffID, StaffRole) · StaffRole is always 'CheckInStaff'
 
 **SEAT** (<u>SeatID</u>, *AircraftID*, SeatNo, SeatClass)
 - AircraftID → AIRCRAFT
 - UQ: (AircraftID, SeatNo)
 
-**FLIGHT** (<u>FlightID</u>, FlightNo, *AircraftID*, *OriginCode*, *DestinationCode*, DepartureTime, ArrivalTime, Status)
-- AircraftID → AIRCRAFT · OriginCode → AIRPORT · DestinationCode → AIRPORT
+**ROUTE** (<u>FlightNo</u>, *OriginCode*, *DestinationCode*)
+- OriginCode → AIRPORT · DestinationCode → AIRPORT
+
+**FLIGHT** (<u>FlightID</u>, *FlightNo*, *AircraftID*, DepartureTime, ArrivalTime, Status)
+- FlightNo → ROUTE · AircraftID → AIRCRAFT
 - UQ: (FlightNo, DepartureTime)
 
 **FARE** (<u>FareID</u>, *FlightID*, Class, Price)
@@ -69,9 +72,10 @@
 | BOOKINGSTAFF | StaffID, StaffRole | STAFF | RESTRICT | RESTRICT | BR14. MySQL forbids CASCADE on a column with a CHECK |
 | CHECKINSTAFF | StaffID, StaffRole | STAFF | RESTRICT | RESTRICT | BR14, same reason |
 | SEAT | AircraftID | AIRCRAFT | CASCADE | CASCADE | A seat cannot exist without its aircraft |
+| ROUTE | OriginCode | AIRPORT | RESTRICT | RESTRICT | Column is in the BR7 CHECK, so no CASCADE |
+| ROUTE | DestinationCode | AIRPORT | RESTRICT | RESTRICT | Same |
+| FLIGHT | FlightNo | ROUTE | RESTRICT | CASCADE | Cannot delete a route that has flights |
 | FLIGHT | AircraftID | AIRCRAFT | RESTRICT | CASCADE | Cannot delete an aircraft that has flights |
-| FLIGHT | OriginCode | AIRPORT | RESTRICT | RESTRICT | Column is in the BR7 CHECK, so no CASCADE |
-| FLIGHT | DestinationCode | AIRPORT | RESTRICT | RESTRICT | Same |
 | FARE | FlightID | FLIGHT | CASCADE | CASCADE | A fare means nothing without its flight |
 | FARE_RULE | FareID | FARE | CASCADE | CASCADE | The rules go with their fare |
 | FARE_RULE | ConditionID | FARE_CONDITION | RESTRICT | CASCADE | Cannot delete a condition still in use |
@@ -91,8 +95,8 @@
 
 | EER construct | Rule | Result here |
 |---|---|---|
-| Strong entity | One table, its key becomes the PK | AIRPORT, AIRCRAFT, PASSENGER, STAFF, FLIGHT, SEAT, FARE, FARE_CONDITION, RESERVATION, PAYMENT, BAGGAGE, CHECKIN |
-| 1:N relationship | PK of the "1" side goes into the "N" side as an FK | Has, Uses, Origin, Destination, Offers, Makes, Created, Covers, BelongsTo, For, TravelsOn, Sells, AssignedTo, Carries, Processes |
+| Strong entity | One table, its key becomes the PK | AIRPORT, AIRCRAFT, PASSENGER, STAFF, ROUTE, FLIGHT, SEAT, FARE, FARE_CONDITION, RESERVATION, PAYMENT, BAGGAGE, CHECKIN |
+| 1:N relationship | PK of the "1" side goes into the "N" side as an FK | Has, Uses, Origin, Destination, Follows, Offers, Makes, Created, Covers, BelongsTo, For, TravelsOn, Sells, AssignedTo, Carries, Processes |
 | Total participation on the N side | FK is `NOT NULL` | e.g. every TICKET has a ReservationID |
 | Partial participation | FK is nullable | RESERVATION.BookingStaffID, CHECKIN.CheckInStaffID |
 | 1:1 relationship | FK on either side, plus `UNIQUE` | ResultsIn → CHECKIN.TicketID |

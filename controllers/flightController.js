@@ -1,7 +1,7 @@
 // controllers/flightController.js
 //
 // Owner:    [Phase 4 · Backend · Kawintida]
-// Table(s): FLIGHT
+// Table(s): FLIGHT, ROUTE (origin + destination live on ROUTE, joined on FlightNo)
 // Business rules: BR1, BR2, BR3, BR7, BR15
 //
 // NOTHING IS IMPLEMENTED YET. One exported function per route in
@@ -11,7 +11,8 @@
 //   - render a view from views/flights/ or redirect
 //
 // What this controller must enforce:
-//   - BR7: reject OriginCode = DestinationCode before inserting (the DB CHECK is the second line of defence).
+//   - A new flight picks an existing FlightNo from ROUTE. Adding a new route = insert into ROUTE first.
+//   - BR7: reject a ROUTE with OriginCode = DestinationCode before inserting (the DB CHECK ROUTE_Airports_CK is the second line of defence).
 //   - ArrivalTime must be after DepartureTime.
 //   - Free seats = seats of the flight's aircraft MINUS seats already on a non-cancelled TICKET for this flight (BR10).
 //
