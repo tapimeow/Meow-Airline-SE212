@@ -1,1 +1,8 @@
-const router=require('express').Router(); const c=require('../controllers/paymentController'); router.post('/reservations/:reservationId/payments',c.create); router.post('/:id/refund',c.refund); module.exports=router;
+const express = require('express');
+const router = express.Router();
+const paymentController = require('../controllers/paymentController');
+
+router.post('/reservations/:reservationId/payments', paymentController.create);
+router.post('/payments/:id/refund', paymentController.refund);
+
+module.exports = router;
