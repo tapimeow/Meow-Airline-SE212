@@ -62,7 +62,7 @@ Patarawadee to remove them:
 | Processes | CHECKINSTAFF → CHECKIN | 1:N | CHECKIN.CheckInStaffID (nullable) | SET NULL |
 | ISA (d) | STAFF → BOOKINGSTAFF / CHECKINSTAFF | disjoint | subtype (StaffID, StaffRole) | RESTRICT: MySQL forbids CASCADE on a column with a CHECK, so delete the subtype row first |
 
-| *(new)* | FARE → TICKET | 1:N | TICKET.FareID | RESTRICT |
+| *(new)* | FARE → TICKET | 1:N | TICKET.(FareID, FlightID) → FARE.(FareID, FlightID) | RESTRICT; the composite FK makes the fare belong to the ticket's flight |
 | *(new)* Has rule | FARE ⇄ FARE_CONDITION | **M:N** | bridge FARE_RULE (FareID → CASCADE, ConditionID → RESTRICT) | rules go with their fare; a condition in use cannot be deleted (demo Q18d) |
 
 M:N relationships (Lab 6 needs at least two):
@@ -123,7 +123,7 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 | BR12 | Bag weight per ticket ≤ class limit | Backend: `baggageController` |
 | BR13 | Check-in only if ticket issued and flight not departed | Backend: `checkinController` |
 | BR14 | Staff is BookingStaff **or** CheckInStaff | **DB:** composite FK (StaffID, StaffRole). Backend: `staffController` inserts both rows in one transaction |
-| BR15 | Fare belongs to one flight | DB: `NOT NULL` FK |
+| BR15 | Fare belongs to one flight | DB: `NOT NULL` FK. A ticket's fare must be for the ticket's flight: composite FK `TICKET_FARE_FK` (FareID, FlightID) |
 | *new* BR16 | A BookingStaff member may create many Reservations; each Reservation is created by one BookingStaff | DB: FK `RESERVATION.BookingStaffID` (Kawintida adds the rule text, report §2) |
 | *new* BR17 | A CheckInStaff member may process many CheckIns; each CheckIn is processed by one CheckInStaff | DB: FK `CHECKIN.CheckInStaffID` |
 | *new* BR18 | A Passenger may travel on many Tickets; each Ticket is for exactly one Passenger, who holds at most one live Ticket per Flight | **DB:** FK `TICKET.PassengerID` + `TICKET_Passenger_On_Flight_UQ` |
@@ -158,7 +158,7 @@ Write one FD per business rule: *determinant → dependents*. Then check each ta
 | SEAT | SeatID → AircraftID, SeatNo, SeatClass<br>(AircraftID, SeatNo) → SeatID | ✓ | ✓ | ✓ | Candidate keys: SeatID, (AircraftID, SeatNo). SeatClass depends on the whole (AircraftID, SeatNo), not on SeatNo alone |
 | FARE | FareID → FlightID, Class, Price | ✓ | ✓ | ✓ | BR15. The old multi-valued `Rule` column broke 1NF; it moved to FARE_RULE |
 | RESERVATION | ReservationID → PassengerID, BookingStaffID, BookingDate, ReservationStatus | ✓ | ✓ | ✓ | BR5, BR16. PassengerID is the booker; travellers are on TICKET |
-| TICKET | TicketID → ReservationID, PassengerID, FlightID, SeatID, FareID, TicketIssueDate, TicketStatus<br>**FareID → FlightID** (BR15)<br>**TicketStatus → ActiveSeat** | ✓ | ✓ | ✗ | Two transitive FDs, both kept on purpose. **ActiveSeat** is a generated column: MySQL computes it from TicketStatus, so it can never disagree (no update anomaly). **FlightID** is kept because the BR10 and BR18 `UNIQUE` constraints need it in this table. The risk is a ticket whose fare belongs to another flight; today only the backend stops that (decision D) |
+| TICKET | TicketID → ReservationID, PassengerID, FlightID, SeatID, FareID, TicketIssueDate, TicketStatus<br>**FareID → FlightID** (BR15)<br>**TicketStatus → ActiveSeat** | ✓ | ✓ | ✗ | Two transitive FDs, both kept on purpose. **ActiveSeat** is a generated column: MySQL computes it from TicketStatus, so it can never disagree (no update anomaly). **FlightID** is kept because the BR10 and BR18 `UNIQUE` constraints need it in this table. A ticket whose fare belongs to another flight is rejected by MySQL through the composite FK `TICKET_FARE_FK` (decision D) |
 | PAYMENT | PaymentID → ReservationID, TotalAmount, PaymentMethod, TimeStamp, Status | ✓ | ✓ | ✓ | TotalAmount is stored, not derived: it is what was actually paid |
 | BAGGAGE | BaggageID → TicketID, Weight, BaggageStatus | ✓ | ✓ | ✓ | BR9 |
 | CHECKIN | CheckInID → TicketID, CheckInStaffID, CheckInTime, Gate, BoardingPassNo<br>TicketID → CheckInID<br>BoardingPassNo → CheckInID | ✓ | ✓ | ✓ | Candidate keys: CheckInID, TicketID, BoardingPassNo, so every determinant is a key. Gate really belongs to the flight (decision E) |
@@ -182,10 +182,10 @@ sample data *looks* like an FD. The team decides whether each one is a business 
   candidate key (FlightNo, DepartureTime) decides the route). The fix is a ROUTE table
   (FlightNo PK, OriginCode, DestinationCode) with FLIGHT.FlightNo → ROUTE. If the team says
   no, write it as a rule: "a flight number may be reused on a different route".
-- **D. TICKET.FareID → FlightID.** Recommended fix, using the same trick as the staff subtypes:
-  add `UNIQUE (FareID, FlightID)` to FARE, and change TICKET's fare FK to
-  `FOREIGN KEY (FareID, FlightID) REFERENCES FARE (FareID, FlightID)`. MySQL then rejects a
-  fare from another flight, so the redundancy stays safe. The table stays ✗ in theory, but the
-  report can say the anomaly is blocked by the database.
+- **D. TICKET.FareID → FlightID.** ✅ **Done in `schema.sql`**, using the same trick as the staff
+  subtypes: FARE has `UNIQUE (FareID, FlightID)`, and TICKET's fare FK is
+  `FOREIGN KEY (FareID, FlightID) REFERENCES FARE (FareID, FlightID)`. MySQL rejects a fare
+  from another flight (Error Code 1452), so the redundancy stays safe. The table stays ✗ in
+  theory, but the report can say the anomaly is blocked by the database.
 - **E. CHECKIN.Gate.** Not a 3NF violation in this table (TicketID is a candidate key), but every
   passenger on one flight repeats the same gate. Moving Gate to FLIGHT removes the repetition.
