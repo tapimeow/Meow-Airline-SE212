@@ -156,6 +156,7 @@ CREATE TABLE FLIGHT (
   DepartureTime    DATETIME    NOT NULL,
   ArrivalTime      DATETIME    NOT NULL,
   Status           ENUM('OnTime', 'Delayed', 'Canceled') NOT NULL DEFAULT 'OnTime',
+  Gate             VARCHAR(5),                    -- one gate per departure (decision E); NULL until assigned
   CONSTRAINT FLIGHT_PK PRIMARY KEY (FlightID),
   CONSTRAINT FLIGHT_No_Departure_UQ UNIQUE (FlightNo, DepartureTime),
   CONSTRAINT FLIGHT_Times_CK CHECK (ArrivalTime > DepartureTime),
@@ -304,7 +305,6 @@ CREATE TABLE CHECKIN (
   TicketID        INT          NOT NULL,
   CheckInStaffID  INT,                                                          -- BR17 (EER "Processes"); NULL for self check-in
   CheckInTime     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  Gate            VARCHAR(5),
   BoardingPassNo  VARCHAR(20)  NOT NULL,
   CONSTRAINT CHECKIN_PK PRIMARY KEY (CheckInID),
   CONSTRAINT CHECKIN_Ticket_UQ UNIQUE (TicketID),                               -- 1:1: a ticket is checked in once

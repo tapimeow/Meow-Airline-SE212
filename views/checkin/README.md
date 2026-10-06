@@ -9,7 +9,7 @@ Copy the shape of `views/passengers/`, and include `partials/header` and
 `partials/footer`.
 
 Pages to build:
-- search.ejs, boarding-pass.ejs (print-friendly CSS: @media print).
+- search.ejs, boarding-pass.ejs (print-friendly CSS: @media print). The gate comes from the flight (FLIGHT.Gate), not from CHECKIN.
 
 Rules:
 - Pages only show data the controller passes in. No SQL in `.ejs`.
