@@ -23,6 +23,14 @@ const STILL_USED = 'ER_ROW_IS_REFERENCED_2';    // 1451: ON DELETE RESTRICT (has
 // Empty form fields arrive as '' - store them as NULL instead
 const orNull = (value) => (value === undefined || value.trim() === '' ? null : value.trim());
 
+// Name and PassportNo are required. The browser checks `required`, but a
+// value of only spaces gets past it - the database would store '' because
+// NOT NULL allows an empty string. Returns an error message, or null if OK.
+const checkRequired = (Name, PassportNo) =>
+  !Name || !Name.trim() || !PassportNo || !PassportNo.trim()
+    ? 'Name and passport number are required.'
+    : null;
+
 // GET /passengers - show every passenger in a table
 exports.list = async (req, res, next) => {
   try {
@@ -44,6 +52,14 @@ exports.showCreateForm = (req, res) => {
 // SQL (this is what stops SQL injection).
 exports.create = async (req, res, next) => {
   const { Name, PassportNo, PhoneNo, Email, MembershipStatus } = req.body;
+  const missing = checkRequired(Name, PassportNo);
+  if (missing) {
+    return res.status(400).render('passengers/form', {
+      title: 'Add passenger',
+      passenger: req.body,
+      error: missing,
+    });
+  }
   try {
     await pool.execute(
       `INSERT INTO PASSENGER (Name, PassportNo, PhoneNo, Email, MembershipStatus)
@@ -81,13 +97,23 @@ exports.showEditForm = async (req, res, next) => {
 // POST /passengers/:id - update an existing row
 exports.update = async (req, res, next) => {
   const { Name, PassportNo, PhoneNo, Email, MembershipStatus } = req.body;
+  const missing = checkRequired(Name, PassportNo);
+  if (missing) {
+    return res.status(400).render('passengers/form', {
+      title: 'Edit passenger',
+      passenger: { ...req.body, PassengerID: req.params.id },
+      error: missing,
+    });
+  }
   try {
-    await pool.execute(
+    const [result] = await pool.execute(
       `UPDATE PASSENGER
        SET Name = ?, PassportNo = ?, PhoneNo = ?, Email = ?, MembershipStatus = ?
        WHERE PassengerID = ?`,
-      [Name.trim(), PassportNo.trim(), orNull(PhoneNo), orNull(Email), MembershipStatus, req.params.id]
+      [Name.trim(), PassportNo.trim(), orNull(PhoneNo), orNull(Email), MembershipStatus || 'Normal', req.params.id]
     );
+    // No row matched: the passenger was deleted, or the URL has a wrong id
+    if (result.affectedRows === 0) return res.status(404).send('Passenger not found');
     res.redirect('/passengers');
   } catch (err) {
     if (err.code === DUPLICATE) {
