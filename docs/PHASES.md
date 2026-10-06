@@ -27,8 +27,8 @@ The database and SQL come first. The web app comes after.
 
 ## Phase 0: Setup and practice · All · Mon 5 – Tue 6
 
-- [ ] Install MySQL + MySQL Workbench or DBeaver (Lecture 8 shows Workbench), plus Node.js
-- [ ] Clone the repo and run the Passenger CRUD (`README.md` → *Running locally*)
+- [ ] Install MySQL + MySQL Workbench or DBeaver (Lecture 8 shows Workbench), plus Node.js. Patarawadee ✅ (Tue 6 Oct)
+- [ ] Clone the repo and run the Passenger CRUD (`README.md` → *Running locally*). Patarawadee ✅ (Tue 6 Oct: `/passengers` shows the seed data)
 - [ ] Kawintida + Kornnaphat: while Patarawadee works on Phase 2, do the Lab 8/9 SQL exercises (Pine Valley, `om`). They teach exactly the JOINs that Phase 5a needs
 - [ ] Kawintida + Kornnaphat: agree the URL list in `docs/ROUTES.md`
 
@@ -50,7 +50,7 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 - [x] `db/schema.sql`: all tables, with every constraint from the checklist in `docs/REPORT.md` (PK, FK + ON DELETE/UPDATE, CHECK, DEFAULT). Tested on MySQL 8.0
 - [x] Patarawadee reviews the columns added in the SQL (`docs/DATABASE.md` → Entities) and adds them to the EER (already covered, no diagram change needed)
 - [x] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
-- [x] Runs top to bottom on an empty database
+- [x] Runs top to bottom on an empty database. Re-checked Tue 6 Oct in Workbench on MySQL 8.4: `schema.sql` then `seed.sql`, 0 errors, and the app reads the data
 - [ ] Screenshot the tables in Workbench / DBeaver for the report
 - [ ] **Thu evening:** tell the team the schema is frozen. After this point, schema changes go through Patarawadee only
 - [ ] (Optional) shared Railway database, with credentials sent over chat
