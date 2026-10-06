@@ -16,7 +16,7 @@
 //   POST /baggage/:id/delete — delete
 //
 // TODO [Phase 4 · Backend · Kawintida]: register this file in server.js:
-//   app.use('/baggage', require('./routes/baggage'));
+//   app.use('/', require('./routes/baggage'));   // mounted at / because its URLs start with different prefixes
 //
 // Keep the URL list in sync with docs/ROUTES.md — Kornnaphat builds the
 // pages against that contract.

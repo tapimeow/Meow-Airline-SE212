@@ -16,7 +16,7 @@
 //   (seat lists are shown on the aircraft detail page)
 //
 // TODO [Phase 4 · Backend · Kawintida]: register this file in server.js:
-//   app.use('/seats', require('./routes/seats'));
+//   app.use('/', require('./routes/seats'));   // mounted at / because its URLs start with different prefixes
 //
 // Keep the URL list in sync with docs/ROUTES.md — Kornnaphat builds the
 // pages against that contract.

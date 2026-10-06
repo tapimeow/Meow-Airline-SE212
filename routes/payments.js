@@ -15,7 +15,7 @@
 //   POST /payments/:id/refund — record refund
 //
 // TODO [Phase 4 · Backend · Kawintida]: register this file in server.js:
-//   app.use('/payments', require('./routes/payments'));
+//   app.use('/', require('./routes/payments'));   // mounted at / because its URLs start with different prefixes
 //
 // Keep the URL list in sync with docs/ROUTES.md — Kornnaphat builds the
 // pages against that contract.
