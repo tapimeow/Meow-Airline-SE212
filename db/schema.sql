@@ -159,6 +159,7 @@ CREATE TABLE FARE (
   -- The fare's conditions (refundable, changeable, ...) are in FARE_RULE below:
   -- one fare can have several, so a single Rule column would not be atomic (1NF).
   CONSTRAINT FARE_PK PRIMARY KEY (FareID),
+  CONSTRAINT FARE_ID_Flight_UQ UNIQUE (FareID, FlightID),                       -- target of TICKET_FARE_FK (BR15)
   CONSTRAINT FARE_Price_CK CHECK (Price > 0),
   CONSTRAINT FARE_FLIGHT_FK FOREIGN KEY (FlightID)
     REFERENCES FLIGHT (FlightID)
@@ -239,12 +240,15 @@ CREATE TABLE TICKET (
   CONSTRAINT TICKET_SEAT_FK FOREIGN KEY (SeatID)
     REFERENCES SEAT (SeatID)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT TICKET_FARE_FK FOREIGN KEY (FareID)
-    REFERENCES FARE (FareID)
+  -- BR15: the fare must belong to the ticket's flight. Pointing at
+  -- (FareID, FlightID) instead of FareID alone makes MySQL reject a fare from
+  -- another flight (same trick as the staff subtypes, BR14).
+  CONSTRAINT TICKET_FARE_FK FOREIGN KEY (FareID, FlightID)
+    REFERENCES FARE (FareID, FlightID)
     ON DELETE RESTRICT ON UPDATE CASCADE
   -- Also enforced in the backend (they need data from other tables):
-  --   the seat must belong to the flight's aircraft, the fare must belong to
-  --   the same flight, BR8 (issue only after payment), BR13 (check-in rules).
+  --   the seat must belong to the flight's aircraft, BR8 (issue only after
+  --   payment), BR13 (check-in rules).
 );
 
 -- PAYMENT ------------------------------------------------------------
