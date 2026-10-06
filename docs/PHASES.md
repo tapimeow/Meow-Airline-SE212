@@ -40,15 +40,15 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 - [ ] **All (Mon):** decide the remaining open questions in `docs/DATABASE.md`
 - [x] Apply the ERD review fixes: new EER in `docs/erd/meow-airline-eer.drawio` + `.png`
 - [ ] **All:** review the new EER
-- [ ] **Patarawadee:** write the relational model: every table, PK, FK (report §4)
-- [ ] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md`
+- [x] **Patarawadee:** write the relational model: every table, PK, FK (report §4) → `docs/RELATIONAL_MODEL.md`
+- [x] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md` (draft; the team still decides A–C)
 - [ ] **Kawintida:** update the business rules list with the staff rules (report §2)
 - [ ] **Kawintida + Kornnaphat:** review the 3NF table
 
 ## Phase 3: Database built · Patarawadee · Wed 7 – Thu 8
 
 - [x] `db/schema.sql`: all tables, with every constraint from the checklist in `docs/REPORT.md` (PK, FK + ON DELETE/UPDATE, CHECK, DEFAULT). Tested on MySQL 8.0
-- [ ] Patarawadee reviews the columns added in the SQL (`docs/DATABASE.md` → Entities) and adds them to the EER
+- [x] Patarawadee reviews the columns added in the SQL (`docs/DATABASE.md` → Entities) and adds them to the EER (already covered, no diagram change needed)
 - [x] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
 - [x] Runs top to bottom on an empty database
 - [ ] Screenshot the tables in Workbench / DBeaver for the report

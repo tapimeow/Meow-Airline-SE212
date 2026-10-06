@@ -11,14 +11,17 @@ Only Patarawadee changes `db/schema.sql`. Anyone may suggest changes to this fil
 
 Implemented in [`db/schema.sql`](../db/schema.sql) and tested on MySQL 8.0. The staff FKs on
 RESERVATION and CHECKIN come from the EER's **Created** and **Processes** relationships.
-Columns in **bold** were added in the SQL and are not in the EER yet. Add them to the EER, or tell
-Patarawadee to remove them:
+Columns in **bold** were added in the SQL. Checked against the EER (Phase 3): the first three are
+already in the diagram, and the last two are implementation helpers that Chen notation does not draw.
 
-- **FLIGHT.FlightNo** (`'MW101'`). The business question "seats free on flight MW101 on 20 October" needs a flight number that repeats every day. FlightID stays the surrogate PK.
-- **TICKET.PassengerID** → PASSENGER. The traveller on the ticket. RESERVATION.PassengerID stays as the person who booked, so a family of 3 on one reservation gets 3 named tickets (resolves open question 7).
-- **TICKET.FareID** → FARE. This gives each ticket its price, so income per route can be calculated (resolves open questions 3 and 4).
-- **TICKET.ActiveSeat**. A generated helper column so MySQL itself enforces BR10 (see below).
-- **StaffRole in each subtype table**. Lets MySQL enforce BR14 (see below).
+- **FLIGHT.FlightNo** (`'MW101'`). The business question "seats free on flight MW101 on 20 October" needs a flight number that repeats every day. FlightID stays the surrogate PK. *In the EER as a FLIGHT attribute.*
+- **TICKET.PassengerID** → PASSENGER. The traveller on the ticket. RESERVATION.PassengerID stays as the person who booked, so a family of 3 on one reservation gets 3 named tickets (resolves open question 7). *In the EER as the TravelsOn relationship.*
+- **TICKET.FareID** → FARE. This gives each ticket its price, so income per route can be calculated (resolves open questions 3 and 4). *In the EER as the Sells relationship.*
+- **TICKET.ActiveSeat**. A generated helper column so MySQL itself enforces BR10 (see below). *Not drawn: derived from TicketStatus.*
+- **StaffRole in each subtype table**. Lets MySQL enforce BR14 (see below). *Not drawn: the EER shows StaffRole once, on STAFF, as the discriminator of the `d` specialisation.*
+
+The full relational model for report §4 (every table, PK, FK and FK action) is in
+[`RELATIONAL_MODEL.md`](RELATIONAL_MODEL.md).
 
 | Table | PK | Main attributes | FKs |
 |---|---|---|---|
