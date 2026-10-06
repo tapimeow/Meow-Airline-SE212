@@ -9,7 +9,7 @@
 -- Owners (Phase 5a): each person checks their queries against the data,
 -- takes the result screenshots for the report, and explains them in the
 -- presentation.
---   Kawintida  : Q1–Q9, Q19
+--   Kawintida  : Q1–Q9 (incl. Q8b), Q19
 --   Kornnaphat : Q10–Q18, Q20
 --
 -- Lecture coverage:
@@ -17,6 +17,7 @@
 --         aggregates · GROUP BY · HAVING · UPDATE/DELETE showing constraints
 --   L9    INNER JOIN on 3–4 tables via the TICKET bridge · LEFT JOIN + IS NULL
 --   L10   VIEW · LIKE wildcards · CHECK in action
+--   also  WITH (Q3b) · a trigger refusing bad tickets (Q18e, Q18f)
 --
 -- Dates are written as literals so the results match the sample data. In the
 -- app, the controller passes them as ? parameters instead.
@@ -98,20 +99,27 @@ WHERE f.DepartureTime >= '2026-09-01'
 GROUP BY ro.OriginCode, ro.DestinationCode
 ORDER BY income DESC, route;
 
--- Q3b: the route that sold the fewest seats last month
-SELECT CONCAT(ro.OriginCode, ' -> ', ro.DestinationCode) AS route,
-       COUNT(t.TicketID) AS seats_sold
-FROM FLIGHT f
-JOIN ROUTE ro
-  ON ro.FlightNo = f.FlightNo
-LEFT JOIN TICKET t
-  ON t.FlightID = f.FlightID
- AND t.TicketStatus <> 'cancelled'
-WHERE f.DepartureTime >= '2026-09-01'
-  AND f.DepartureTime <  '2026-10-01'
-GROUP BY ro.OriginCode, ro.DestinationCode
-ORDER BY seats_sold ASC, route
-LIMIT 1;
+-- Q3b: the route(s) that sold the fewest seats last month.
+--      Not ORDER BY ... LIMIT 1: if two routes tie for the fewest, LIMIT 1
+--      would hide one. WITH names the per-route counts once, and the outer
+--      query keeps every route equal to the minimum.
+WITH route_sales AS (
+  SELECT CONCAT(ro.OriginCode, ' -> ', ro.DestinationCode) AS route,
+         COUNT(t.TicketID) AS seats_sold
+  FROM FLIGHT f
+  JOIN ROUTE ro
+    ON ro.FlightNo = f.FlightNo
+  LEFT JOIN TICKET t
+    ON t.FlightID = f.FlightID
+   AND t.TicketStatus <> 'cancelled'
+  WHERE f.DepartureTime >= '2026-09-01'
+    AND f.DepartureTime <  '2026-10-01'
+  GROUP BY ro.OriginCode, ro.DestinationCode
+)
+SELECT route, seats_sold
+FROM route_sales
+WHERE seats_sold = (SELECT MIN(seats_sold) FROM route_sales)
+ORDER BY route;
 
 -- =====================================================================
 -- B. Single-table queries (Lecture 8.2)
@@ -175,6 +183,16 @@ FROM TICKET t
 WHERE t.TicketStatus <> 'cancelled'
 GROUP BY t.FlightID, t.SeatID
 HAVING COUNT(*) > 1;
+
+-- Q8b [Kawintida] BR14 check: every staff member must be in exactly one
+--     subtype table. The schema already stops two (composite FK + CHECK);
+--     this finds a STAFF row with no subtype row. MUST return 0 rows.
+SELECT s.StaffID, s.StaffName, s.StaffRole
+FROM STAFF s
+LEFT JOIN BOOKINGSTAFF b ON b.StaffID = s.StaffID
+LEFT JOIN CHECKINSTAFF c ON c.StaffID = s.StaffID
+WHERE b.StaffID IS NULL
+  AND c.StaffID IS NULL;
 
 -- Q9 [Kawintida] Reservations created by each booking staff member
 --    (LEFT JOIN keeps a staff member with 0 bookings)
@@ -311,6 +329,18 @@ ROLLBACK;
 -- Q18d: delete the 'Refundable' condition while Business fares still use it.
 --       Expected: Error Code 1451, foreign key 'FARE_RULE_CONDITION_FK' (RESTRICT)
 -- DELETE FROM FARE_CONDITION WHERE ConditionName = 'Refundable';
+--
+-- Q18e: sell seat 2A of aircraft 3 (SeatID 29) on MW101 20 Oct, which
+--       aircraft 1 flies. Expected: Error Code 1644, 'This seat is not on
+--       the aircraft that flies this flight' (trigger TICKET_Seat_Fare_BI)
+-- INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketStatus)
+-- VALUES (8, 1, 6, 29, 11, 'booked');
+--
+-- Q18f: sell Business seat 1A (SeatID 1) on the Economy fare 11.
+--       Expected: Error Code 1644, 'The seat class does not match the fare
+--       class' (trigger TICKET_Seat_Fare_BI)
+-- INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketStatus)
+-- VALUES (8, 1, 6, 1, 11, 'booked');
 
 -- =====================================================================
 -- F. The second M:N: FARE ⇄ FARE_CONDITION through the FARE_RULE bridge

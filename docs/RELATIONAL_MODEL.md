@@ -83,9 +83,9 @@
 | RESERVATION | BookingStaffID | BOOKINGSTAFF | SET NULL | CASCADE | Booking stays if the staff member leaves |
 | TICKET | ReservationID | RESERVATION | CASCADE | CASCADE | Deleting a reservation deletes its tickets |
 | TICKET | PassengerID | PASSENGER | RESTRICT | CASCADE | Cannot delete a passenger who has tickets |
-| TICKET | FlightID | FLIGHT | RESTRICT | CASCADE | Cannot delete a flight that sold tickets |
+| TICKET | FlightID | FLIGHT | RESTRICT | RESTRICT | Cannot delete or renumber a flight that sold tickets. Not CASCADE: FlightID also reaches TICKET through FARE, and two cascade paths made MySQL fail with error 1452 |
 | TICKET | SeatID | SEAT | RESTRICT | CASCADE | Cannot delete a sold seat |
-| TICKET | FareID, FlightID | FARE | RESTRICT | CASCADE | BR15: the fare must be for the ticket's flight |
+| TICKET | FareID, FlightID | FARE | RESTRICT | RESTRICT | BR15: the fare must be for the ticket's flight. RESTRICT on update for the same reason as the row above |
 | PAYMENT | ReservationID | RESERVATION | RESTRICT | CASCADE | Never lose money records |
 | BAGGAGE | TicketID | TICKET | CASCADE | CASCADE | Bags go with their ticket |
 | CHECKIN | TicketID | TICKET | CASCADE | CASCADE | Check-in goes with its ticket |
@@ -102,7 +102,7 @@
 | 1:1 relationship | FK on either side, plus `UNIQUE` | ResultsIn → CHECKIN.TicketID |
 | M:N relationship | Bridge table, FKs to both sides; relationship attributes move into it | HasRule: FARE ⇄ FARE_CONDITION → **FARE_RULE** (with Fee) |
 | Associative entity | Own table; its two relationships become FKs | RESERVATION ⇄ FLIGHT is drawn as the entity **TICKET** with BelongsTo and For → TICKET.ReservationID, TICKET.FlightID |
-| Disjoint, total specialisation (`d`) | One table per supertype and subtype, sharing the PK; discriminator StaffRole | STAFF → BOOKINGSTAFF, CHECKINSTAFF |
+| Disjoint, total specialisation (`d`) | One table per supertype and subtype, sharing the PK; discriminator StaffRole. Disjoint is a constraint; total is kept by inserting both rows in one transaction (checked by Q8b) | STAFF → BOOKINGSTAFF, CHECKINSTAFF |
 | Multi-valued attribute | Separate table | The old FARE.Rule → FARE_RULE (1NF) |
 
 TICKET keeps its own surrogate PK (TicketID) instead of (ReservationID, FlightID), because one

@@ -20,7 +20,9 @@ CREATE DATABASE IF NOT EXISTS meow_airline;
 USE meow_airline;
 
 -- Drop children before parents (Lecture 8.2: "DROP TABLE — order matters").
+-- Dropping TICKET also drops its triggers; the procedure they call is separate.
 DROP VIEW  IF EXISTS v_flight_load;
+DROP PROCEDURE IF EXISTS ticket_check_seat_and_fare;
 DROP TABLE IF EXISTS CHECKIN;
 DROP TABLE IF EXISTS BAGGAGE;
 DROP TABLE IF EXISTS PAYMENT;
@@ -76,6 +78,10 @@ CREATE TABLE PASSENGER (
 
 -- STAFF (supertype) --------------------------------------------------
 -- BR14: a staff member is BookingStaff OR CheckInStaff, never both (disjoint).
+-- Total (every STAFF row has a subtype row) cannot be a constraint here:
+-- MySQL checks FKs per statement, so STAFF must exist before its subtype
+-- row. staffController inserts both in one transaction, and Q8b in
+-- db/queries.sql lists any staff member left without a subtype row.
 -- StaffRole says which subtype the row belongs to. Each subtype table repeats
 -- the role and points at (StaffID, StaffRole), so a CheckInStaff row can only
 -- reference a STAFF row whose role is 'CheckInStaff', and the reverse.
@@ -252,9 +258,13 @@ CREATE TABLE TICKET (
   CONSTRAINT TICKET_PASSENGER_FK FOREIGN KEY (PassengerID)
     REFERENCES PASSENGER (PassengerID)
     ON DELETE RESTRICT ON UPDATE CASCADE,         -- cannot delete a passenger who has tickets
+  -- FlightID reaches TICKET twice: directly, and through FARE (TICKET_FARE_FK).
+  -- With CASCADE on both, renumbering a flight that sold tickets failed with a
+  -- misleading error 1452, so both are RESTRICT on update: a flight or fare
+  -- that sold tickets keeps its ID (it is AUTO_INCREMENT, never edited anyway).
   CONSTRAINT TICKET_FLIGHT_FK FOREIGN KEY (FlightID)
     REFERENCES FLIGHT (FlightID)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT TICKET_SEAT_FK FOREIGN KEY (SeatID)
     REFERENCES SEAT (SeatID)
     ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -263,11 +273,56 @@ CREATE TABLE TICKET (
   -- another flight (same trick as the staff subtypes, BR14).
   CONSTRAINT TICKET_FARE_FK FOREIGN KEY (FareID, FlightID)
     REFERENCES FARE (FareID, FlightID)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-  -- Also enforced in the backend (they need data from other tables):
-  --   the seat must belong to the flight's aircraft, BR8 (issue only after
-  --   payment), BR13 (check-in rules).
+    ON DELETE RESTRICT ON UPDATE RESTRICT
+  -- The seat must be on the flight's aircraft, and in the fare's class: see
+  -- the triggers below. Enforced in the backend instead: BR8 (issue only
+  -- after payment), BR13 (check-in rules).
 );
+
+-- TICKET triggers: seat and fare must fit the flight ----------------------
+-- A CHECK can only see one row, and these rules compare TICKET with SEAT,
+-- FLIGHT and FARE, so a trigger checks them before every insert and update:
+--   - the seat must be on the aircraft that flies this flight
+--   - the seat class must match the fare class (no Business seat on an
+--     Economy fare)
+-- A broken rule stops the statement with error 1644 (SQLSTATE 45000).
+-- DELIMITER lets the procedure body contain ';' (mysql CLI, Workbench and
+-- DBeaver all understand it).
+DELIMITER $$
+
+CREATE PROCEDURE ticket_check_seat_and_fare(IN p_flight INT, IN p_seat INT, IN p_fare INT)
+BEGIN
+  DECLARE seat_aircraft   INT;
+  DECLARE seat_class      VARCHAR(20);
+  DECLARE flight_aircraft INT;
+  DECLARE fare_class      VARCHAR(20);
+
+  -- A missing row leaves the variable NULL; the FKs then report that error
+  SELECT AircraftID, SeatClass INTO seat_aircraft, seat_class FROM SEAT WHERE SeatID = p_seat;
+  SELECT AircraftID INTO flight_aircraft FROM FLIGHT WHERE FlightID = p_flight;
+  SELECT Class INTO fare_class FROM FARE WHERE FareID = p_fare;
+
+  IF seat_aircraft <> flight_aircraft THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'This seat is not on the aircraft that flies this flight';
+  END IF;
+  IF seat_class <> fare_class THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The seat class does not match the fare class';
+  END IF;
+END$$
+
+CREATE TRIGGER TICKET_Seat_Fare_BI BEFORE INSERT ON TICKET
+FOR EACH ROW
+BEGIN
+  CALL ticket_check_seat_and_fare(NEW.FlightID, NEW.SeatID, NEW.FareID);
+END$$
+
+CREATE TRIGGER TICKET_Seat_Fare_BU BEFORE UPDATE ON TICKET
+FOR EACH ROW
+BEGIN
+  CALL ticket_check_seat_and_fare(NEW.FlightID, NEW.SeatID, NEW.FareID);
+END$$
+
+DELIMITER ;
 
 -- PAYMENT ------------------------------------------------------------
 CREATE TABLE PAYMENT (
