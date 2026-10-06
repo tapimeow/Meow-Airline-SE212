@@ -13,6 +13,7 @@
 // What this controller must enforce:
 //   - BR14 (EER specialisation, disjoint): a staff member is BookingStaff OR CheckInStaff, never both.
 //   - Creating staff = insert STAFF + insert into exactly one subtype table, in one transaction.
+//   - BOOKINGSTAFF needs a SalesOffice and CHECKINSTAFF needs a CounterNo (both NOT NULL).
 //
 // TODO [Phase 4 · Backend · Kawintida]: write the functions.
 // TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.

@@ -10,7 +10,7 @@ Copy the shape of `views/passengers/`, and include `partials/header` and
 
 Pages to build:
 - list.ejs: search form at the top + results table.
-- form.ejs: Aircraft, Origin, Destination dropdowns, Departure/Arrival datetime, Status.
+- form.ejs: Flight number dropdown (each one shows its route, e.g. "MW101 BKK → CNX", from ROUTE), Aircraft dropdown, Departure/Arrival datetime, Status.
 - detail.ejs: flight info, fares table, free seats per class, "Book this flight" button.
 
 Rules:
