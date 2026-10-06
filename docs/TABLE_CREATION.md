@@ -124,9 +124,11 @@ The `ENUM` types from step 1 also work as domain checks, because MySQL rejects a
 the list.
 
 **Rules a `CHECK` cannot express.** A `CHECK` can only look at one row of one table. These rules
-compare tables, so the backend enforces them: BR8 (pay before issuing), BR11 (seats ≤ TotalSeat),
-BR12 (total bag weight per class), BR13 (check-in timing), and that a ticket's seat is on the
-flight's aircraft. See [`DATABASE.md`](DATABASE.md#business-rules-where-each-one-is-enforced).
+compare tables. Two of them are checked by triggers on TICKET (`TICKET_Seat_Fare_BI` / `_BU`):
+the seat must be on the flight's aircraft, and the seat class must match the fare class. The
+backend enforces the rest: BR8 (pay before issuing), BR11 (seats ≤ TotalSeat), BR12 (total bag
+weight per class) and BR13 (check-in timing). See
+[`DATABASE.md`](DATABASE.md#business-rules-where-each-one-is-enforced).
 
 ## Proof that the constraints work
 

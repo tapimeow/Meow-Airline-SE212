@@ -90,9 +90,16 @@ because MySQL does not allow CASCADE on columns that a CHECK uses (`ROUTE_Airpor
 - **BR14, disjoint specialisation.** STAFF has `UNIQUE (StaffID, StaffRole)`. Each subtype table
   stores its own role (fixed by a CHECK) and references that pair, so a BookingStaff member cannot
   also be added to CHECKINSTAFF (error 1452).
+  The *total* half (every staff member has a subtype row) cannot be a constraint, because the STAFF
+  row must exist before its subtype row. `staffController` inserts both in one transaction, and
+  `db/queries.sql` Q8b lists any staff member without a subtype row (must return 0 rows).
 - **BR18, one seat per traveller per flight.** `UNIQUE (FlightID, PassengerID, ActiveSeat)` stops
   the same passenger from holding two live tickets on one flight (error 1062, demo Q18c).
   Like BR10, a cancelled ticket does not count.
+- **A ticket's seat and fare must fit its flight.** Triggers `TICKET_Seat_Fare_BI` / `_BU` (before
+  insert / update) refuse a seat that is not on the flight's aircraft, and a seat whose class differs
+  from the fare's class (error 1644, demos Q18e and Q18f). These compare TICKET with SEAT, FLIGHT and
+  FARE, which a CHECK cannot do.
 
 ## ERD review: done in `docs/erd/meow-airline-eer.drawio`
 
@@ -131,7 +138,7 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 | BR11 | Seat rows ≤ Aircraft.TotalSeat | Backend: `seatController` |
 | BR12 | Bag weight per ticket ≤ class limit (Economy 20 kg, Business 30 kg, FirstClass 40 kg) | Backend: `baggageController` |
 | BR13 | Check-in only if ticket issued and flight not departed | Backend: `checkinController` |
-| BR14 | Staff is BookingStaff **or** CheckInStaff | **DB:** composite FK (StaffID, StaffRole). Backend: `staffController` inserts both rows in one transaction |
+| BR14 | Staff is BookingStaff **or** CheckInStaff | **DB:** composite FK (StaffID, StaffRole) stops two subtypes. Backend: `staffController` inserts both rows in one transaction so none is missing; Q8b checks |
 | BR15 | Fare belongs to one flight | DB: `NOT NULL` FK. A ticket's fare must be for the ticket's flight: composite FK `TICKET_FARE_FK` (FareID, FlightID) |
 | *new* BR16 | A BookingStaff member may create many Reservations; each Reservation is created by one BookingStaff | DB: FK `RESERVATION.BookingStaffID` (Kawintida adds the rule text, report §2) |
 | *new* BR17 | A CheckInStaff member may process many CheckIns; each CheckIn is processed by one CheckInStaff | DB: FK `CHECKIN.CheckInStaffID` |

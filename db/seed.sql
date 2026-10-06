@@ -52,7 +52,8 @@ INSERT INTO PASSENGER (Name, PassportNo, PhoneNo, Email, MembershipStatus) VALUE
   ('Mint Saetang',       'AC2223336', NULL,          NULL,                     'Normal'),  -- 7 (family, child: no phone/email)
   ('Daniel Tan',         'SG7788990', '+6591234567', 'daniel.tan@example.sg',  'Gold');    -- 8
 
--- STAFF + subtypes (BR14: each staff member is in exactly one subtype) --
+-- STAFF + subtypes (BR14: each staff member is in exactly one subtype;
+-- the schema blocks two subtypes, Q8b checks that none is missing) --
 INSERT INTO STAFF (StaffName, StaffRole) VALUES
   ('Ploy Srisuk',    'BookingStaff'),   -- 1
   ('Anan Wongsa',    'BookingStaff'),   -- 2
