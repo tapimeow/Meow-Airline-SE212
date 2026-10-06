@@ -30,6 +30,7 @@ DROP TABLE IF EXISTS FARE_RULE;
 DROP TABLE IF EXISTS FARE_CONDITION;
 DROP TABLE IF EXISTS FARE;
 DROP TABLE IF EXISTS FLIGHT;
+DROP TABLE IF EXISTS ROUTE;
 DROP TABLE IF EXISTS SEAT;
 DROP TABLE IF EXISTS CHECKINSTAFF;
 DROP TABLE IF EXISTS BOOKINGSTAFF;
@@ -88,8 +89,9 @@ CREATE TABLE STAFF (
 
 -- BOOKINGSTAFF (subtype) ---------------------------------------------
 CREATE TABLE BOOKINGSTAFF (
-  StaffID    INT NOT NULL,
-  StaffRole  ENUM('BookingStaff', 'CheckInStaff') NOT NULL DEFAULT 'BookingStaff',
+  StaffID      INT          NOT NULL,
+  StaffRole    ENUM('BookingStaff', 'CheckInStaff') NOT NULL DEFAULT 'BookingStaff',
+  SalesOffice  VARCHAR(50)  NOT NULL,                                           -- e.g. 'Bangkok Silom Office'
   CONSTRAINT BOOKINGSTAFF_PK PRIMARY KEY (StaffID),
   CONSTRAINT BOOKINGSTAFF_Role_CK CHECK (StaffRole = 'BookingStaff'),           -- BR14
   CONSTRAINT BOOKINGSTAFF_STAFF_FK FOREIGN KEY (StaffID, StaffRole)
@@ -101,8 +103,9 @@ CREATE TABLE BOOKINGSTAFF (
 
 -- CHECKINSTAFF (subtype) ---------------------------------------------
 CREATE TABLE CHECKINSTAFF (
-  StaffID    INT NOT NULL,
+  StaffID    INT         NOT NULL,
   StaffRole  ENUM('BookingStaff', 'CheckInStaff') NOT NULL DEFAULT 'CheckInStaff',
+  CounterNo  VARCHAR(5)  NOT NULL,                                              -- check-in counter, e.g. 'A12'
   CONSTRAINT CHECKINSTAFF_PK PRIMARY KEY (StaffID),
   CONSTRAINT CHECKINSTAFF_Role_CK CHECK (StaffRole = 'CheckInStaff'),           -- BR14
   CONSTRAINT CHECKINSTAFF_STAFF_FK FOREIGN KEY (StaffID, StaffRole)
@@ -123,31 +126,46 @@ CREATE TABLE SEAT (
     ON DELETE CASCADE ON UPDATE CASCADE           -- a seat cannot exist without its aircraft
 );
 
--- FLIGHT -------------------------------------------------------------
-CREATE TABLE FLIGHT (
-  FlightID         INT         NOT NULL AUTO_INCREMENT,
-  FlightNo         VARCHAR(6)  NOT NULL,          -- schedule number, e.g. 'MW101' (the same number flies every day)
-  AircraftID       INT         NOT NULL,          -- BR3
+-- ROUTE --------------------------------------------------------------
+-- A flight number always flies the same route (decision C in
+-- docs/DATABASE.md), so FlightNo -> OriginCode, DestinationCode. Keeping
+-- those columns in FLIGHT would repeat the route on every dated flight
+-- (a transitive dependency, so not 3NF). The route lives here once.
+CREATE TABLE ROUTE (
+  FlightNo         VARCHAR(6)  NOT NULL,          -- schedule number, e.g. 'MW101'
   OriginCode       CHAR(3)     NOT NULL,          -- BR1
   DestinationCode  CHAR(3)     NOT NULL,          -- BR2
+  CONSTRAINT ROUTE_PK PRIMARY KEY (FlightNo),
+  CONSTRAINT ROUTE_Airports_CK CHECK (OriginCode <> DestinationCode),           -- BR7
+  -- The two airport FKs use RESTRICT on update as well: MySQL does not
+  -- allow CASCADE on columns used in a CHECK constraint (ROUTE_Airports_CK).
+  CONSTRAINT ROUTE_ORIGIN_FK FOREIGN KEY (OriginCode)
+    REFERENCES AIRPORT (AirportCode)
+    ON DELETE RESTRICT ON UPDATE RESTRICT,        -- an airport with routes cannot disappear
+  CONSTRAINT ROUTE_DESTINATION_FK FOREIGN KEY (DestinationCode)
+    REFERENCES AIRPORT (AirportCode)
+    ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+
+-- FLIGHT -------------------------------------------------------------
+-- One dated departure of a route, e.g. MW101 on 20 Oct 2026.
+CREATE TABLE FLIGHT (
+  FlightID         INT         NOT NULL AUTO_INCREMENT,
+  FlightNo         VARCHAR(6)  NOT NULL,          -- the route flown (the same number flies every day)
+  AircraftID       INT         NOT NULL,          -- BR3
   DepartureTime    DATETIME    NOT NULL,
   ArrivalTime      DATETIME    NOT NULL,
   Status           ENUM('OnTime', 'Delayed', 'Canceled') NOT NULL DEFAULT 'OnTime',
+  Gate             VARCHAR(5),                    -- one gate per departure (decision E); NULL until assigned
   CONSTRAINT FLIGHT_PK PRIMARY KEY (FlightID),
   CONSTRAINT FLIGHT_No_Departure_UQ UNIQUE (FlightNo, DepartureTime),
-  CONSTRAINT FLIGHT_Route_CK CHECK (OriginCode <> DestinationCode),             -- BR7
   CONSTRAINT FLIGHT_Times_CK CHECK (ArrivalTime > DepartureTime),
+  CONSTRAINT FLIGHT_ROUTE_FK FOREIGN KEY (FlightNo)
+    REFERENCES ROUTE (FlightNo)
+    ON DELETE RESTRICT ON UPDATE CASCADE,         -- cannot delete a route that has flights
   CONSTRAINT FLIGHT_AIRCRAFT_FK FOREIGN KEY (AircraftID)
     REFERENCES AIRCRAFT (AircraftID)
-    ON DELETE RESTRICT ON UPDATE CASCADE,         -- cannot delete an aircraft that has flights
-  -- The two airport FKs use RESTRICT on update as well: MySQL does not
-  -- allow CASCADE on columns used in a CHECK constraint (FLIGHT_Route_CK).
-  CONSTRAINT FLIGHT_ORIGIN_FK FOREIGN KEY (OriginCode)
-    REFERENCES AIRPORT (AirportCode)
-    ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT FLIGHT_DESTINATION_FK FOREIGN KEY (DestinationCode)
-    REFERENCES AIRPORT (AirportCode)
-    ON DELETE RESTRICT ON UPDATE RESTRICT
+    ON DELETE RESTRICT ON UPDATE CASCADE          -- cannot delete an aircraft that has flights
 );
 
 -- FARE ---------------------------------------------------------------
@@ -287,7 +305,6 @@ CREATE TABLE CHECKIN (
   TicketID        INT          NOT NULL,
   CheckInStaffID  INT,                                                          -- BR17 (EER "Processes"); NULL for self check-in
   CheckInTime     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  Gate            VARCHAR(5),
   BoardingPassNo  VARCHAR(20)  NOT NULL,
   CONSTRAINT CHECKIN_PK PRIMARY KEY (CheckInID),
   CONSTRAINT CHECKIN_Ticket_UQ UNIQUE (TicketID),                               -- 1:1: a ticket is checked in once

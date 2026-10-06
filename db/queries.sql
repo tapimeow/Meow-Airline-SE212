@@ -49,14 +49,15 @@ ORDER BY s.SeatClass;
 
 -- Q2 [Kawintida] Which bookings has this passenger made, and which of them
 --    are not paid yet?                                     (passenger 1)
--- Q2a: the bookings, with their flights (4-table join)
+-- Q2a: the bookings, with their flights (5-table join)
 SELECT r.ReservationID, r.BookingDate, r.ReservationStatus,
-       f.FlightNo, f.OriginCode, f.DestinationCode, f.DepartureTime,
+       f.FlightNo, ro.OriginCode, ro.DestinationCode, f.DepartureTime,
        t.TicketStatus
 FROM PASSENGER p
-JOIN RESERVATION r ON r.PassengerID   = p.PassengerID
-JOIN TICKET      t ON t.ReservationID = r.ReservationID
-JOIN FLIGHT      f ON f.FlightID      = t.FlightID
+JOIN RESERVATION r  ON r.PassengerID   = p.PassengerID
+JOIN TICKET      t  ON t.ReservationID = r.ReservationID
+JOIN FLIGHT      f  ON f.FlightID      = t.FlightID
+JOIN ROUTE       ro ON ro.FlightNo     = f.FlightNo
 WHERE p.PassengerID = 1
 ORDER BY f.DepartureTime;
 
@@ -78,10 +79,12 @@ ORDER BY r.ReservationID;
 --    Income = fare price of every live ticket on September flights.
 --    LEFT JOIN so a route with zero tickets still appears (with 0).
 -- Q3a: income per route, highest first
-SELECT CONCAT(f.OriginCode, ' -> ', f.DestinationCode) AS route,
+SELECT CONCAT(ro.OriginCode, ' -> ', ro.DestinationCode) AS route,
        COUNT(t.TicketID)        AS seats_sold,
        COALESCE(SUM(fa.Price), 0) AS income
 FROM FLIGHT f
+JOIN ROUTE ro
+  ON ro.FlightNo = f.FlightNo
 LEFT JOIN TICKET t
   ON t.FlightID = f.FlightID
  AND t.TicketStatus <> 'cancelled'
@@ -89,19 +92,21 @@ LEFT JOIN FARE fa
   ON fa.FareID = t.FareID
 WHERE f.DepartureTime >= '2026-09-01'
   AND f.DepartureTime <  '2026-10-01'
-GROUP BY f.OriginCode, f.DestinationCode
-ORDER BY income DESC;
+GROUP BY ro.OriginCode, ro.DestinationCode
+ORDER BY income DESC, route;
 
 -- Q3b: the route that sold the fewest seats last month
-SELECT CONCAT(f.OriginCode, ' -> ', f.DestinationCode) AS route,
+SELECT CONCAT(ro.OriginCode, ' -> ', ro.DestinationCode) AS route,
        COUNT(t.TicketID) AS seats_sold
 FROM FLIGHT f
+JOIN ROUTE ro
+  ON ro.FlightNo = f.FlightNo
 LEFT JOIN TICKET t
   ON t.FlightID = f.FlightID
  AND t.TicketStatus <> 'cancelled'
 WHERE f.DepartureTime >= '2026-09-01'
   AND f.DepartureTime <  '2026-10-01'
-GROUP BY f.OriginCode, f.DestinationCode
+GROUP BY ro.OriginCode, ro.DestinationCode
 ORDER BY seats_sold ASC, route
 LIMIT 1;
 
@@ -110,10 +115,12 @@ LIMIT 1;
 -- =====================================================================
 
 -- Q4 [Kawintida] Flights departing in October 2026, earliest first (BETWEEN, ORDER BY)
-SELECT FlightNo, OriginCode, DestinationCode, DepartureTime, Status
-FROM FLIGHT
-WHERE DepartureTime BETWEEN '2026-10-01 00:00' AND '2026-10-31 23:59'
-ORDER BY DepartureTime;
+--    The route comes from ROUTE, joined on the flight number.
+SELECT f.FlightNo, ro.OriginCode, ro.DestinationCode, f.DepartureTime, f.Status
+FROM FLIGHT f
+JOIN ROUTE ro ON ro.FlightNo = f.FlightNo
+WHERE f.DepartureTime BETWEEN '2026-10-01 00:00' AND '2026-10-31 23:59'
+ORDER BY f.DepartureTime;
 
 -- Q5 [Kawintida] LIKE and IS NULL
 -- Q5a: everyone in the Saetang family
@@ -187,7 +194,7 @@ ORDER BY s.SeatNo;
 
 -- Q11 [Kornnaphat] Total baggage weight per ticket vs. its class limit (BR12)
 --     Limits: Economy 20 kg, Business 30 kg, FirstClass 40 kg
---     (Business/FirstClass limits are assumptions. See docs/DATABASE.md, open question 6.)
+--     (agreed by the team, docs/DATABASE.md open question 6)
 SELECT t.TicketID, s.SeatClass,
        COUNT(b.BaggageID) AS bags,
        SUM(b.Weight)      AS total_kg,
@@ -226,18 +233,20 @@ ORDER BY net_paid DESC;
 --     and class. The free-seats report page can read from this view.
 CREATE OR REPLACE VIEW v_flight_load AS
 SELECT f.FlightID, f.FlightNo, f.DepartureTime,
-       f.OriginCode, f.DestinationCode, s.SeatClass,
+       ro.OriginCode, ro.DestinationCode, s.SeatClass,
        COUNT(*)                     AS total_seats,
        COUNT(t.TicketID)            AS sold,
        COUNT(*) - COUNT(t.TicketID) AS free
 FROM FLIGHT f
+JOIN ROUTE ro
+  ON ro.FlightNo = f.FlightNo
 JOIN SEAT s
   ON s.AircraftID = f.AircraftID
 LEFT JOIN TICKET t
   ON t.FlightID = f.FlightID
  AND t.SeatID   = s.SeatID
  AND t.TicketStatus <> 'cancelled'
-GROUP BY f.FlightID, f.FlightNo, f.DepartureTime, f.OriginCode, f.DestinationCode, s.SeatClass;
+GROUP BY f.FlightID, f.FlightNo, f.DepartureTime, ro.OriginCode, ro.DestinationCode, s.SeatClass;
 
 -- Using the view: upcoming flights, Economy load
 SELECT FlightNo, DepartureTime, OriginCode, DestinationCode, total_seats, sold, free
@@ -275,10 +284,10 @@ SELECT TicketID, ReservationID, FlightID FROM TICKET WHERE ReservationID = 6;   
 ROLLBACK;
 
 -- Q18 [Kornnaphat] The database refuses rule-breaking data. Run each on its own.
--- Q18a: a flight from BKK to BKK. Expected: Error Code 3819, check constraint
---       'FLIGHT_Route_CK' is violated (BR7)
--- INSERT INTO FLIGHT (FlightNo, AircraftID, OriginCode, DestinationCode, DepartureTime, ArrivalTime)
--- VALUES ('MW999', 1, 'BKK', 'BKK', '2026-10-30 08:00', '2026-10-30 09:00');
+-- Q18a: a route from BKK to BKK. Expected: Error Code 3819, check constraint
+--       'ROUTE_Airports_CK' is violated (BR7)
+-- INSERT INTO ROUTE (FlightNo, OriginCode, DestinationCode)
+-- VALUES ('MW999', 'BKK', 'BKK');
 --
 -- Q18b: sell seat 2A on MW101 (20 Oct) again, although ticket 6 already has it.
 --       Expected: Error Code 1062, duplicate entry for key

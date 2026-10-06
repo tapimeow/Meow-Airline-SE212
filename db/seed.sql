@@ -59,8 +59,12 @@ INSERT INTO STAFF (StaffName, StaffRole) VALUES
   ('Malee Thongdee', 'CheckInStaff'),   -- 3
   ('Chai Boonmee',   'CheckInStaff');   -- 4
 
-INSERT INTO BOOKINGSTAFF (StaffID) VALUES (1), (2);
-INSERT INTO CHECKINSTAFF (StaffID) VALUES (3), (4);
+INSERT INTO BOOKINGSTAFF (StaffID, SalesOffice) VALUES
+  (1, 'Bangkok Silom Office'),
+  (2, 'Chiang Mai Office');
+INSERT INTO CHECKINSTAFF (StaffID, CounterNo) VALUES
+  (3, 'A12'),
+  (4, 'B03');
 
 -- SEAT: SeatID = (AircraftID - 1) * 12 + position --------------------------
 INSERT INTO SEAT (AircraftID, SeatNo, SeatClass) VALUES
@@ -83,20 +87,29 @@ INSERT INTO SEAT (AircraftID, SeatNo, SeatClass) VALUES
   (6, '1A', 'Business'), (6, '1B', 'Business'), (6, '1C', 'Business'), (6, '1D', 'Business'),
   (6, '2A', 'Economy'), (6, '2B', 'Economy'), (6, '2C', 'Economy'), (6, '2D', 'Economy'), (6, '3A', 'Economy'), (6, '3B', 'Economy'), (6, '3C', 'Economy'), (6, '3D', 'Economy');
 
--- FLIGHT -------------------------------------------------------------
-INSERT INTO FLIGHT (FlightNo, AircraftID, OriginCode, DestinationCode, DepartureTime, ArrivalTime, Status) VALUES
+-- ROUTE: each flight number always flies the same route ------------------
+INSERT INTO ROUTE (FlightNo, OriginCode, DestinationCode) VALUES
+  ('MW101', 'BKK', 'CNX'),
+  ('MW102', 'CNX', 'BKK'),
+  ('MW201', 'BKK', 'HKT'),
+  ('MW301', 'BKK', 'SIN'),
+  ('MW401', 'HKT', 'USM'),
+  ('MW501', 'BKK', 'VTE');
+
+-- FLIGHT: dated departures of the routes above ---------------------------
+INSERT INTO FLIGHT (FlightNo, AircraftID, DepartureTime, ArrivalTime, Status, Gate) VALUES
   -- September 2026 (already flown)
-  ('MW101', 1, 'BKK', 'CNX', '2026-09-10 08:00', '2026-09-10 09:15', 'OnTime'),   -- 1
-  ('MW102', 1, 'CNX', 'BKK', '2026-09-10 10:30', '2026-09-10 11:45', 'OnTime'),   -- 2
-  ('MW201', 3, 'BKK', 'HKT', '2026-09-15 09:00', '2026-09-15 10:25', 'Delayed'),  -- 3
-  ('MW301', 4, 'BKK', 'SIN', '2026-09-20 13:00', '2026-09-20 16:20', 'OnTime'),   -- 4
-  ('MW401', 2, 'HKT', 'USM', '2026-09-25 15:00', '2026-09-25 16:00', 'OnTime'),   -- 5
+  ('MW101', 1, '2026-09-10 08:00', '2026-09-10 09:15', 'OnTime', 'A1'),   -- 1
+  ('MW102', 1, '2026-09-10 10:30', '2026-09-10 11:45', 'OnTime', 'B2'),   -- 2
+  ('MW201', 3, '2026-09-15 09:00', '2026-09-15 10:25', 'Delayed', 'A3'),  -- 3
+  ('MW301', 4, '2026-09-20 13:00', '2026-09-20 16:20', 'OnTime', 'C1'),   -- 4
+  ('MW401', 2, '2026-09-25 15:00', '2026-09-25 16:00', 'OnTime', 'D2'),   -- 5
   -- October 2026 (upcoming)
-  ('MW101', 1, 'BKK', 'CNX', '2026-10-20 08:00', '2026-10-20 09:15', 'OnTime'),   -- 6  <- Q1 example
-  ('MW102', 1, 'CNX', 'BKK', '2026-10-20 10:30', '2026-10-20 11:45', 'OnTime'),   -- 7
-  ('MW201', 3, 'BKK', 'HKT', '2026-10-21 09:00', '2026-10-21 10:25', 'OnTime'),   -- 8
-  ('MW501', 5, 'BKK', 'VTE', '2026-10-22 11:00', '2026-10-22 12:10', 'OnTime'),   -- 9
-  ('MW301', 4, 'BKK', 'SIN', '2026-10-25 13:00', '2026-10-25 16:20', 'OnTime');   -- 10
+  ('MW101', 1, '2026-10-20 08:00', '2026-10-20 09:15', 'OnTime', 'A2'),   -- 6  <- Q1 example
+  ('MW102', 1, '2026-10-20 10:30', '2026-10-20 11:45', 'OnTime', 'B1'),   -- 7
+  ('MW201', 3, '2026-10-21 09:00', '2026-10-21 10:25', 'OnTime', 'A4'),   -- 8
+  ('MW501', 5, '2026-10-22 11:00', '2026-10-22 12:10', 'OnTime', 'C2'),   -- 9
+  ('MW301', 4, '2026-10-25 13:00', '2026-10-25 16:20', 'OnTime', 'C3');   -- 10
 
 -- FARE: FareID = 2 * FlightID - 1 (Economy) and 2 * FlightID (Business) -------
 INSERT INTO FARE (FlightID, Class, Price) VALUES
@@ -192,8 +205,8 @@ INSERT INTO BAGGAGE (TicketID, Weight, BaggageStatus) VALUES
   (4, 19.50, 'Arrived');
 
 -- CHECKIN (one per ticket; only September tickets so far) ---------------
-INSERT INTO CHECKIN (TicketID, CheckInStaffID, CheckInTime, Gate, BoardingPassNo) VALUES
-  (1, 3, '2026-09-10 06:45', 'A1', 'BP260910-001'),
-  (2, 3, '2026-09-10 09:05', 'B2', 'BP260910-002'),
-  (3, 4, '2026-09-15 07:30', 'A3', 'BP260915-001'),
-  (4, 4, '2026-09-20 11:10', 'C1', 'BP260920-001');
+INSERT INTO CHECKIN (TicketID, CheckInStaffID, CheckInTime, BoardingPassNo) VALUES
+  (1, 3, '2026-09-10 06:45', 'BP260910-001'),
+  (2, 3, '2026-09-10 09:05', 'BP260910-002'),
+  (3, 4, '2026-09-15 07:30', 'BP260915-001'),
+  (4, 4, '2026-09-20 11:10', 'BP260920-001');

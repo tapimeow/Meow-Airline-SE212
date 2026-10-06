@@ -50,7 +50,7 @@ Reports the system must answer:
 
 ```
 config/db.js            MySQL pool, the only place credentials are read      [Patarawadee]
-db/schema.sql           CREATE TABLEs (16 tables, 2 M:N bridges)            [Patarawadee, Phase 3]
+db/schema.sql           CREATE TABLEs (17 tables, 2 M:N bridges)            [Patarawadee, Phase 3]
 db/seed.sql             Fake sample data                                     [Patarawadee, Phase 3]
 db/queries.sql          20 queries for report section 7                      [Kawintida + Kornnaphat, Phase 5a]
 routes/                 One file per entity: URL list                        [Kawintida, Phase 4]

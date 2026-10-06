@@ -7,18 +7,22 @@ Only Patarawadee changes `db/schema.sql`. Anyone may suggest changes to this fil
 
 ![Architecture](architecture.png)
 
-## Entities (13 + 2 subtype tables + 1 bridge = 16 tables)
+## Entities (14 + 2 subtype tables + 1 bridge = 17 tables)
 
 Implemented in [`db/schema.sql`](../db/schema.sql) and tested on MySQL 8.0. The staff FKs on
 RESERVATION and CHECKIN come from the EER's **Created** and **Processes** relationships.
 Columns in **bold** were added in the SQL. Checked against the EER (Phase 3): the first three are
-already in the diagram, and the last two are implementation helpers that Chen notation does not draw.
+already in the diagram, and the next two are implementation helpers that Chen notation does not draw.
+The last three come from the team decisions of Tue 6 Oct and still need adding to the EER.
 
 - **FLIGHT.FlightNo** (`'MW101'`). The business question "seats free on flight MW101 on 20 October" needs a flight number that repeats every day. FlightID stays the surrogate PK. *In the EER as a FLIGHT attribute.*
 - **TICKET.PassengerID** → PASSENGER. The traveller on the ticket. RESERVATION.PassengerID stays as the person who booked, so a family of 3 on one reservation gets 3 named tickets (resolves open question 7). *In the EER as the TravelsOn relationship.*
 - **TICKET.FareID** → FARE. This gives each ticket its price, so income per route can be calculated (resolves open questions 3 and 4). *In the EER as the Sells relationship.*
 - **TICKET.ActiveSeat**. A generated helper column so MySQL itself enforces BR10 (see below). *Not drawn: derived from TicketStatus.*
 - **StaffRole in each subtype table**. Lets MySQL enforce BR14 (see below). *Not drawn: the EER shows StaffRole once, on STAFF, as the discriminator of the `d` specialisation.*
+- **ROUTE** (FlightNo, OriginCode, DestinationCode). A flight number always flies the same route, so the route is stored once here instead of on every dated flight (decision C). *To add to the EER: a ROUTE entity, Origin and Destination move from FLIGHT to ROUTE, and a new Follows relationship (ROUTE 1 : N FLIGHT).*
+- **BOOKINGSTAFF.SalesOffice** and **CHECKINSTAFF.CounterNo**. One attribute that only each subtype has (open question 5). *To add to the EER as an oval on each subtype.*
+- **FLIGHT.Gate**, moved from CHECKIN. A gate belongs to the departure, not to each passenger (decision E). *In the EER: move the Gate oval from CHECKIN to FLIGHT.*
 
 The full relational model for report §4 (every table, PK, FK and FK action) is in
 [`RELATIONAL_MODEL.md`](RELATIONAL_MODEL.md).
@@ -28,7 +32,8 @@ The full relational model for report §4 (every table, PK, FK and FK action) is 
 | PASSENGER | PassengerID | Name, PassportNo, PhoneNo, Email, MembershipStatus (Normal/Silver/Gold) | — |
 | AIRPORT | AirportCode | City, Country | — |
 | AIRCRAFT | AircraftID | AircraftModel, TotalSeat | — |
-| FLIGHT | FlightID | **FlightNo**, DepartureTime, ArrivalTime, Status (OnTime/Delayed/Canceled) | AircraftID, OriginCode, DestinationCode |
+| **ROUTE** | FlightNo | — | OriginCode, DestinationCode |
+| FLIGHT | FlightID | DepartureTime, ArrivalTime, Status (OnTime/Delayed/Canceled), **Gate** | AircraftID, **FlightNo** |
 | SEAT | SeatID | SeatNo, SeatClass (Economy/Business/FirstClass) | AircraftID |
 | FARE | FareID | Class, Price *(the old `Rule` column moved to FARE_RULE)* | FlightID |
 | **FARE_CONDITION** | ConditionID | ConditionName (UNIQUE), Description | — |
@@ -37,19 +42,20 @@ The full relational model for report §4 (every table, PK, FK and FK action) is 
 | TICKET *(bridge)* | TicketID | TicketIssueDate, TicketStatus (booked/issued/used/cancelled), **ActiveSeat** | ReservationID, **PassengerID** (traveller), FlightID, SeatID, **FareID** |
 | PAYMENT | PaymentID | TotalAmount, PaymentMethod, TimeStamp, Status (Paid/Refunded) | ReservationID |
 | BAGGAGE | BaggageID | Weight, BaggageStatus | TicketID |
-| CHECKIN | CheckInID | CheckInTime, Gate, BoardingPassNo | TicketID (UNIQUE), **CheckInStaffID** |
+| CHECKIN | CheckInID | CheckInTime, BoardingPassNo | TicketID (UNIQUE), **CheckInStaffID** |
 | STAFF | StaffID | StaffName, StaffRole | — |
-| BOOKINGSTAFF | StaffID | **StaffRole** (always 'BookingStaff'), other subtype attributes TBD | (StaffID, StaffRole) → STAFF |
-| CHECKINSTAFF | StaffID | **StaffRole** (always 'CheckInStaff'), other subtype attributes TBD | (StaffID, StaffRole) → STAFF |
+| BOOKINGSTAFF | StaffID | **StaffRole** (always 'BookingStaff'), **SalesOffice** | (StaffID, StaffRole) → STAFF |
+| CHECKINSTAFF | StaffID | **StaffRole** (always 'CheckInStaff'), **CounterNo** | (StaffID, StaffRole) → STAFF |
 
-**Create order** (parents first): AIRPORT, AIRCRAFT, PASSENGER, STAFF → BOOKINGSTAFF, CHECKINSTAFF, SEAT, FLIGHT, FARE_CONDITION → FARE → FARE_RULE, RESERVATION → TICKET, PAYMENT → BAGGAGE, CHECKIN. **Drop order** is the reverse (Lecture 8.2).
+**Create order** (parents first): AIRPORT, AIRCRAFT, PASSENGER, STAFF → ROUTE, BOOKINGSTAFF, CHECKINSTAFF, SEAT, FARE_CONDITION → FLIGHT → FARE, RESERVATION → FARE_RULE, TICKET, PAYMENT → BAGGAGE, CHECKIN. **Drop order** is the reverse (Lecture 8.2).
 
 ## Relationships (from the Chen EER)
 
 | Relationship | Parent → child | Card. | FK goes in | ON DELETE in `schema.sql`, and why |
 |---|---|---|---|---|
-| Origin | AIRPORT → FLIGHT | 1:N | FLIGHT.OriginCode | RESTRICT: an airport with flights cannot disappear |
-| Destination | AIRPORT → FLIGHT | 1:N | FLIGHT.DestinationCode | RESTRICT |
+| Origin | AIRPORT → ROUTE | 1:N | ROUTE.OriginCode | RESTRICT: an airport with routes cannot disappear |
+| Destination | AIRPORT → ROUTE | 1:N | ROUTE.DestinationCode | RESTRICT |
+| *(new)* Follows | ROUTE → FLIGHT | 1:N | FLIGHT.FlightNo | RESTRICT: a route with flights cannot disappear |
 | Uses | AIRCRAFT → FLIGHT | 1:N | FLIGHT.AircraftID | RESTRICT |
 | Has | AIRCRAFT → SEAT | 1:N | SEAT.AircraftID | CASCADE: a seat cannot exist without its aircraft |
 | Offers | FLIGHT → FARE | 1:N | FARE.FlightID | CASCADE |
@@ -72,8 +78,8 @@ M:N relationships (Lab 6 needs at least two):
 1. RESERVATION ⇄ FLIGHT, resolved by **TICKET** (extra attributes: SeatID, PassengerID, FareID, issue date, status)
 2. FARE ⇄ FARE_CONDITION, resolved by **FARE_RULE** (extra attribute: Fee)
 
-On-update actions are CASCADE, except the two AIRPORT FKs on FLIGHT. Those use RESTRICT,
-because MySQL does not allow CASCADE on columns that a CHECK uses (`FLIGHT_Route_CK`, BR7).
+On-update actions are CASCADE, except the two AIRPORT FKs on ROUTE. Those use RESTRICT,
+because MySQL does not allow CASCADE on columns that a CHECK uses (`ROUTE_Airports_CK`, BR7).
 
 ### Two rules enforced by MySQL itself, not only by the backend
 
@@ -113,17 +119,17 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 
 | BR | Rule (short) | Enforced in |
 |---|---|---|
-| BR1, BR2 | Flight has one origin and one destination airport | DB: `NOT NULL` FKs |
+| BR1, BR2 | Flight has one origin and one destination airport | DB: `NOT NULL` FKs on ROUTE, and FLIGHT.FlightNo → ROUTE |
 | BR3 | Flight uses exactly one aircraft | DB: `NOT NULL` FK |
 | BR4 | Seat belongs to one aircraft | DB: `NOT NULL` FK |
 | BR5 | Reservation belongs to one passenger | DB: `NOT NULL` FK |
 | BR6 | Reservation ⇄ Flight M:N via TICKET | DB: TICKET table |
-| BR7 | Origin ≠ destination | DB: `CHECK`, also validated in the backend |
+| BR7 | Origin ≠ destination | DB: `ROUTE_Airports_CK`, also validated in the backend |
 | BR8 | Payment before a ticket is issued | Backend: `ticketController` |
 | BR9 | Baggage is optional | DB: nothing required |
 | BR10 | No seat on two live tickets for the same flight | **DB:** `TICKET_Seat_On_Flight_UQ`. Backend: also check inside the booking transaction so the user gets a friendly message |
 | BR11 | Seat rows ≤ Aircraft.TotalSeat | Backend: `seatController` |
-| BR12 | Bag weight per ticket ≤ class limit | Backend: `baggageController` |
+| BR12 | Bag weight per ticket ≤ class limit (Economy 20 kg, Business 30 kg, FirstClass 40 kg) | Backend: `baggageController` |
 | BR13 | Check-in only if ticket issued and flight not departed | Backend: `checkinController` |
 | BR14 | Staff is BookingStaff **or** CheckInStaff | **DB:** composite FK (StaffID, StaffRole). Backend: `staffController` inserts both rows in one transaction |
 | BR15 | Fare belongs to one flight | DB: `NOT NULL` FK. A ticket's fare must be for the ticket's flight: composite FK `TICKET_FARE_FK` (FareID, FlightID) |
@@ -138,8 +144,8 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 2. ~~Who handled a booking or check-in?~~ **Resolved by the EER:** `BookingStaffID` and `CheckInStaffID` FKs.
 3. ~~Ticket price~~ **Resolved in the SQL:** `TICKET.FareID`. Revert if the team disagrees.
 4. ~~Income per route~~ **Resolved in the SQL:** income = the fare price of each live ticket, grouped by the ticket's flight route (`queries.sql` Q3). Payments are used only for paid/unpaid status.
-5. **Subtype attributes.** What do BOOKINGSTAFF / CHECKINSTAFF store that STAFF does not? Without extra attributes the specialisation is hard to justify. Example: `Counter`, `Terminal`.
-6. **Baggage limits** per class (BR12): Economy 20 kg. `queries.sql` Q11 *assumes* Business 30 kg and FirstClass 40 kg. Confirm these.
+5. ~~Subtype attributes~~ **Resolved (Tue 6 Oct):** BOOKINGSTAFF stores `SalesOffice` (the office the staff member sells from) and CHECKINSTAFF stores `CounterNo` (their check-in counter). Each subtype also has a relationship STAFF does not: BookingStaff **Created** reservations (BR16) and CheckInStaff **Processes** check-ins (BR17).
+6. ~~Baggage limits~~ **Resolved (Tue 6 Oct):** Economy 20 kg, Business 30 kg, FirstClass 40 kg (BR12), as used in `queries.sql` Q11.
 7. ~~Who is the traveller on each ticket?~~ **Resolved:** `TICKET.PassengerID` → PASSENGER (BR18). RESERVATION.PassengerID is the booker; each ticket names who flies. Shown as **TravelsOn** (PASSENGER 1:N TICKET) in the EER.
 
 ## Functional dependencies + 3NF check: Patarawadee fills this in (Lecture 7)
@@ -147,7 +153,7 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 Write one FD per business rule: *determinant → dependents*. Then check each table:
 **1NF** (atomic values, no repeating groups) → **2NF** (no partial dependency on part of a composite key) → **3NF** (no transitive dependency, non-key → non-key).
 
-> **Draft from `db/schema.sql`. Patarawadee to check, then all three review.** ✓ = passes,
+> **Checked against `db/schema.sql`. Decisions A–E settled on Tue 6 Oct.** ✓ = passes,
 > ⚠ = passes only because of a team decision listed under *Decisions the 3NF check depends on*,
 > ✗ = a known exception with its justification.
 > Candidate keys are listed because a determinant that is a candidate key never breaks 3NF.
@@ -155,19 +161,20 @@ Write one FD per business rule: *determinant → dependents*. Then check each ta
 | Table | FDs | 1NF | 2NF | 3NF | Notes |
 |---|---|---|---|---|---|
 | PASSENGER | PassengerID → Name, PassportNo, PhoneNo, Email, MembershipStatus<br>PassportNo → PassengerID | ✓ | ✓ | ✓ | Candidate keys: PassengerID, PassportNo (`UNIQUE`). Single-column keys, so no partial dependency |
-| AIRPORT | AirportCode → City, Country | ✓ | ✓ | ⚠ | City → Country is **not** taken as an FD: city names are not unique worldwide (decision A) |
-| AIRCRAFT | AircraftID → AircraftModel, TotalSeat | ✓ | ✓ | ⚠ | AircraftModel → TotalSeat is **not** taken as an FD: two aircraft of one model can have different cabin layouts (decision B) |
-| FLIGHT | FlightID → FlightNo, AircraftID, OriginCode, DestinationCode, DepartureTime, ArrivalTime, Status<br>(FlightNo, DepartureTime) → FlightID | ✓ | ⚠ | ⚠ | Candidate keys: FlightID, (FlightNo, DepartureTime). Holds only if FlightNo does **not** fix the route (decision C). In `seed.sql` it does: MW101 is always BKK → CNX |
+| AIRPORT | AirportCode → City, Country | ✓ | ✓ | ✓ | City → Country is **not** an FD: city names are not unique worldwide (decision A) |
+| AIRCRAFT | AircraftID → AircraftModel, TotalSeat | ✓ | ✓ | ✓ | AircraftModel → TotalSeat is **not** an FD: two aircraft of one model can have different cabin layouts (decision B) |
+| ROUTE | FlightNo → OriginCode, DestinationCode | ✓ | ✓ | ✓ | Split out of FLIGHT (decision C). Single-column key |
+| FLIGHT | FlightID → FlightNo, AircraftID, DepartureTime, ArrivalTime, Status, Gate<br>(FlightNo, DepartureTime) → FlightID | ✓ | ✓ | ✓ | Candidate keys: FlightID, (FlightNo, DepartureTime). The route moved to ROUTE, so FlightNo no longer determines anything else in this table (decision C) |
 | SEAT | SeatID → AircraftID, SeatNo, SeatClass<br>(AircraftID, SeatNo) → SeatID | ✓ | ✓ | ✓ | Candidate keys: SeatID, (AircraftID, SeatNo). SeatClass depends on the whole (AircraftID, SeatNo), not on SeatNo alone |
 | FARE | FareID → FlightID, Class, Price | ✓ | ✓ | ✓ | BR15. The old multi-valued `Rule` column broke 1NF; it moved to FARE_RULE |
 | RESERVATION | ReservationID → PassengerID, BookingStaffID, BookingDate, ReservationStatus | ✓ | ✓ | ✓ | BR5, BR16. PassengerID is the booker; travellers are on TICKET |
 | TICKET | TicketID → ReservationID, PassengerID, FlightID, SeatID, FareID, TicketIssueDate, TicketStatus<br>**FareID → FlightID** (BR15)<br>**TicketStatus → ActiveSeat** | ✓ | ✓ | ✗ | Two transitive FDs, both kept on purpose. **ActiveSeat** is a generated column: MySQL computes it from TicketStatus, so it can never disagree (no update anomaly). **FlightID** is kept because the BR10 and BR18 `UNIQUE` constraints need it in this table. A ticket whose fare belongs to another flight is rejected by MySQL through the composite FK `TICKET_FARE_FK` (decision D) |
 | PAYMENT | PaymentID → ReservationID, TotalAmount, PaymentMethod, TimeStamp, Status | ✓ | ✓ | ✓ | TotalAmount is stored, not derived: it is what was actually paid |
 | BAGGAGE | BaggageID → TicketID, Weight, BaggageStatus | ✓ | ✓ | ✓ | BR9 |
-| CHECKIN | CheckInID → TicketID, CheckInStaffID, CheckInTime, Gate, BoardingPassNo<br>TicketID → CheckInID<br>BoardingPassNo → CheckInID | ✓ | ✓ | ✓ | Candidate keys: CheckInID, TicketID, BoardingPassNo, so every determinant is a key. Gate really belongs to the flight (decision E) |
+| CHECKIN | CheckInID → TicketID, CheckInStaffID, CheckInTime, BoardingPassNo<br>TicketID → CheckInID<br>BoardingPassNo → CheckInID | ✓ | ✓ | ✓ | Candidate keys: CheckInID, TicketID, BoardingPassNo, so every determinant is a key. Gate moved to FLIGHT (decision E) |
 | STAFF | StaffID → StaffName, StaffRole | ✓ | ✓ | ✓ | (StaffID, StaffRole) is `UNIQUE` only as the target of the subtype FKs (BR14) |
-| BOOKINGSTAFF | StaffID → StaffRole | ✓ | ✓ | ✓ | StaffRole is always 'BookingStaff' (CHECK). Subtype attributes are still open question 5 |
-| CHECKINSTAFF | StaffID → StaffRole | ✓ | ✓ | ✓ | StaffRole is always 'CheckInStaff' (CHECK). Subtype attributes are still open question 5 |
+| BOOKINGSTAFF | StaffID → StaffRole, SalesOffice | ✓ | ✓ | ✓ | StaffRole is always 'BookingStaff' (CHECK) |
+| CHECKINSTAFF | StaffID → StaffRole, CounterNo | ✓ | ✓ | ✓ | StaffRole is always 'CheckInStaff' (CHECK) |
 | FARE_CONDITION | ConditionID → ConditionName, Description<br>ConditionName → ConditionID | ✓ | ✓ | ✓ | Candidate keys: ConditionID, ConditionName (`UNIQUE`) |
 | FARE_RULE | (FareID, ConditionID) → Fee | ✓ | ✓ | ✓ | BR19. The only composite PK. Fee needs **both** parts (a change fee differs per fare), so there is no partial dependency |
 
@@ -176,19 +183,24 @@ Write one FD per business rule: *determinant → dependents*. Then check each ta
 Lecture 7: FDs come from business rules, not sample data. These are the places where the
 sample data *looks* like an FD. The team decides whether each one is a business rule.
 
-- **A. City → Country.** Draft says no, since city names repeat across countries. If the team
-  says yes, AIRPORT needs a separate CITY table to reach 3NF.
-- **B. AircraftModel → TotalSeat.** Draft says no, since airlines fit the same model with
-  different layouts. If yes, split out an AIRCRAFT_MODEL table.
-- **C. FlightNo → OriginCode, DestinationCode.** At real airlines a flight number is a fixed
-  route, and `seed.sql` follows that. If the team agrees, FLIGHT breaks 2NF (part of the
-  candidate key (FlightNo, DepartureTime) decides the route). The fix is a ROUTE table
-  (FlightNo PK, OriginCode, DestinationCode) with FLIGHT.FlightNo → ROUTE. If the team says
-  no, write it as a rule: "a flight number may be reused on a different route".
+- **A. City → Country.** ✅ **Agreed: no** (Tue 6 Oct). City names repeat across countries, so a
+  city does not determine its country. AIRPORT stays as it is.
+- **B. AircraftModel → TotalSeat.** ✅ **Decided: no** (Tue 6 Oct). Airlines fit the same model with
+  different cabin layouts (an A320 can have 150 or 186 seats), so the model does not fix the seat
+  count. AIRCRAFT stays as it is; TotalSeat belongs to each aircraft.
+- **C. FlightNo → OriginCode, DestinationCode.** ✅ **Agreed: yes, done in `schema.sql`** (Tue 6 Oct).
+  At real airlines a flight number is a fixed route, and `seed.sql` follows that. With the route
+  in FLIGHT, the table broke 2NF (part of the candidate key (FlightNo, DepartureTime) decides
+  the route) and 3NF (FlightID → FlightNo → route is transitive): MW101's route was repeated
+  on every date it flies. The fix is the ROUTE table (FlightNo PK, OriginCode, DestinationCode)
+  with FLIGHT.FlightNo → ROUTE, so each route is stored once.
 - **D. TICKET.FareID → FlightID.** ✅ **Done in `schema.sql`**, using the same trick as the staff
   subtypes: FARE has `UNIQUE (FareID, FlightID)`, and TICKET's fare FK is
   `FOREIGN KEY (FareID, FlightID) REFERENCES FARE (FareID, FlightID)`. MySQL rejects a fare
   from another flight (Error Code 1452), so the redundancy stays safe. The table stays ✗ in
   theory, but the report can say the anomaly is blocked by the database.
-- **E. CHECKIN.Gate.** Not a 3NF violation in this table (TicketID is a candidate key), but every
-  passenger on one flight repeats the same gate. Moving Gate to FLIGHT removes the repetition.
+- **E. CHECKIN.Gate.** ✅ **Decided: moved to FLIGHT** (Tue 6 Oct). It was not a 3NF violation inside
+  CHECKIN (TicketID is a candidate key), but every passenger on one flight repeated the same gate,
+  so a gate change meant updating every check-in row (an update anomaly). Now the gate is stored
+  once per departure, `FLIGHT.Gate`, and is NULL until the airport assigns it. A boarding pass
+  reads it through CHECKIN → TICKET → FLIGHT.
