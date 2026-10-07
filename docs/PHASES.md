@@ -39,11 +39,11 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 - [x] Second M:N decided: FARE ⇄ FARE_CONDITION via FARE_RULE (`docs/DATABASE.md`)
 - [x] **All (Mon):** decide the remaining open questions in `docs/DATABASE.md` (Tue 6 Oct: A no, C yes → ROUTE table, Q5 SalesOffice / CounterNo, Q6 20/30/40 kg, B no, E Gate → FLIGHT)
 - [x] Apply the ERD review fixes: new EER in `docs/erd/meow-airline-eer.drawio` + `.png`
-- [ ] **All:** review the new EER
+- [ ] **All:** review the new EER. Patarawadee ✅ (Wed 7 Oct: updated with ROUTE, Gate on FLIGHT, SalesOffice / CounterNo)
 - [x] **Patarawadee:** write the relational model: every table, PK, FK (report §4) → `docs/RELATIONAL_MODEL.md`
 - [x] **Patarawadee:** write the FDs for each table and the 1NF → 2NF → 3NF check in `docs/DATABASE.md` (draft; the team still decides A–C)
-- [ ] **Kawintida:** update the business rules list with the staff rules (report §2)
-- [ ] **Kawintida + Kornnaphat:** review the 3NF table
+- [x] **Kawintida:** update the business rules list with the staff rules (report §2) → `docs/BUSINESS_RULES.md`
+- [x] **Kawintida + Kornnaphat:** review the 3NF table
 
 ## Phase 3: Database built · Patarawadee · Wed 7 – Thu 8
 
@@ -51,22 +51,22 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 - [x] Patarawadee reviews the columns added in the SQL (`docs/DATABASE.md` → Entities) and adds them to the EER (already covered, no diagram change needed)
 - [x] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
 - [x] Runs top to bottom on an empty database. Re-checked Tue 6 Oct in Workbench on MySQL 8.4: `schema.sql` then `seed.sql`, 0 errors, and the app reads the data
-- [ ] Screenshot the tables in Workbench / DBeaver for the report
-- [ ] **Thu evening:** tell the team the schema is frozen. After this point, schema changes go through Patarawadee only
+- [x] Screenshot the tables in Workbench / DBeaver for the report (Wed 7 Oct: `db/pic/Schema` + `db/pic/Seed`, in report §5–§6)
+- [x] **Thu evening:** tell the team the schema is frozen. After this point, schema changes go through Patarawadee only (frozen early, Wed 7 Oct, with the updated EER)
 - [ ] (Optional) shared Railway database, with credentials sent over chat
 
 ## Phase 4: Backend · Kawintida · Fri 9 – Mon 12
 
 Order (stop wherever time runs out): flights/fares → **reservations + tickets (transaction)** → payments → reports → staff → check-in → baggage → airports/aircraft/seats admin.
 
-- [ ] Booking, change, and cancel run in **one transaction** (O1)
-- [ ] Each rule marked "backend" in `docs/DATABASE.md` is enforced
+- [x] Booking, change, and cancel run in **one transaction** (O1)
+- [x] Each rule marked "backend" in `docs/DATABASE.md` is enforced
 - [ ] Test each route in the browser and check the rows in the DB
 
 ## Phase 5a: SQL queries · Kawintida + Kornnaphat · Fri 9 – Sun 11
 
 - [x] Queries written in `db/queries.sql`. All run against `seed.sql`
-- [ ] Each owner reads their half, makes sure they can explain it, and changes anything they disagree with
+- [x] Kawintida reviewed Q1–Q9 and Q19, and updated Q2 payment states and Q19 to retain fares without conditions
 - [ ] Run each one against `seed.sql` and take a screenshot for report §7
 - [ ] The UPDATE/DELETE examples must show the constraints working (Lecture 8.2)
 
@@ -78,8 +78,8 @@ Order (stop wherever time runs out): flights/fares → **reservations + tickets 
 
 ## Phase 6: Report, slides, submission · All · Tue 13 – Wed 14
 
-- [ ] **Tue:** feature freeze. Assemble the report (`docs/REPORT.md` → section owners)
-- [ ] **Tue:** slides (each member owns their part)
+- [ ] **Tue:** feature freeze. Assemble the report (`docs/REPORT.md` → section owners). Patarawadee ✅ §3–§6 written (Wed 7 Oct)
+- [ ] **Tue:** slides (each member owns their part). Patarawadee ✅ full 21-slide draft made (Wed 7 Oct); others fill their parts
 - [ ] **Wed:** full rehearsal with a timer, including the live demo: book a family of 3 → pay → check in → 3 reports
 - [ ] **Wed:** every member uploads the slides, report, and source code (zip of `main`) to Mango
 - [ ] **Thu 15:** present
