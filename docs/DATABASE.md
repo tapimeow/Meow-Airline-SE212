@@ -13,16 +13,16 @@ Implemented in [`db/schema.sql`](../db/schema.sql) and tested on MySQL 8.0. The 
 RESERVATION and CHECKIN come from the EER's **Created** and **Processes** relationships.
 Columns in **bold** were added in the SQL. Checked against the EER (Phase 3): the first three are
 already in the diagram, and the next two are implementation helpers that Chen notation does not draw.
-The last three come from the team decisions of Tue 6 Oct and still need adding to the EER.
+The last three come from the team decisions of Tue 6 Oct and were added to the EER on Wed 7 Oct.
 
 - **FLIGHT.FlightNo** (`'MW101'`). The business question "seats free on flight MW101 on 20 October" needs a flight number that repeats every day. FlightID stays the surrogate PK. *In the EER as a FLIGHT attribute.*
 - **TICKET.PassengerID** → PASSENGER. The traveller on the ticket. RESERVATION.PassengerID stays as the person who booked, so a family of 3 on one reservation gets 3 named tickets (resolves open question 7). *In the EER as the TravelsOn relationship.*
 - **TICKET.FareID** → FARE. This gives each ticket its price, so income per route can be calculated (resolves open questions 3 and 4). *In the EER as the Sells relationship.*
 - **TICKET.ActiveSeat**. A generated helper column so MySQL itself enforces BR10 (see below). *Not drawn: derived from TicketStatus.*
 - **StaffRole in each subtype table**. Lets MySQL enforce BR14 (see below). *Not drawn: the EER shows StaffRole once, on STAFF, as the discriminator of the `d` specialisation.*
-- **ROUTE** (FlightNo, OriginCode, DestinationCode). A flight number always flies the same route, so the route is stored once here instead of on every dated flight (decision C). *To add to the EER: a ROUTE entity, Origin and Destination move from FLIGHT to ROUTE, and a new Follows relationship (ROUTE 1 : N FLIGHT).*
-- **BOOKINGSTAFF.SalesOffice** and **CHECKINSTAFF.CounterNo**. One attribute that only each subtype has (open question 5). *To add to the EER as an oval on each subtype.*
-- **FLIGHT.Gate**, moved from CHECKIN. A gate belongs to the departure, not to each passenger (decision E). *In the EER: move the Gate oval from CHECKIN to FLIGHT.*
+- **ROUTE** (FlightNo, OriginCode, DestinationCode). A flight number always flies the same route, so the route is stored once here instead of on every dated flight (decision C). *In the EER as the ROUTE entity and the Follows relationship (ROUTE 1 : N FLIGHT); Origin and Destination now link AIRPORT to ROUTE.*
+- **BOOKINGSTAFF.SalesOffice** and **CHECKINSTAFF.CounterNo**. One attribute that only each subtype has (open question 5). *In the EER as an oval on each subtype.*
+- **FLIGHT.Gate**, moved from CHECKIN. A gate belongs to the departure, not to each passenger (decision E). *In the EER as an attribute of FLIGHT.*
 
 The full relational model for report §4 (every table, PK, FK and FK action) is in
 [`RELATIONAL_MODEL.md`](RELATIONAL_MODEL.md).
@@ -78,8 +78,11 @@ M:N relationships (Lab 6 needs at least two):
 1. RESERVATION ⇄ FLIGHT, resolved by **TICKET** (extra attributes: SeatID, PassengerID, FareID, issue date, status)
 2. FARE ⇄ FARE_CONDITION, resolved by **FARE_RULE** (extra attribute: Fee)
 
-On-update actions are CASCADE, except the two AIRPORT FKs on ROUTE. Those use RESTRICT,
-because MySQL does not allow CASCADE on columns that a CHECK uses (`ROUTE_Airports_CK`, BR7).
+On-update actions are CASCADE, except six that use RESTRICT. The two AIRPORT FKs on ROUTE and the
+two staff subtype FKs cannot CASCADE, because MySQL does not allow it on columns that a CHECK uses
+(`ROUTE_Airports_CK`, BR7; the subtype role CHECKs, BR14). The two TICKET FKs that carry FlightID
+(`TICKET_FLIGHT_FK`, `TICKET_FARE_FK`) are RESTRICT because two cascade paths made MySQL fail with
+error 1452 when a ticketed flight was renumbered.
 
 ### Two rules enforced by MySQL itself, not only by the backend
 
