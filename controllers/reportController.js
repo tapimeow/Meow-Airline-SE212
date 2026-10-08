@@ -5,10 +5,6 @@
 // Report handlers return JSON so the frontend can use the same parameterized
 // report data without embedding SQL in EJS templates.
 //
-// TODO [Phase 4 · Backend · Kawintida]: freeSeats(req, res)          — Q1
-// TODO [Phase 4 · Backend · Kawintida]: passengerBookings(req, res)  — Q2
-// TODO [Phase 4 · Backend · Kawintida]: routeIncome(req, res)        — Q3
-//
 // Q3 income follows the agreed definition in docs/DATABASE.md: sum live-ticket
 // fare prices by route, rather than trying to allocate reservation payments.
 const pool = require('../config/db');
