@@ -18,7 +18,7 @@ screenshots of the MySQL Workbench window.
 | Q4 | 5 | Five flights depart in October 2026, ordered by departure time. ![Q4 October flights](../db/pic/Queries/q4.png) |
 | Q5a | 3 | Three passengers match the Saetang family search. ![Q5a family search](../db/pic/Queries/q5a.png) |
 | Q5b | 1 | Mint Saetang has no email; the result includes the passenger's phone field. ![Q5b missing email](../db/pic/Queries/q5b.png) |
-| Q6 | 1 | Only Normal meets the `HAVING COUNT(*) >= 3` threshold (4 passengers). ![Q6 membership totals](../db/pic/Queries/q6.png) |
+| Q6 | 2 | With 100 sample passengers, Normal (68) and Silver (20) meet `HAVING COUNT(*) >= 15`; Gold (12) is dropped (re-captured Thu 8 Oct). ![Q6 membership totals](../db/pic/Queries/q6.png) |
 | Q7 | 3 | MW101 has three issued passengers in seats 2A–2C. ![Q7 boarding list](../db/pic/Queries/q7.png) |
 | Q8 | 0 | No flight-seat pair has multiple live tickets. ![Q8 duplicate-seat check](../db/pic/Queries/q8.png) |
 | Q8b | 0 | Every staff member has a matching subtype row. ![Q8b staff subtype check](../db/pic/Queries/q8b.png) |
