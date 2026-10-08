@@ -116,7 +116,7 @@ The new EER ([`erd/meow-airline-eer.png`](erd/meow-airline-eer.png), editable so
 4. ✅ **Typos fixed:** `DepartureTime`, `MembershipStatus`. `FlightNo` added.
 5. ✅ **FK ovals removed** from FLIGHT. FKs are shown by the relationships, and listed in the relational model (§4).
 6. ✅ **The crow's-foot sketch is outdated.** Use the new EER only.
-7. ✅ **Specialisation is total + disjoint** (double line from STAFF to `d`): every staff member has a StaffRole (`NOT NULL` in the SQL) and only one (BR14). Kawintida: update BR14's wording to say every staff member is one of the two.
+7. ✅ **Specialisation is total + disjoint** (double line from STAFF to `d`): every staff member has a StaffRole (`NOT NULL` in the SQL) and is exactly one of the two subtypes (BR14).
 8. ✅ **`1` / `N` / `M` labels** on every relationship, and **double lines for total participation** wherever the SQL column is `NOT NULL` (e.g. every TICKET must belong to a RESERVATION).
 
 Changes made in the EER are outlined in orange so the team can see them. If the team edits the
@@ -141,10 +141,10 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 | BR11 | Seat rows ≤ Aircraft.TotalSeat | Backend: `seatController` |
 | BR12 | Bag weight per ticket ≤ class limit (Economy 20 kg, Business 30 kg, FirstClass 40 kg) | Backend: `baggageController` |
 | BR13 | Check-in only if ticket issued and flight not departed | Backend: `checkinController` |
-| BR14 | Staff is BookingStaff **or** CheckInStaff | **DB:** composite FK (StaffID, StaffRole) stops two subtypes. Backend: `staffController` inserts both rows in one transaction so none is missing; Q8b checks |
+| BR14 | Every staff member is exactly one of BookingStaff or CheckInStaff | **DB:** composite FK (StaffID, StaffRole) stops two subtypes. Backend: `staffController` inserts both rows in one transaction so none is missing; Q8b checks |
 | BR15 | Fare belongs to one flight | DB: `NOT NULL` FK. A ticket's fare must be for the ticket's flight: composite FK `TICKET_FARE_FK` (FareID, FlightID) |
-| *new* BR16 | A BookingStaff member may create many Reservations; each Reservation is created by one BookingStaff | DB: FK `RESERVATION.BookingStaffID` (Kawintida adds the rule text, report §2) |
-| *new* BR17 | A CheckInStaff member may process many CheckIns; each CheckIn is processed by one CheckInStaff | DB: FK `CHECKIN.CheckInStaffID` |
+| *new* BR16 | A BookingStaff member may create many Reservations; each Reservation records at most one BookingStaff (NULL for online bookings) | DB: FK `RESERVATION.BookingStaffID` |
+| *new* BR17 | A CheckInStaff member may process many CheckIns; each CheckIn records at most one CheckInStaff (NULL for self check-in) | DB: FK `CHECKIN.CheckInStaffID` |
 | *new* BR18 | A Passenger may travel on many Tickets; each Ticket is for exactly one Passenger, who holds at most one live Ticket per Flight | **DB:** FK `TICKET.PassengerID` + `TICKET_Passenger_On_Flight_UQ` |
 | *new* BR19 | A Fare may have many FareConditions and a FareCondition may apply to many Fares; each pairing records its Fee | **DB:** FARE_RULE composite PK + 2 FKs, `CHECK (Fee >= 0)` |
 

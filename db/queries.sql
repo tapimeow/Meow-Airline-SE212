@@ -64,18 +64,29 @@ ORDER BY f.DepartureTime;
 
 -- Q2b: payment status of each booking (LEFT JOIN keeps unpaid bookings).
 --      A refund is its own PAYMENT row, so it is subtracted (same as Q13).
+WITH payment_totals AS (
+  SELECT ReservationID,
+         SUM(CASE WHEN Status = 'Paid' THEN TotalAmount ELSE -TotalAmount END) amount_paid,
+         COUNT(*) payment_count,
+         SUM(Status = 'Refunded') refund_count
+  FROM PAYMENT GROUP BY ReservationID
+), fare_totals AS (
+  SELECT t.ReservationID, SUM(f.Price) total_due
+  FROM TICKET t JOIN FARE f ON f.FareID = t.FareID
+  WHERE t.TicketStatus <> 'cancelled'
+  GROUP BY t.ReservationID
+)
 SELECT r.ReservationID, r.ReservationStatus,
-       COUNT(pay.PaymentID)            AS payments,
-       COALESCE(SUM(CASE WHEN pay.Status = 'Paid' THEN pay.TotalAmount
-                         ELSE -pay.TotalAmount END), 0) AS amount_paid,
-       CASE WHEN COUNT(pay.PaymentID) = 0          THEN 'NOT PAID'
-            WHEN SUM(pay.Status = 'Refunded') > 0  THEN 'Refunded'
-            ELSE 'Paid' END                       AS payment_status
+       COALESCE(p.payment_count,0) AS payments,
+       COALESCE(p.amount_paid,0) AS amount_paid,
+       CASE WHEN p.refund_count > 0 AND COALESCE(p.amount_paid,0) <= 0 THEN 'Refunded'
+            WHEN COALESCE(p.amount_paid,0) <= 0 THEN 'NOT PAID'
+            WHEN COALESCE(p.amount_paid,0) < COALESCE(f.total_due,0) THEN 'PARTIALLY PAID'
+            ELSE 'Paid' END AS payment_status
 FROM RESERVATION r
-LEFT JOIN PAYMENT pay
-  ON pay.ReservationID = r.ReservationID
+LEFT JOIN payment_totals p ON p.ReservationID = r.ReservationID
+LEFT JOIN fare_totals f ON f.ReservationID = r.ReservationID
 WHERE r.PassengerID = 1
-GROUP BY r.ReservationID, r.ReservationStatus
 ORDER BY r.ReservationID;
 
 -- Q3 [Kawintida] How much money did each route earn last month, and which
@@ -352,8 +363,8 @@ ROLLBACK;
 SELECT fa.Class, fa.Price, fc.ConditionName, fr.Fee
 FROM FLIGHT f
 JOIN FARE           fa ON fa.FlightID    = f.FlightID
-JOIN FARE_RULE      fr ON fr.FareID      = fa.FareID
-JOIN FARE_CONDITION fc ON fc.ConditionID = fr.ConditionID
+LEFT JOIN FARE_RULE      fr ON fr.FareID      = fa.FareID
+LEFT JOIN FARE_CONDITION fc ON fc.ConditionID = fr.ConditionID
 WHERE f.FlightNo = 'MW101'
   AND DATE(f.DepartureTime) = '2026-10-20'
 ORDER BY fa.Price, fc.ConditionName;

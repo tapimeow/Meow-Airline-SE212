@@ -1,19 +1,5 @@
-// controllers/baggageController.js
-//
-// Owner:    [Phase 4 · Backend · Kawintida]
-// Table(s): BAGGAGE
-// Business rules: BR9, BR12
-//
-// NOTHING IS IMPLEMENTED YET. One exported function per route in
-// routes/baggage.js. Follow controllers/passengerController.js:
-//   - import the shared pool from config/db.js (never open your own connection)
-//   - use pool.execute(sql, [values]) with ? placeholders — no string concatenation
-//   - render a view from views/baggage/ or redirect
-//
-// What this controller must enforce:
-//   - BR12: sum of Weight for the ticket + new bag must not exceed the class limit (e.g. Economy 20 kg).
-//   - BR9: baggage is optional — a ticket with zero bags is valid.
-//   - Lab 6 risk plan: if the backend is behind on Sun 11 Oct, this page becomes VIEW-ONLY.
-//
-// TODO [Phase 4 · Backend · Kawintida]: write the functions.
-// TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.
+const pool=require('../config/db');
+exports.list=async(req,res,next)=>{try{const [rows]=await pool.execute('SELECT * FROM BAGGAGE WHERE TicketID=? ORDER BY BaggageID',[req.params.ticketId]);res.json(rows);}catch(e){next(e);}};
+exports.create=async(req,res,next)=>{const w=Number(req.body.Weight);if(!(w>0))return res.status(400).json({error:'Bag weight must be greater than zero.'});let c;try{c=await pool.getConnection();await c.beginTransaction();const [t]=await c.execute('SELECT t.TicketID,s.SeatClass FROM TICKET t JOIN SEAT s ON s.SeatID=t.SeatID WHERE t.TicketID=? FOR UPDATE',[req.params.ticketId]);if(!t.length){await c.rollback();return res.status(404).json({error:'Ticket not found.'});}const [sum]=await c.execute('SELECT COALESCE(SUM(Weight),0) total FROM BAGGAGE WHERE TicketID=?',[req.params.ticketId]);const limit={Economy:20,Business:30,FirstClass:40}[t[0].SeatClass];if(Number(sum[0].total)+w>limit){await c.rollback();return res.status(400).json({error:`Total baggage for this ticket cannot exceed ${limit} kg.`});}const [r]=await c.execute('INSERT INTO BAGGAGE (TicketID,Weight) VALUES (?,?)',[req.params.ticketId,w]);await c.commit();res.status(201).json({BaggageID:r.insertId});}catch(e){if(c)await c.rollback();if(e.code==='ER_NO_REFERENCED_ROW_2')return res.status(400).json({error:'Ticket was not found.'});next(e);}finally{if(c)c.release();}};
+exports.update=async(req,res,next)=>{try{if(!['CheckedIn','Loaded','Arrived','Lost'].includes(req.body.BaggageStatus))return res.status(400).json({error:'Invalid baggage status.'});const [r]=await pool.execute('UPDATE BAGGAGE SET BaggageStatus=? WHERE BaggageID=?',[req.body.BaggageStatus,req.params.id]);if(!r.affectedRows)return res.status(404).json({error:'Baggage record not found.'});res.json({updated:true});}catch(e){next(e);}};
+exports.remove=async(req,res,next)=>{try{const [r]=await pool.execute('DELETE FROM BAGGAGE WHERE BaggageID=?',[req.params.id]);if(!r.affectedRows)return res.status(404).json({error:'Baggage record not found.'});res.json({deleted:true});}catch(e){next(e);}};
