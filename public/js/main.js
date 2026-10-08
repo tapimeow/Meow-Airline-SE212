@@ -4,6 +4,25 @@
 // page from views/partials/footer.ejs. No database or business logic here:
 // the controllers and MySQL check every rule again when the form is saved.
 
+// Header: highlight the section you are in, and open/close the nav on phones.
+(function () {
+  var path = window.location.pathname;
+  document.querySelectorAll('.app-nav a').forEach(function (link) {
+    var href = link.getAttribute('href');
+    var here = href === '/' ? path === '/' : path === href || path.indexOf(href + '/') === 0;
+    link.classList.toggle('is-active', here);
+    if (here) link.setAttribute('aria-current', 'page');
+  });
+
+  var toggle = document.querySelector('.menu-toggle');
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      var open = document.querySelector('.app-nav').classList.toggle('nav-open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+  }
+})();
+
 // "Are you sure?" before a delete or cancel: add data-confirm="..." to the <form>.
 document.addEventListener('submit', function (event) {
   var message = event.target.getAttribute('data-confirm');
@@ -92,7 +111,8 @@ document.addEventListener('submit', function (event) {
       row.querySelectorAll('select').forEach(function (select) {
         select.name = select.name.replace(/^Tickets\[\d+\]/, 'Tickets[' + i + ']');
       });
-      row.querySelector('[data-remove-ticket-row]').hidden = rows.length === 1;
+      // style.display, not hidden: style.css gives every button display:inline-block.
+      row.querySelector('[data-remove-ticket-row]').style.display = rows.length === 1 ? 'none' : '';
     });
   }
 

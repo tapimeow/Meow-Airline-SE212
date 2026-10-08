@@ -1,13 +1,22 @@
 // routes/index.js
 //
-// Just the home page for now. This is a good place for links into each
-// role's area of the site while the real landing page isn't built yet.
+// The Overview (home) page: three record counts and shortcuts into each area.
 
 const express = require('express');
+const pool = require('../config/db');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.render('index', { title: 'Meow Airline' });
+router.get('/', async (req, res, next) => {
+  try {
+    const [[counts]] = await pool.query(
+      `SELECT (SELECT COUNT(*) FROM PASSENGER) AS passengers,
+              (SELECT COUNT(*) FROM FLIGHT WHERE Status <> 'Cancelled' AND DepartureTime > NOW()) AS flights,
+              (SELECT COUNT(*) FROM RESERVATION) AS reservations`
+    );
+    res.render('index', { title: 'Overview', counts });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

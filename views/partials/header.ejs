@@ -4,24 +4,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e4f0fd">
   <title><%= title %> · Meow Airline</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-  <header class="site-header">
-    <a href="/" class="brand">Meow Airline</a>
-    <nav>
+<body class="app-body">
+  <header class="app-header">
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true">M</span><span>Meow Airline<small>Operations desk</small></span></a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
+    <nav class="app-nav" aria-label="Main navigation">
+      <a href="/">Overview</a>
       <a href="/passengers">Passengers</a>
       <a href="/flights">Flights</a>
       <a href="/reservations">Bookings</a>
       <a href="/checkin">Check-in</a>
       <a href="/reports">Reports</a>
-      <a href="/airports">Airports</a>
-      <a href="/aircraft">Aircraft</a>
-      <a href="/staff">Staff</a>
+      <details class="nav-more"><summary>Manage</summary><div class="nav-menu">
+        <a href="/airports">Airports &amp; routes</a><a href="/aircraft">Fleet &amp; seats</a>
+        <a href="/staff">Staff</a>
+      </div></details>
     </nav>
   </header>
-  <main class="page-content">
+  <main class="app-main">
