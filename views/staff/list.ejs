@@ -1,0 +1,5 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Team administration</p><h1>Staff</h1></div><a class="btn" href="/staff/new">Add staff member</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<div class="table-card"><table class="data-table"><thead><tr><th>Name</th><th>Role</th><th>Office / counter</th><th>Actions</th></tr></thead><tbody><% staff.forEach(function(s) { %><tr><td data-label="Name"><%= s.StaffName %></td><td data-label="Role"><span class="badge"><%= s.StaffRole %></span></td><td data-label="Office / counter"><%= s.SalesOffice || s.CounterNo %></td><td data-label="Actions"><span class="action-row"><a class="btn btn-sm btn-quiet" href="/staff/<%= s.StaffID %>/edit">Edit</a><form action="/staff/<%= s.StaffID %>/delete" method="POST" data-confirm="Remove this staff member?"><button class="btn btn-sm btn-danger">Delete</button></form></span></td></tr><% }); %></tbody></table><% if (!staff.length) { %><p class="empty-state">No staff members found.</p><% } %></div>
+<%- include('../partials/footer') %>

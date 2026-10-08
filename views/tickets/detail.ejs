@@ -1,0 +1,6 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Ticket #<%= ticket.TicketID %></p><h1><%= ticket.Traveller %></h1></div><a href="/reservations/<%= ticket.ReservationID %>">Back to reservation</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<article class="boarding-pass"><div><p class="eyebrow"><%= ticket.FlightNo %> · <%= ticket.TicketStatus %></p><h2>Ticket details</h2><p><%= ticket.Traveller %></p></div><dl><div><dt>Departure</dt><dd><%= formatFlightTime(ticket.DepartureTime) %></dd></div><div><dt>Arrival</dt><dd><%= formatFlightTime(ticket.ArrivalTime) %></dd></div><div><dt>Seat</dt><dd><%= ticket.SeatNo %> · <%= ticket.SeatClass %></dd></div><div><dt>Gate</dt><dd><%= ticket.Gate || 'To be announced' %></dd></div><div><dt>Fare</dt><dd><%= Number(ticket.Price).toFixed(2) %> THB</dd></div></dl></article>
+<div class="shortcut-grid ticket-shortcuts"><a href="/tickets/<%= ticket.TicketID %>/baggage"><strong>Baggage</strong><small><%= baggage.length %> bag(s) · manage allowance</small></a><a href="/checkin?reservationId=<%= ticket.ReservationID %>"><strong>Check-in</strong><small><%= checkin ? 'Checked in' : 'Find this ticket at check-in' %></small></a></div>
+<%- include('../partials/footer') %>

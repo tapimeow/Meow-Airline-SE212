@@ -1,0 +1,7 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Fleet administration</p><h1>Aircraft</h1></div><a class="btn" href="/aircraft/new">Add aircraft</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<div class="table-card"><table class="data-table"><thead><tr><th>Aircraft</th><th>Model</th><th>Capacity</th><th>Seats configured</th><th></th></tr></thead><tbody>
+<% aircraft.forEach(function(a) { %><tr><td data-label="Aircraft">#<%= a.AircraftID %></td><td data-label="Model"><%= a.AircraftModel %></td><td data-label="Capacity"><%= a.TotalSeat %></td><td data-label="Seats configured"><%= a.SeatCount === undefined ? '—' : a.SeatCount %></td><td data-label="Actions"><a class="btn btn-sm btn-quiet" href="/aircraft/<%= a.AircraftID %>">Open seat plan</a></td></tr><% }); %>
+</tbody></table><% if (!aircraft.length) { %><p class="empty-state">No aircraft in the fleet yet.</p><% } %></div>
+<%- include('../partials/footer') %>

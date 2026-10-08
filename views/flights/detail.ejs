@@ -1,0 +1,9 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow"><%= flight.FlightNo %> · <%= flight.Status %></p><h1><%= flight.OriginCode %> → <%= flight.DestinationCode %></h1></div><a href="/flights">All flights</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<section class="summary-grid"><article class="summary-card"><span>Departure</span><strong><%= formatFlightTime(flight.DepartureTime) %></strong></article><article class="summary-card"><span>Arrival</span><strong><%= formatFlightTime(flight.ArrivalTime) %></strong></article><article class="summary-card"><span>Gate</span><strong><%= flight.Gate || 'TBA' %></strong></article></section>
+<div class="section-title"><div><p class="eyebrow">Availability</p><h2>Seats by class</h2></div><a class="btn" href="/reservations/new?flightId=<%= flight.FlightID %>">Book this flight</a></div>
+<%- include('../partials/availability-table', { availability }) %>
+<div class="section-title"><div><p class="eyebrow">Pricing</p><h2>Fares</h2></div><a class="btn btn-quiet" href="/flights/<%= flight.FlightID %>/fares/new">Add fare</a></div>
+<div class="table-card"><table class="data-table"><thead><tr><th>Cabin</th><th>Price</th><th>Conditions</th></tr></thead><tbody><% fares.forEach(function(f) { %><tr><td data-label="Cabin"><%= f.Class %></td><td data-label="Price"><%= Number(f.Price).toFixed(2) %> THB</td><td data-label="Conditions"><%= f.Conditions || 'See fare rules' %></td></tr><% }); %></tbody></table></div>
+<%- include('../partials/footer') %>
