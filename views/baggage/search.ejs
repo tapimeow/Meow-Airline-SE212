@@ -1,0 +1,6 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Ticket services</p><h1>Baggage</h1></div></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<p class="page-intro">Add a bag to a ticket. Total weight is checked against the passenger’s cabin-class limit (Economy 20 kg, Business 30 kg, First Class 40 kg).</p>
+<form class="filter-form" action="/baggage" method="GET"><label>Ticket number<input name="ticketId" type="number" min="1" required value="<%= ticketId %>"></label><button class="btn">Find baggage</button></form>
+<%- include('../partials/footer') %>
