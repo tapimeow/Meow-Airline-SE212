@@ -7,6 +7,8 @@
 // Header: highlight the section you are in, and open/close the nav on phones.
 (function () {
   var path = window.location.pathname;
+  // A ticket's bag page (/tickets/12/baggage) belongs to Manage › Baggage.
+  if (/^\/tickets\/\d+\/baggage/.test(path)) path = '/baggage';
   document.querySelectorAll('.app-nav a').forEach(function (link) {
     var href = link.getAttribute('href');
     var here = href === '/' ? path === '/' : path === href || path.indexOf(href + '/') === 0;

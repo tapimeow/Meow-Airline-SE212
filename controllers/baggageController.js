@@ -10,6 +10,19 @@ async function baggagePageData(ticketId) {
   return { title: 'Baggage', ticket, baggage, totalWeight, weightLimit, error: null };
 }
 
+// GET /baggage?ticketId=12 — find a ticket's bags by ticket number (Manage › Baggage).
+exports.search = async (req, res, next) => {
+  const ticketId = String(req.query.ticketId || '').trim();
+  try {
+    if (!ticketId) return res.render('baggage/search', { title: 'Baggage', ticketId: '', error: null });
+    const [rows] = await pool.execute('SELECT TicketID FROM TICKET WHERE TicketID=?', [ticketId]);
+    if (!rows.length) {
+      return res.status(404).render('baggage/search', { title: 'Baggage', ticketId, error: `Ticket ${ticketId} was not found.` });
+    }
+    res.redirect(`/tickets/${rows[0].TicketID}/baggage`);
+  } catch (err) { next(err); }
+};
+
 exports.list = async (req, res, next) => {
   try {
     const locals = await baggagePageData(req.params.ticketId);
