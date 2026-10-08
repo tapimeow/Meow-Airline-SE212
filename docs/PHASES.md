@@ -3,8 +3,8 @@
 Sources: Lab 6 Part B (B5), Lab 7 §5, Lectures 7–10.
 
 > **Hard deadline: Thursday 15 October 2026. Presentation, plus slides, report
-> and source code on Mango** (Lecture 10). Today is Mon 5 Oct, so there are
-> **10 days**. The Lab 6 / Lab 7 week numbers are replaced by the dates below.
+> and source code on Mango** (Lecture 10). Today is Thu 8 Oct, so there are
+> **7 days**. The Lab 6 / Lab 7 week numbers are replaced by the dates below.
 > Confirm the date with Aj. Pree. The same slide also shows an old final-exam
 > date ("17 Oct 2021").
 
@@ -61,13 +61,15 @@ Order (stop wherever time runs out): flights/fares → **reservations + tickets 
 
 - [x] Booking, change, and cancel run in **one transaction** (O1)
 - [x] Each rule marked "backend" in `docs/DATABASE.md` is enforced
-- [ ] Test each route in the browser and check the rows in the DB
+- [x] HTTP-smoke-tested backend route groups and booking → payment → issue → check-in against a disposable schema + seed copy (Thu 8 Oct); the working database was unchanged
+- [ ] Test the EJS browser forms and confirm DB rows after the templates arrive
 
 ## Phase 5a: SQL queries · Kawintida + Kornnaphat · Fri 9 – Sun 11
 
 - [x] Queries written in `db/queries.sql`. All run against `seed.sql`
 - [x] Kawintida reviewed Q1–Q9 and Q19, and updated Q2 payment states and Q19 to retain fares without conditions
-- [ ] Run each one against `seed.sql` and take a screenshot for report §7
+- [x] Kawintida ran Q1–Q9 and Q19 against local `meow_airline`; result captures are in [`docs/JUNIOR_QUERY_RESULTS.md`](JUNIOR_QUERY_RESULTS.md) (Thu 8 Oct)
+- [ ] Kornnaphat runs Q10–Q18 and Q20 and adds result evidence for report §7
 - [ ] The UPDATE/DELETE examples must show the constraints working (Lecture 8.2)
 
 ## Phase 5b: Frontend · Kornnaphat · Sat 10 – Mon 12

@@ -150,25 +150,3 @@ exports.remove = async (req, res, next) => {
     next(err);
   }
 };
-
-// TODO [Phase 4 · Backend · Kawintida]: the real booking flow needs a
-// transaction so two agents can never sell the same seat (this is the
-// double-booking problem from the proposal). MySQL already rejects a
-// double-booked seat (error ER_DUP_ENTRY on TICKET_Seat_On_Flight_UQ, BR10);
-// catch that code and tell the agent "seat already taken".
-// Sketch:
-//
-//   const conn = await pool.getConnection();
-//   try {
-//     await conn.beginTransaction();
-//     // 1. insert the RESERVATION row
-//     // 2. insert one TICKET row per traveller + seat
-//     // 3. commit
-//     await conn.commit();
-//   } catch (err) {
-//     await conn.rollback();
-//     if (err.code === 'ER_DUP_ENTRY') { /* re-render: seat already taken */ }
-//     next(err);
-//   } finally {
-//     conn.release();
-//   }
