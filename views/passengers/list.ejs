@@ -30,7 +30,7 @@
         <td><%= p.MembershipStatus %></td>
         <td>
           <a href="/passengers/<%= p.PassengerID %>/edit">Edit</a>
-          <form action="/passengers/<%= p.PassengerID %>/delete" method="POST" style="display:inline">
+          <form action="/passengers/<%= p.PassengerID %>/delete" method="POST" data-confirm="Delete this passenger?" style="display:inline">
             <button type="submit">Delete</button>
           </form>
         </td>
