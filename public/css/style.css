@@ -835,3 +835,6 @@ button:active {
 @media (max-width: 640px) {
   .welcome-stamp { display: none; }.stats-grid, .shortcut-grid, .admin-columns { grid-template-columns: 1fr; }.app-footer { flex-direction: column; }.ticket-builder { grid-template-columns: 1fr 1fr; }.ticket-builder label { min-width: 0; }.boarding-pass dl { grid-template-columns: 1fr 1fr; }.filter-form > label, .filter-form > label select, .filter-form > label input { width: 100%; }.app-main { padding-top: 24px; }
 }
+
+/* Header logo: the heart-and-cat mark (public/images/logo-mark.png, transparent PNG). */
+.brand-logo { display: block; width: auto; height: 44px; flex: none; }
