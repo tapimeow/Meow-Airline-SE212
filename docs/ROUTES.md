@@ -1,8 +1,8 @@
 # Route ↔ page contract
 
 **Owners:** Kawintida (backend) and Kornnaphat (frontend) agree on this list
-**before** Phase 4 starts. After that, any change goes through a PR that both
-of them approve.
+**before** Phase 4 starts. After that, a change is pushed straight to `main`
+(see `RULES.md` 1.5).
 
 Each route file in `routes/` lists its planned URLs in its header comment. This
 table gives the overview.
