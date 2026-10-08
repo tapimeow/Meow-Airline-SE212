@@ -16,7 +16,7 @@ Each section has one owner. The owner writes it. Everyone proofreads it on Tue 1
 | 4 | Relational model | **Patarawadee** | Every table with PK (underlined) and FK, the FD list, and the 3NF check (Lecture 7). Drafts: `docs/RELATIONAL_MODEL.md` + `docs/DATABASE.md` |
 | 5 | SQL: create database | **Patarawadee** | Top of `db/schema.sql` |
 | 6 | SQL: create tables | **Patarawadee** | `db/schema.sql`, explained step by step in `docs/TABLE_CREATION.md` |
-| 7 | SQL: queries | **Kawintida + Kornnaphat** | `db/queries.sql` + a screenshot of each result |
+| 7 | SQL: queries | **Kawintida + Kornnaphat** | `db/queries.sql` + a screenshot of each result; Kawintida's Q1–Q9 and Q19 evidence is in [`docs/JUNIOR_QUERY_RESULTS.md`](JUNIOR_QUERY_RESULTS.md) |
 | 8 | RESTful CRUD API (Node.js + Express + MySQL) | **Kawintida** (API), **Kornnaphat** (pages) | API write-up: [`docs/API_REPORT.md`](API_REPORT.md); Lecture 8 says *"if we have time"*. See the priority order below |
 
 ## Requirements from the lectures (checklist)
