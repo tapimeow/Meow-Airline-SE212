@@ -1,20 +1,4 @@
-// controllers/checkinController.js
-//
-// Owner:    [Phase 4 · Backend · Kawintida]
-// Table(s): CHECKIN
-// Business rules: BR13
-//
-// NOTHING IS IMPLEMENTED YET. One exported function per route in
-// routes/checkin.js. Follow controllers/passengerController.js:
-//   - import the shared pool from config/db.js (never open your own connection)
-//   - use pool.execute(sql, [values]) with ? placeholders — no string concatenation
-//   - render a view from views/checkin/ or redirect
-//
-// What this controller must enforce:
-//   - Find the ticket by the traveller's passport: TICKET.PassengerID -> PASSENGER.PassportNo.
-//   - BR13: only if TicketStatus = issued AND the flight has not departed.
-//   - CHECKIN is 1:1 with TICKET: a second check-in for the same ticket must be refused (UNIQUE TicketID). Save CHECKIN.CheckInStaffID (EER "Processes", BR17).
-//   - Lab 6 risk plan: if the backend is behind on Sun 11 Oct, this page becomes VIEW-ONLY.
-//
-// TODO [Phase 4 · Backend · Kawintida]: write the functions.
-// TODO [Phase 4 · Backend · Kawintida]: test every route in the browser and check the rows in DBeaver.
+const pool=require('../config/db');
+exports.search=async(req,res,next)=>{try{const id=req.query.reservationId;const passport=req.query.passportNo;if(!id&&!passport)return res.json([]);const [rows]=await pool.execute(`SELECT t.TicketID,t.TicketStatus,p.Name Traveller,p.PassportNo,f.FlightNo,f.DepartureTime,f.Gate,s.SeatNo,c.CheckInID FROM TICKET t JOIN PASSENGER p ON p.PassengerID=t.PassengerID JOIN FLIGHT f ON f.FlightID=t.FlightID JOIN SEAT s ON s.SeatID=t.SeatID LEFT JOIN CHECKIN c ON c.TicketID=t.TicketID WHERE (? IS NULL OR t.ReservationID=?) AND (? IS NULL OR p.PassportNo=?) ORDER BY f.DepartureTime`,[id||null,id||null,passport||null,passport||null]);res.json(rows);}catch(e){next(e);}};
+exports.checkIn=async(req,res,next)=>{try{const [rows]=await pool.execute(`SELECT t.TicketStatus,f.DepartureTime FROM TICKET t JOIN FLIGHT f ON f.FlightID=t.FlightID WHERE t.TicketID=?`,[req.params.ticketId]);if(!rows.length)return res.status(404).json({error:'Ticket not found.'});if(rows[0].TicketStatus!=='issued')return res.status(409).json({error:'Only issued tickets can check in.'});if(new Date(rows[0].DepartureTime)<=new Date())return res.status(409).json({error:'Check-in is closed because the flight has departed.'});const boardingPassNo=`BP${Date.now()}${Math.floor(Math.random()*1000)}`;const [r]=await pool.execute(`INSERT INTO CHECKIN (TicketID,CheckInStaffID,BoardingPassNo) VALUES (?,?,?)`,[req.params.ticketId,req.body.CheckInStaffID||null,boardingPassNo]);res.status(201).json({CheckInID:r.insertId,BoardingPassNo:boardingPassNo});}catch(e){if(e.code==='ER_DUP_ENTRY')return res.status(409).json({error:'This ticket is already checked in.'});if(e.code==='ER_NO_REFERENCED_ROW_2')return res.status(400).json({error:'Check-in staff member not found.'});next(e);}};
+exports.boardingPass=async(req,res,next)=>{try{const [rows]=await pool.execute(`SELECT c.*,t.TicketID,t.TicketStatus,p.Name Traveller,f.FlightNo,f.DepartureTime,f.ArrivalTime,f.Gate,r.OriginCode,r.DestinationCode,s.SeatNo,s.SeatClass FROM CHECKIN c JOIN TICKET t ON t.TicketID=c.TicketID JOIN PASSENGER p ON p.PassengerID=t.PassengerID JOIN FLIGHT f ON f.FlightID=t.FlightID JOIN ROUTE r ON r.FlightNo=f.FlightNo JOIN SEAT s ON s.SeatID=t.SeatID WHERE c.CheckInID=?`,[req.params.id]);if(!rows.length)return res.status(404).json({error:'Boarding pass not found.'});res.json(rows[0]);}catch(e){next(e);}};

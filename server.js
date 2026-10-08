@@ -10,20 +10,13 @@ const path = require('path');
 
 const indexRoutes = require('./routes/index');
 const passengerRoutes = require('./routes/passengers');
-// TODO [Phase 4 · Backend · Kawintida]: add one app.use line here for
-// every route file as it gets built (see docs/ROUTES.md for the full list):
-//   app.use('/airports',     require('./routes/airports'));
-//   app.use('/aircraft',     require('./routes/aircraft'));
-//   app.use('/',             require('./routes/seats'));     // nested under /aircraft/:id/seats
-//   app.use('/flights',      require('./routes/flights'));
-//   app.use('/',             require('./routes/fares'));     // nested under /flights/:id/fares
-//   app.use('/reservations', require('./routes/reservations'));
-//   app.use('/tickets',      require('./routes/tickets'));
-//   app.use('/',             require('./routes/payments'));  // nested under /reservations/:id/payments
-//   app.use('/',             require('./routes/baggage'));   // nested under /tickets/:id/baggage
-//   app.use('/checkin',      require('./routes/checkin'));
-//   app.use('/staff',        require('./routes/staff'));
-//   app.use('/reports',      require('./routes/reports'));
+const routeFiles = [
+  ['/airports', './routes/airports'], ['/routes', './routes/routeAdmin'], ['/aircraft', './routes/aircraft'],
+  ['/', './routes/seats'], ['/flights', './routes/flights'], ['/', './routes/fares'],
+  ['/reservations', './routes/reservations'], ['/tickets', './routes/tickets'],
+  ['/', './routes/payments'], ['/', './routes/baggage'],
+  ['/checkin', './routes/checkin'], ['/staff', './routes/staff'], ['/reports', './routes/reports']
+];
 
 const app = express();
 
@@ -32,6 +25,15 @@ const app = express();
 // every page - see views/partials/header.ejs and footer.ejs.
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.formatFlightTime = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  }).format(date);
+};
 
 // Static files (CSS, client-side JS, images) are served straight from
 // public/ - e.g. public/css/style.css is reachable at /css/style.css.
@@ -40,10 +42,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Parses form submissions (application/x-www-form-urlencoded) so
 // req.body works in controllers - every <form> in views/ needs this.
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Mount routes. Keep each entity's routes in its own file under routes/.
 app.use('/', indexRoutes);
 app.use('/passengers', passengerRoutes);
+for (const [prefix, routePath] of routeFiles) app.use(prefix, require(routePath));
 
 // Basic 404 - customize this page under views/ if you want it styled.
 app.use((req, res) => {
