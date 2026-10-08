@@ -21,6 +21,10 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
+  // Return DATE / DATETIME / TIMESTAMP as plain strings ('2026-09-01',
+  // '2026-10-20 08:00:00') instead of JS Date objects. A Date is sent to the
+  // browser in UTC, so a booking on 1 Sep showed up as 31 Aug 17:00.
+  dateStrings: true,
 });
 
 // Example of the safe pattern to copy in controllers:
