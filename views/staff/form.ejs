@@ -1,7 +1,7 @@
 <%- include('../partials/header', { title }) %>
 <header class="page-head"><div><p class="eyebrow">Team administration</p><h1><%= title %></h1></div><a href="/staff">Back to staff</a></header>
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
-<form class="stacked-form" action="<%= staffMember ? '/staff/' + staffMember.StaffID : '/staff' %>" method="POST">
+<form class="stacked-form" action="<%= editing ? '/staff/' + staffMember.StaffID : '/staff' %>" method="POST">
   <label>Staff name<input name="StaffName" value="<%= staffMember ? staffMember.StaffName : '' %>" required></label>
   <fieldset class="role-fieldset"><legend>Staff role</legend><label class="radio-row"><input type="radio" name="StaffRole" value="BookingStaff" <%= !staffMember || staffMember.StaffRole === 'BookingStaff' ? 'checked' : '' %>><span>Booking staff</span></label><label class="radio-row"><input type="radio" name="StaffRole" value="CheckInStaff" <%= staffMember && staffMember.StaffRole === 'CheckInStaff' ? 'checked' : '' %>><span>Check-in staff</span></label></fieldset>
   <label>Sales office<input name="SalesOffice" value="<%= staffMember && staffMember.SalesOffice ? staffMember.SalesOffice : '' %>" <%= !staffMember || staffMember.StaffRole === 'BookingStaff' ? 'required' : '' %>></label>

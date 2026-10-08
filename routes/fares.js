@@ -1,1 +1,11 @@
-const r=require('express').Router(),c=require('../controllers/fareController');r.get('/flights/:flightId/fares',c.list);r.post('/flights/:flightId/fares',c.create);r.post('/fares/:id',c.update);r.post('/fares/:id/delete',c.remove);module.exports=r;
+const router = require('express').Router();
+const controller = require('../controllers/fareController');
+
+router.get('/flights/:flightId/fares/new', controller.newForm);
+router.get('/fares/:id/edit', controller.editForm);
+router.get('/flights/:flightId/fares', controller.list);
+router.post('/flights/:flightId/fares', controller.create);
+router.post('/fares/:id', controller.update);
+router.post('/fares/:id/delete', controller.remove);
+
+module.exports = router;

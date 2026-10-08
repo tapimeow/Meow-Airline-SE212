@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 
-// GET /tickets/:id — return ticket, baggage, and check-in information.
+// GET /tickets/:id — render ticket, baggage, and check-in information.
 exports.detail = async (req, res, next) => {
   try {
     const [tickets] = await pool.execute(
@@ -14,7 +14,7 @@ exports.detail = async (req, res, next) => {
        WHERE t.TicketID = ?`,
       [req.params.id]
     );
-    if (!tickets.length) return res.status(404).json({ error: 'Ticket not found.' });
+    if (!tickets.length) return res.status(404).send('Ticket not found.');
 
     const [baggage] = await pool.execute(
       'SELECT * FROM BAGGAGE WHERE TicketID = ?', [req.params.id]
@@ -22,7 +22,13 @@ exports.detail = async (req, res, next) => {
     const [checkins] = await pool.execute(
       'SELECT * FROM CHECKIN WHERE TicketID = ?', [req.params.id]
     );
-    res.json({ ticket: tickets[0], baggage, checkin: checkins[0] || null });
+    res.render('tickets/detail', {
+      title: `Ticket #${tickets[0].TicketID}`,
+      ticket: tickets[0],
+      baggage,
+      checkin: checkins[0] || null,
+      error: null,
+    });
   } catch (err) {
     next(err);
   }
@@ -44,11 +50,16 @@ exports.issue = async (req, res, next) => {
     );
     if (!ticketRows.length) {
       await conn.rollback();
-      return res.status(404).json({ error: 'Ticket not found.' });
+      return res.status(404).send('Ticket not found.');
     }
     if (ticketRows[0].TicketStatus !== 'booked') {
       await conn.rollback();
-      return res.status(409).json({ error: 'Only a booked ticket can be issued.' });
+      const detail = await require('./reservationController').getDetailData(ticketRows[0].ReservationID);
+      return res.status(409).render('reservations/detail', {
+        title: `Reservation #${ticketRows[0].ReservationID}`,
+        ...detail,
+        error: 'Only a booked ticket can be issued.',
+      });
     }
 
     const reservationId = ticketRows[0].ReservationID;
@@ -67,8 +78,11 @@ exports.issue = async (req, res, next) => {
 
     if (Number(payment.amountPaid) < Number(fare.amountDue)) {
       await conn.rollback();
-      return res.status(409).json({
-        error: 'The reservation must be fully paid before a ticket can be issued.'
+      const detail = await require('./reservationController').getDetailData(reservationId);
+      return res.status(409).render('reservations/detail', {
+        title: `Reservation #${reservationId}`,
+        ...detail,
+        error: 'The reservation must be fully paid before a ticket can be issued.',
       });
     }
 
@@ -80,15 +94,16 @@ exports.issue = async (req, res, next) => {
     );
     if (!result.affectedRows) {
       await conn.rollback();
-      return res.status(409).json({ error: 'Ticket is no longer in booked status.' });
+      const detail = await require('./reservationController').getDetailData(reservationId);
+      return res.status(409).render('reservations/detail', { title: `Reservation #${reservationId}`, ...detail, error: 'Ticket is no longer in booked status.' });
     }
 
     await conn.commit();
-    res.json({ issued: true });
+    res.redirect(`/reservations/${reservationId}`);
   } catch (err) {
     if (conn) await conn.rollback();
     if (err.code === 'ER_SIGNAL_EXCEPTION') {
-      return res.status(400).json({ error: err.sqlMessage || err.message });
+      return res.status(400).send(err.sqlMessage || err.message);
     }
     next(err);
   } finally {
