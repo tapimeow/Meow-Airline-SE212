@@ -1,0 +1,295 @@
+[
+  {
+    "id": "Q1",
+    "rowCount": 2,
+    "rows": [
+      {
+        "SeatClass": "Economy",
+        "total_seats": 8,
+        "sold": 3,
+        "free": 5
+      },
+      {
+        "SeatClass": "Business",
+        "total_seats": 4,
+        "sold": 0,
+        "free": 4
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "rowCount": 3,
+    "rows": [
+      {
+        "ReservationID": 1,
+        "BookingDate": "2026-09-01",
+        "ReservationStatus": "Confirmed",
+        "FlightNo": "MW101",
+        "OriginCode": "BKK",
+        "DestinationCode": "CNX",
+        "DepartureTime": "2026-09-10 08:00:00",
+        "TicketStatus": "used"
+      },
+      {
+        "ReservationID": 1,
+        "BookingDate": "2026-09-01",
+        "ReservationStatus": "Confirmed",
+        "FlightNo": "MW102",
+        "OriginCode": "CNX",
+        "DestinationCode": "BKK",
+        "DepartureTime": "2026-09-10 10:30:00",
+        "TicketStatus": "used"
+      },
+      {
+        "ReservationID": 8,
+        "BookingDate": "2026-10-04",
+        "ReservationStatus": "Held",
+        "FlightNo": "MW301",
+        "OriginCode": "BKK",
+        "DestinationCode": "SIN",
+        "DepartureTime": "2026-10-25 13:00:00",
+        "TicketStatus": "booked"
+      }
+    ]
+  },
+  {
+    "id": "Q2b",
+    "rowCount": 2,
+    "rows": [
+      {
+        "ReservationID": 1,
+        "ReservationStatus": "Confirmed",
+        "payments": 1,
+        "amount_paid": "3000.00",
+        "payment_status": "Paid"
+      },
+      {
+        "ReservationID": 8,
+        "ReservationStatus": "Held",
+        "payments": 0,
+        "amount_paid": "0.00",
+        "payment_status": "NOT PAID"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "rowCount": 5,
+    "rows": [
+      {
+        "route": "BKK -> HKT",
+        "seats_sold": 1,
+        "income": "5200.00"
+      },
+      {
+        "route": "BKK -> SIN",
+        "seats_sold": 1,
+        "income": "3900.00"
+      },
+      {
+        "route": "BKK -> CNX",
+        "seats_sold": 1,
+        "income": "1500.00"
+      },
+      {
+        "route": "CNX -> BKK",
+        "seats_sold": 1,
+        "income": "1500.00"
+      },
+      {
+        "route": "HKT -> USM",
+        "seats_sold": 0,
+        "income": "0.00"
+      }
+    ]
+  },
+  {
+    "id": "Q3b",
+    "rowCount": 1,
+    "rows": [
+      {
+        "route": "HKT -> USM",
+        "seats_sold": 0
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "rowCount": 5,
+    "rows": [
+      {
+        "FlightNo": "MW101",
+        "OriginCode": "BKK",
+        "DestinationCode": "CNX",
+        "DepartureTime": "2026-10-20 08:00:00",
+        "Status": "OnTime"
+      },
+      {
+        "FlightNo": "MW102",
+        "OriginCode": "CNX",
+        "DestinationCode": "BKK",
+        "DepartureTime": "2026-10-20 10:30:00",
+        "Status": "OnTime"
+      },
+      {
+        "FlightNo": "MW201",
+        "OriginCode": "BKK",
+        "DestinationCode": "HKT",
+        "DepartureTime": "2026-10-21 09:00:00",
+        "Status": "OnTime"
+      },
+      {
+        "FlightNo": "MW501",
+        "OriginCode": "BKK",
+        "DestinationCode": "VTE",
+        "DepartureTime": "2026-10-22 11:00:00",
+        "Status": "OnTime"
+      },
+      {
+        "FlightNo": "MW301",
+        "OriginCode": "BKK",
+        "DestinationCode": "SIN",
+        "DepartureTime": "2026-10-25 13:00:00",
+        "Status": "OnTime"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "rowCount": 3,
+    "rows": [
+      {
+        "PassengerID": 3,
+        "Name": "Wichai Saetang",
+        "PassportNo": "AC2223334"
+      },
+      {
+        "PassengerID": 4,
+        "Name": "Ladda Saetang",
+        "PassportNo": "AC2223335"
+      },
+      {
+        "PassengerID": 7,
+        "Name": "Mint Saetang",
+        "PassportNo": "AC2223336"
+      }
+    ]
+  },
+  {
+    "id": "Q5b",
+    "rowCount": 1,
+    "rows": [
+      {
+        "PassengerID": 7,
+        "Name": "Mint Saetang",
+        "PhoneNo": null
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "rowCount": 1,
+    "rows": [
+      {
+        "MembershipStatus": "Normal",
+        "passengers": 4
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "rowCount": 3,
+    "rows": [
+      {
+        "FlightNo": "MW101",
+        "SeatNo": "2A",
+        "SeatClass": "Economy",
+        "traveller": "Wichai Saetang",
+        "PassportNo": "AC2223334",
+        "booked_by": "Wichai Saetang",
+        "TicketStatus": "issued"
+      },
+      {
+        "FlightNo": "MW101",
+        "SeatNo": "2B",
+        "SeatClass": "Economy",
+        "traveller": "Ladda Saetang",
+        "PassportNo": "AC2223335",
+        "booked_by": "Wichai Saetang",
+        "TicketStatus": "issued"
+      },
+      {
+        "FlightNo": "MW101",
+        "SeatNo": "2C",
+        "SeatClass": "Economy",
+        "traveller": "Mint Saetang",
+        "PassportNo": "AC2223336",
+        "booked_by": "Wichai Saetang",
+        "TicketStatus": "issued"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "rowCount": 0,
+    "rows": []
+  },
+  {
+    "id": "Q8b",
+    "rowCount": 0,
+    "rows": []
+  },
+  {
+    "id": "Q9",
+    "rowCount": 2,
+    "rows": [
+      {
+        "StaffID": 1,
+        "StaffName": "Ploy Srisuk",
+        "reservations_created": 4
+      },
+      {
+        "StaffID": 2,
+        "StaffName": "Anan Wongsa",
+        "reservations_created": 3
+      }
+    ]
+  },
+  {
+    "id": "Q19",
+    "rowCount": 5,
+    "rows": [
+      {
+        "Class": "Economy",
+        "Price": "1500.00",
+        "ConditionName": "Changeable",
+        "Fee": "500.00"
+      },
+      {
+        "Class": "Business",
+        "Price": "4500.00",
+        "ConditionName": "Changeable",
+        "Fee": "0.00"
+      },
+      {
+        "Class": "Business",
+        "Price": "4500.00",
+        "ConditionName": "Free seat selection",
+        "Fee": "0.00"
+      },
+      {
+        "Class": "Business",
+        "Price": "4500.00",
+        "ConditionName": "Priority boarding",
+        "Fee": "0.00"
+      },
+      {
+        "Class": "Business",
+        "Price": "4500.00",
+        "ConditionName": "Refundable",
+        "Fee": "0.00"
+      }
+    ]
+  }
+]
