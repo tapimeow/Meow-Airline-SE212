@@ -9,10 +9,21 @@ const errorMessage = (err) => {
 
 async function reservationFormLocals(body = null) {
   const [passengers] = await pool.execute('SELECT PassengerID, Name, PassportNo FROM PASSENGER ORDER BY Name');
+  // Only flights that have not left yet can be booked.
   const [flights] = await pool.execute(`SELECT f.FlightID, f.FlightNo, f.DepartureTime, r.OriginCode, r.DestinationCode
-    FROM FLIGHT f JOIN ROUTE r ON r.FlightNo=f.FlightNo WHERE f.Status <> 'Cancelled' ORDER BY f.DepartureTime`);
+    FROM FLIGHT f JOIN ROUTE r ON r.FlightNo=f.FlightNo
+    WHERE f.Status <> 'Cancelled' AND f.DepartureTime > NOW() ORDER BY f.DepartureTime`);
   const [staff] = await pool.execute('SELECT StaffID, StaffName FROM STAFF WHERE StaffRole="BookingStaff" ORDER BY StaffName');
-  return { title: 'New reservation', reservation: body, passengers, flights, staff, error: null };
+  // The form fills its Fare and Seat dropdowns from these once a flight is picked (public/js/main.js).
+  const [fares] = await pool.execute(`SELECT fa.FareID, fa.FlightID, fa.Class, fa.Price
+    FROM FARE fa JOIN FLIGHT f ON f.FlightID=fa.FlightID
+    WHERE f.Status <> 'Cancelled' AND f.DepartureTime > NOW() ORDER BY fa.FlightID, fa.Price`);
+  const [seats] = await pool.execute(`SELECT f.FlightID, s.SeatID, s.SeatNo, s.SeatClass
+    FROM FLIGHT f JOIN SEAT s ON s.AircraftID=f.AircraftID
+    LEFT JOIN TICKET t ON t.FlightID=f.FlightID AND t.SeatID=s.SeatID AND t.TicketStatus <> 'cancelled'
+    WHERE f.Status <> 'Cancelled' AND f.DepartureTime > NOW() AND t.TicketID IS NULL
+    ORDER BY f.FlightID, s.SeatID`);
+  return { title: 'New reservation', reservation: body, passengers, flights, staff, fares, seats, error: null };
 }
 
 async function reservationDetailData(id) {

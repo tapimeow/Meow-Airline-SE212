@@ -1,34 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#e4f0fd">
-  <title>Meow Airline</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body class="app-body">
-  <header class="app-header">
-    <a href="#home" class="brand"><span class="brand-mark" aria-hidden="true">M</span><span>Meow Airline<small>Operations desk</small></span></a>
-    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
-    <nav class="app-nav" aria-label="Main navigation">
-      <a href="#home" data-view="home">Overview</a>
-      <a href="#passengers" data-view="passengers">Passengers</a>
-      <a href="#flights" data-view="flights">Flights</a>
-      <a href="#reservations" data-view="reservations">Bookings</a>
-      <a href="#checkin" data-view="checkin">Check-in</a>
-      <a href="#reports" data-view="reports">Reports</a>
-      <details class="nav-more"><summary>Manage</summary><div class="nav-menu">
-        <a href="#airports" data-view="airports">Airports & routes</a><a href="#fleet" data-view="fleet">Fleet & seats</a>
-        <a href="#staff" data-view="staff">Staff</a><a href="#baggage" data-view="baggage">Baggage</a>
-      </div></details>
-    </nav>
-  </header>
-  <main class="app-main">
-    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
-    <div id="app" aria-live="polite"><div class="loading-state">Loading Meow Airline…</div></div>
-  </main>
-  <footer class="app-footer"><span>Meow Airline</span><span>SE212 · Booking and operations</span></footer>
-  <script src="/js/main.js" defer></script>
-</body>
-</html>
+<%- include('partials/header', { title }) %>
+
+<section class="pass" aria-label="Meow Airline welcome">
+  <div class="pass-main">
+    <h1>Meow Airline</h1>
+    <p>The operations desk is open. Book passengers, take payment, check them in, and read the reports, all on one shared database.</p>
+    <dl class="pass-fields">
+      <div><dt>From</dt><dd>Front desk</dd></div>
+      <div><dt>To</dt><dd>Boarding gate</dd></div>
+      <div><dt>Gate</dt><dd>P1</dd></div>
+      <div><dt>Seat</dt><dd>Window</dd></div>
+    </dl>
+  </div>
+  <div class="pass-stub">
+    <svg class="pass-plane" viewBox="0 0 56 56" aria-hidden="true">
+      <path d="M6 26 50 6 38 50 28 33z" fill="#A9CCF4" stroke="#2A3566" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M28 33 50 6" fill="none" stroke="#2A3566" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <a class="btn" href="/reservations/new">New booking</a>
+    <div class="barcode" aria-hidden="true"></div>
+  </div>
+</section>
+
+<h2 class="terminal-title">At the terminal</h2>
+<ul class="terminal">
+  <li><strong>Flights</strong><span>Routes and schedules</span><br><a class="btn btn-sm btn-quiet" href="/flights">Open</a></li>
+  <li><strong>Bookings</strong><span>Reservations and tickets</span><br><a class="btn btn-sm btn-quiet" href="/reservations">Open</a></li>
+  <li><strong>Check-in</strong><span>Boarding passes and baggage</span><br><a class="btn btn-sm btn-quiet" href="/checkin">Open</a></li>
+  <li><strong>Reports</strong><span>Free seats, bookings, route income</span><br><a class="btn btn-sm btn-quiet" href="/reports">Open</a></li>
+</ul>
+
+<%- include('partials/footer') %>
