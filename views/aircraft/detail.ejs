@@ -1,0 +1,10 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Aircraft #<%= aircraft.AircraftID %></p><h1><%= aircraft.AircraftModel %></h1></div><a href="/aircraft">Back to fleet</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<section class="summary-grid"><article class="summary-card"><span>Capacity</span><strong><%= aircraft.TotalSeat %> seats</strong></article><article class="summary-card"><span>Seat records</span><strong><%= seats.length %></strong></article><article class="summary-card"><span>Remaining to configure</span><strong><%= Math.max(0, aircraft.TotalSeat - seats.length) %></strong></article></section>
+<div class="section-title"><div><p class="eyebrow">Cabin layout</p><h2>Seat plan</h2></div><a class="btn" href="/aircraft/<%= aircraft.AircraftID %>/seats/new">Add seat</a></div>
+<% ['FirstClass','Business','Economy'].forEach(function(group) { var groupSeats = seats.filter(function(s) { return s.SeatClass === group; }); %>
+  <section class="seat-class-group"><h3><%= group %> <span class="count-chip"><%= groupSeats.length %></span></h3>
+  <% if (groupSeats.length) { %><div class="seat-grid"><% groupSeats.forEach(function(s) { %><span class="seat-chip"><%= s.SeatNo %><form action="/seats/<%= s.SeatID %>/delete" method="POST" data-confirm="Remove seat <%= s.SeatNo %>?"><button class="text-button" aria-label="Remove seat <%= s.SeatNo %>">Remove</button></form></span><% }); %></div><% } else { %><p class="muted">No seats in this cabin class.</p><% } %></section>
+<% }); %>
+<%- include('../partials/footer') %>

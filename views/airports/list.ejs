@@ -1,0 +1,7 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Network setup</p><h1>Airports</h1></div><a class="btn" href="/airports/new">Add airport</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<div class="table-card"><table class="data-table"><thead><tr><th>Code</th><th>City</th><th>Country</th><th>Actions</th></tr></thead><tbody>
+<% airports.forEach(function(a) { %><tr><td data-label="Code"><strong><%= a.AirportCode %></strong></td><td data-label="City"><%= a.City %></td><td data-label="Country"><%= a.Country %></td><td data-label="Actions"><span class="action-row"><a class="btn btn-sm btn-quiet" href="/airports/<%= a.AirportCode %>/edit">Edit</a><form action="/airports/<%= a.AirportCode %>/delete" method="POST" data-confirm="Delete this airport? Routes may prevent deletion."><button class="btn btn-sm btn-danger">Delete</button></form></span></td></tr><% }); %>
+</tbody></table><% if (!airports.length) { %><p class="empty-state">No airports configured yet.</p><% } %></div>
+<%- include('../partials/footer') %>

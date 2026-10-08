@@ -1,0 +1,9 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow"><%= aircraft.AircraftModel %></p><h1>Add a seat</h1></div><a href="/aircraft/<%= aircraft.AircraftID %>">Back to seat plan</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<form class="stacked-form" action="/aircraft/<%= aircraft.AircraftID %>/seats" method="POST">
+  <label>Seat number<input name="SeatNo" placeholder="e.g. 12A" maxlength="4" value="<%= seat ? seat.SeatNo : '' %>" required></label>
+  <label>Cabin class<select name="SeatClass" required><% ['Economy','Business','FirstClass'].forEach(function(c) { %><option value="<%= c %>" <%= seat && seat.SeatClass === c ? 'selected' : '' %>><%= c %></option><% }); %></select></label>
+  <div class="form-actions"><button class="btn">Add seat</button><a class="btn btn-quiet" href="/aircraft/<%= aircraft.AircraftID %>">Cancel</a></div>
+</form>
+<%- include('../partials/footer') %>

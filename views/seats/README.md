@@ -4,7 +4,7 @@
 **Data comes from:** `controllers/seatController.js` (Kawintida)
 **Business rules shown on these pages:** BR4, BR10, BR11
 
-Nothing is built yet. Create the `.ejs` files below when Phase 5 starts.
+EJS templates are drafted in this folder. The backend controllers still return JSON, so integration requires the backend handlers to render these views and pass the locals documented in `docs/EJS_VIEW_CONTRACT.md`.
 Copy the shape of `views/passengers/`, and include `partials/header` and
 `partials/footer`.
 

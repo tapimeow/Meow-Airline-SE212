@@ -1,0 +1,6 @@
+<%- include('../partials/header', { title }) %>
+<header class="page-head"><div><p class="eyebrow">Reservation #<%= reservation.ReservationID %></p><h1>Record payment</h1></div><a href="/reservations/<%= reservation.ReservationID %>">Back to reservation</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<section class="summary-card payment-summary"><span>Passenger</span><strong><%= reservation.PassengerName %></strong><span>Amount due</span><strong><%= Number(amountDue).toFixed(2) %> THB</strong></section>
+<form class="stacked-form" action="/reservations/<%= reservation.ReservationID %>/payments" method="POST"><label>Amount paid<input type="number" name="TotalAmount" min="0.01" step="0.01" value="<%= amountDue %>" required></label><label>Payment method<select name="PaymentMethod" required><% ['Cash','Card','BankTransfer','QR'].forEach(function(m) { %><option value="<%= m %>"><%= m %></option><% }); %></select></label><div class="form-actions"><button class="btn">Save payment</button><a class="btn btn-quiet" href="/reservations/<%= reservation.ReservationID %>">Cancel</a></div></form>
+<%- include('../partials/footer') %>
