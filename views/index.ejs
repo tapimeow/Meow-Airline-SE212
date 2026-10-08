@@ -1,32 +1,28 @@
 <%- include('partials/header', { title }) %>
 
-<section class="pass" aria-label="Meow Airline welcome">
-  <div class="pass-main">
-    <h1>Meow Airline</h1>
-    <p>The operations desk is open. Book passengers, take payment, check them in, and read the reports, all on one shared database.</p>
-    <dl class="pass-fields">
-      <div><dt>From</dt><dd>Front desk</dd></div>
-      <div><dt>To</dt><dd>Boarding gate</dd></div>
-      <div><dt>Gate</dt><dd>P1</dd></div>
-      <div><dt>Seat</dt><dd>Window</dd></div>
-    </dl>
+<section class="welcome-panel">
+  <div>
+    <p class="eyebrow">Your regional airline desk</p>
+    <h1>Good day. Ready for takeoff?</h1>
+    <p>Keep bookings, flight operations and passenger reports together in one place.</p>
+    <a class="btn" href="/reservations/new">Create a booking</a>
   </div>
-  <div class="pass-stub">
-    <svg class="pass-plane" viewBox="0 0 56 56" aria-hidden="true">
-      <path d="M6 26 50 6 38 50 28 33z" fill="#A9CCF4" stroke="#2A3566" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M28 33 50 6" fill="none" stroke="#2A3566" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>
-    <a class="btn" href="/reservations/new">New booking</a>
-    <div class="barcode" aria-hidden="true"></div>
-  </div>
+  <div class="welcome-stamp" aria-hidden="true"><svg viewBox="0 0 120 120"><path d="M16 68 103 27 79 104 57 76 16 68Z"/><path d="m57 76 46-49"/></svg></div>
 </section>
 
-<h2 class="terminal-title">At the terminal</h2>
-<ul class="terminal">
-  <li><strong>Flights</strong><span>Routes and schedules</span><br><a class="btn btn-sm btn-quiet" href="/flights">Open</a></li>
-  <li><strong>Bookings</strong><span>Reservations and tickets</span><br><a class="btn btn-sm btn-quiet" href="/reservations">Open</a></li>
-  <li><strong>Check-in</strong><span>Boarding passes and baggage</span><br><a class="btn btn-sm btn-quiet" href="/checkin">Open</a></li>
-  <li><strong>Reports</strong><span>Free seats, bookings, route income</span><br><a class="btn btn-sm btn-quiet" href="/reports">Open</a></li>
-</ul>
+<section class="stats-grid" aria-label="Current records">
+  <article class="stat-card"><span>Passengers</span><strong><%= counts.passengers %></strong><a href="/passengers">View passengers</a></article>
+  <article class="stat-card stat-blue"><span>Upcoming flights</span><strong><%= counts.flights %></strong><a href="/flights">View flights</a></article>
+  <article class="stat-card stat-pink"><span>Reservations</span><strong><%= counts.reservations %></strong><a href="/reservations">Manage bookings</a></article>
+</section>
+
+<section class="section-block">
+  <div class="section-title"><div><p class="eyebrow">Tools for today</p><h2>Operations shortcuts</h2></div></div>
+  <div class="shortcut-grid">
+    <a href="/flights"><span>01</span><strong>Find a flight</strong><small>Schedules, routes and fares</small></a>
+    <a href="/checkin"><span>02</span><strong>Check in</strong><small>Find a ticket and issue boarding pass</small></a>
+    <a href="/reports"><span>03</span><strong>View reports</strong><small>Seats, bookings and route income</small></a>
+  </div>
+</section>
 
 <%- include('partials/footer') %>
