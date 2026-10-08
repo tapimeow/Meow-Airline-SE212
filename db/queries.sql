@@ -157,13 +157,13 @@ SELECT PassengerID, Name, PhoneNo
 FROM PASSENGER
 WHERE Email IS NULL;
 
--- Q6 [Kawintida] Passengers per membership level, only levels with 3 or more (GROUP BY + HAVING)
---    With the sample data Normal (4) is kept and Gold (2) and Silver (2) are
---    dropped, so the screenshot shows HAVING removing groups.
+-- Q6 [Kawintida] Passengers per membership level, only levels with 15 or more (GROUP BY + HAVING)
+--    With the sample data (100 passengers) Normal (68) and Silver (20) are
+--    kept and Gold (12) is dropped, so the result shows HAVING removing a group.
 SELECT MembershipStatus, COUNT(*) AS passengers
 FROM PASSENGER
 GROUP BY MembershipStatus
-HAVING COUNT(*) >= 3
+HAVING COUNT(*) >= 15
 ORDER BY passengers DESC;
 
 -- =====================================================================
