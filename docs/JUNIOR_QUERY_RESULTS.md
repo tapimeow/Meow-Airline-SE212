@@ -13,8 +13,8 @@ screenshots of the MySQL Workbench window.
 | Q1 | 2 | Economy: 8 seats, 3 sold, 5 free; Business: 4 seats, 0 sold, 4 free. ![Q1 free seats](../db/pic/Queries/q1.png) |
 | Q2a | 3 | Passenger 1 has three ticketed flight legs across reservations 1 and 8. ![Q2a passenger itineraries](../db/pic/Queries/q2a.png) |
 | Q2b | 2 | Reservation 1 is paid (3,000.00); reservation 8 is unpaid and held. ![Q2b payment status](../db/pic/Queries/q2b.png) |
-| Q3a | 5 | September route income; HKT → USM has no sales and zero income. ![Q3a route income](../db/pic/Queries/q3a.png) |
-| Q3b | 1 | HKT → USM is the only route with the minimum zero seats sold. ![Q3b fewest seats sold](../db/pic/Queries/q3b.png) |
+| Q3a | 5 | September route income; BKK → SIN earned the most (52,800 THB), HKT → USM the least (4 seats, 11,700 THB). Re-captured Thu 8 Oct after more bookings were seeded. ![Q3a route income](../db/pic/Queries/q3a.png) |
+| Q3b | 1 | HKT → USM is the only route with the minimum, 4 seats sold. ![Q3b fewest seats sold](../db/pic/Queries/q3b.png) |
 | Q4 | 5 | Five flights depart in October 2026, ordered by departure time. ![Q4 October flights](../db/pic/Queries/q4.png) |
 | Q5a | 3 | Three passengers match the Saetang family search. ![Q5a family search](../db/pic/Queries/q5a.png) |
 | Q5b | 1 | Mint Saetang has no email; the result includes the passenger's phone field. ![Q5b missing email](../db/pic/Queries/q5b.png) |
@@ -22,7 +22,7 @@ screenshots of the MySQL Workbench window.
 | Q7 | 3 | MW101 has three issued passengers in seats 2A–2C. ![Q7 boarding list](../db/pic/Queries/q7.png) |
 | Q8 | 0 | No flight-seat pair has multiple live tickets. ![Q8 duplicate-seat check](../db/pic/Queries/q8.png) |
 | Q8b | 0 | Every staff member has a matching subtype row. ![Q8b staff subtype check](../db/pic/Queries/q8b.png) |
-| Q9 | 2 | Two booking staff members appear; they created 4 and 3 reservations. ![Q9 bookings by staff](../db/pic/Queries/q9.png) |
+| Q9 | 2 | Two booking staff members appear; they created 17 and 15 reservations. ![Q9 bookings by staff](../db/pic/Queries/q9.png) |
 | Q19 | 5 | MW101 has five fare-condition rows across Economy and Business fares. ![Q19 fare conditions](../db/pic/Queries/q19.png) |
 
 **Evidence note:** Q8 and Q8b return zero rows as expected. Their current images
