@@ -1,10 +1,4 @@
-<!-- views/partials/header.ejs
-     [Phase 5 · Frontend · Kornnaphat] Shared nav/header, included at the top of every
-     page with include('partials/header', { title }) inside an EJS output tag.
-     (Never write a real EJS tag inside an HTML comment: EJS still runs it.)
-     Add a link
-     here for every new section (flights, reservations, check-in, reports)
-     as those pages get built. -->
+<!-- [Phase 5 · Frontend · Kornnaphat] Shared navigation and page shell. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,11 +12,10 @@
     <a href="/" class="brand">Meow Airline</a>
     <nav>
       <a href="/passengers">Passengers</a>
-      <!-- TODO [Phase 5 · Frontend · Kornnaphat]: add links as pages exist, e.g. -->
-      <!-- <a href="/flights">Flights</a> -->
-      <!-- <a href="/reservations">Bookings</a> -->
-      <!-- <a href="/checkin">Check-in</a> -->
-      <!-- <a href="/reports">Reports</a> -->
+      <a href="/#flights">Flights</a>
+      <a href="/#reservations">Bookings</a>
+      <a href="/#checkin">Check-in</a>
+      <a href="/#reports">Reports</a>
     </nav>
   </header>
   <main class="page-content">

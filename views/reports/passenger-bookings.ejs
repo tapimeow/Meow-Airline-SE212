@@ -1,0 +1,30 @@
+<%- include('../partials/header', { title }) %>
+
+<header class="page-head"><div><p class="eyebrow">Report 02</p><h1>Passenger bookings</h1></div><a href="/reports">All reports</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<p class="page-intro">Choose a passenger to review their reservations, itineraries and payment status.</p>
+<form class="filter-form" action="/reports/passenger-bookings" method="GET">
+  <label for="passengerId">Passenger</label>
+  <select id="passengerId" name="passengerId" required>
+    <option value="">Choose a passenger</option>
+    <% (passengers || []).forEach(function(p) { %><option value="<%= p.PassengerID %>" <%= String(selectedPassengerId || '') === String(p.PassengerID) ? 'selected' : '' %>><%= p.Name %> · <%= p.PassportNo %></option><% }); %>
+  </select>
+  <button type="submit">Show bookings</button>
+</form>
+
+<% if (selectedPassengerId) { %>
+  <% if (results && results.length) { %>
+    <div class="table-card report-table-wrap"><table class="data-table">
+      <thead><tr><th>Reservation</th><th>Flight</th><th>Route</th><th>Departure</th><th>Traveller</th><th>Ticket</th><th>Payment</th><th>Amount</th></tr></thead>
+      <tbody><% results.forEach(function(row) { var unpaid = row.payment_status === 'NOT PAID' || row.payment_status === 'PARTIALLY PAID'; %><tr class="<%= unpaid ? 'row-attention' : '' %>">
+        <td data-label="Reservation">#<%= row.ReservationID %><br><span class="muted"><%= row.ReservationStatus %></span></td>
+        <td data-label="Flight"><%= row.FlightNo || '—' %></td><td data-label="Route"><%= row.OriginCode && row.DestinationCode ? row.OriginCode + ' → ' + row.DestinationCode : '—' %></td>
+        <td data-label="Departure"><%= row.DepartureTime ? formatFlightTime(row.DepartureTime) : '—' %></td><td data-label="Traveller"><%= row.traveller || '—' %></td>
+        <td data-label="Ticket"><%= row.TicketStatus || '—' %></td><td data-label="Payment"><span class="status-pill <%= unpaid ? 'status-unpaid' : 'status-paid' %>"><%= row.payment_status %></span></td>
+        <td data-label="Amount"><%= Number(row.amount_paid || 0).toFixed(2) %> / <%= Number(row.total_due || 0).toFixed(2) %> THB</td>
+      </tr><% }); %></tbody>
+    </table></div>
+  <% } else { %><p class="empty-state">No bookings were found for this passenger.</p><% } %>
+<% } %>
+
+<%- include('../partials/footer') %>

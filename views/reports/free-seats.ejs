@@ -1,0 +1,29 @@
+<%- include('../partials/header', { title }) %>
+
+<header class="page-head"><div><p class="eyebrow">Report 01</p><h1>Free seats by flight</h1></div><a href="/reports">All reports</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<p class="page-intro">Choose a scheduled flight to see how many seats remain in each cabin class.</p>
+<form class="filter-form" action="/reports/free-seats" method="GET">
+  <label for="flightId">Flight</label>
+  <select id="flightId" name="flightId" required>
+    <option value="">Choose a flight</option>
+    <% (flights || []).forEach(function(f) { %>
+      <option value="<%= f.FlightID %>" <%= String(selectedFlightId || '') === String(f.FlightID) ? 'selected' : '' %>><%= f.FlightNo %> · <%= f.OriginCode %> → <%= f.DestinationCode %> · <%= formatFlightTime(f.DepartureTime) %></option>
+    <% }); %>
+  </select>
+  <button type="submit">Show availability</button>
+</form>
+
+<% if (selectedFlightId) { %>
+  <% if (results && results.length) { %>
+    <div class="table-card report-table-wrap"><table class="data-table">
+      <thead><tr><th>Class</th><th>Total seats</th><th>Sold</th><th>Free</th></tr></thead>
+      <tbody><% results.forEach(function(row) { %><tr>
+        <td data-label="Class"><%= row.SeatClass %></td><td data-label="Total seats"><%= row.total_seats %></td>
+        <td data-label="Sold"><%= row.sold %></td><td data-label="Free"><strong><%= row.free %></strong></td>
+      </tr><% }); %></tbody>
+    </table></div>
+  <% } else { %><p class="empty-state">No seat data is available for this flight.</p><% } %>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,25 @@
+<%- include('../partials/header', { title }) %>
+
+<header class="page-head"><div><p class="eyebrow">Report 03</p><h1>Route income</h1></div><a href="/reports">All reports</a></header>
+<% if (error) { %><p class="error-message"><%= error %></p><% } %>
+<p class="page-intro">Compare fare revenue and tickets sold across routes for the selected month.</p>
+<form class="filter-form" action="/reports/route-income" method="GET">
+  <label for="month">Month</label><input id="month" name="month" type="month" value="<%= month || '' %>" required>
+  <button type="submit">Show route income</button>
+</form>
+
+<% if (month) { %>
+  <% if (routes && routes.length) { %>
+    <p class="summary-note">Lowest sales: <strong><%= fewestRoutes.map(function(r) { return r.OriginCode + ' → ' + r.DestinationCode; }).join(', ') %></strong> (<%= fewestRoutes[0].seats_sold %> seats).</p>
+    <div class="table-card report-table-wrap"><table class="data-table">
+      <thead><tr><th>Route</th><th>Seats sold</th><th>Fare income</th><th>Sales rank</th></tr></thead>
+      <tbody><% routes.forEach(function(row) { var isFewest = Number(row.seats_sold) === Number(fewestRoutes[0].seats_sold); %><tr class="<%= isFewest ? 'row-attention' : '' %>">
+        <td data-label="Route"><%= row.OriginCode %> → <%= row.DestinationCode %></td><td data-label="Seats sold"><%= row.seats_sold %></td>
+        <td data-label="Fare income"><%= Number(row.income).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> THB</td>
+        <td data-label="Sales rank"><%= isFewest ? 'Fewest sold' : '—' %></td>
+      </tr><% }); %></tbody>
+    </table></div>
+  <% } else { %><p class="empty-state">No flights were found for <%= month %>.</p><% } %>
+<% } %>
+
+<%- include('../partials/footer') %>
