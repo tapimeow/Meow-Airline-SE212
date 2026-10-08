@@ -1,1 +1,8 @@
-const a=require('./apiAdminController'); exports.list=a.flightsList; exports.detail=a.flightsDetail; exports.create=a.flightsCreate; exports.update=a.flightsUpdate; exports.remove=a.flightsRemove;
+const admin = require('./apiAdminController');
+exports.list = admin.flightsList;
+exports.newForm = admin.flightsNew;
+exports.editForm = admin.flightsEdit;
+exports.detail = admin.flightsDetail;
+exports.create = admin.flightsCreate;
+exports.update = admin.flightsUpdate;
+exports.remove = admin.flightsRemove;

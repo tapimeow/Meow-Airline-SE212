@@ -1,7 +1,7 @@
 <%- include('../partials/header', { title }) %>
 <header class="page-head"><div><p class="eyebrow">Flight <%= flight.FlightNo %></p><h1><%= title %></h1></div><a href="/flights/<%= flight.FlightID %>">Back to flight</a></header>
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
-<form class="stacked-form" action="<%= fare ? '/fares/' + fare.FareID : '/flights/' + flight.FlightID + '/fares' %>" method="POST">
+<form class="stacked-form" action="<%= fare && fare.FareID ? '/fares/' + fare.FareID : '/flights/' + flight.FlightID + '/fares' %>" method="POST">
   <label>Cabin class<select name="Class" required><% ['Economy','Business','FirstClass'].forEach(function(c) { %><option value="<%= c %>" <%= fare && fare.Class === c ? 'selected' : '' %>><%= c %></option><% }); %></select></label><label>Price (THB)<input type="number" name="Price" min="0.01" step="0.01" value="<%= fare ? fare.Price : '' %>" required></label>
   <fieldset class="rule-fieldset"><legend>Fare conditions</legend><% (conditions || []).forEach(function(c) { var selected = (fareRules || []).find(function(r) { return String(r.ConditionID) === String(c.ConditionID); }); %><label class="check-row"><input type="checkbox" name="Rules[<%= c.ConditionID %>][ConditionID]" value="<%= c.ConditionID %>" <%= selected ? 'checked' : '' %>><span><strong><%= c.ConditionName %></strong><small><%= c.Description %></small></span><span class="inline-fee">Fee <input type="number" min="0" step="0.01" name="Rules[<%= c.ConditionID %>][Fee]" value="<%= selected ? selected.Fee : '0.00' %>"> THB</span></label><% }); %></fieldset>
   <div class="form-actions"><button class="btn">Save fare</button><a class="btn btn-quiet" href="/flights/<%= flight.FlightID %>">Cancel</a></div>

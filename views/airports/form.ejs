@@ -1,8 +1,8 @@
 <%- include('../partials/header', { title }) %>
 <header class="page-head"><div><p class="eyebrow">Network setup</p><h1><%= title %></h1></div><a href="/airports">Back to airports</a></header>
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
-<form class="stacked-form" action="<%= airport ? '/airports/' + airport.AirportCode : '/airports' %>" method="POST">
-  <label>Airport code<input name="AirportCode" value="<%= airport ? airport.AirportCode : '' %>" maxlength="3" pattern="[A-Z]{3}" required <%= airport ? 'readonly' : '' %>><small>Use the three-letter uppercase airport code.</small></label>
+<form class="stacked-form" action="<%= editing ? '/airports/' + airport.AirportCode : '/airports' %>" method="POST">
+  <label>Airport code<input name="AirportCode" value="<%= airport ? airport.AirportCode : '' %>" maxlength="3" pattern="[A-Z]{3}" required <%= editing ? 'readonly' : '' %>><small>Use the three-letter uppercase airport code.</small></label>
   <label>City<input name="City" value="<%= airport ? airport.City : '' %>" required></label>
   <label>Country<input name="Country" value="<%= airport ? airport.Country : '' %>" required></label>
   <div class="form-actions"><button class="btn">Save airport</button><a class="btn btn-quiet" href="/airports">Cancel</a></div>

@@ -1,7 +1,7 @@
 <%- include('../partials/header', { title }) %>
 <header class="page-head"><div><p class="eyebrow">Fleet administration</p><h1><%= title %></h1></div><a href="/aircraft">Back to fleet</a></header>
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
-<form class="stacked-form" action="<%= aircraft ? '/aircraft/' + aircraft.AircraftID : '/aircraft' %>" method="POST">
+<form class="stacked-form" action="<%= editing ? '/aircraft/' + aircraft.AircraftID : '/aircraft' %>" method="POST">
   <label>Aircraft model<input name="AircraftModel" value="<%= aircraft ? aircraft.AircraftModel : '' %>" required></label>
   <label>Total seat capacity<input name="TotalSeat" type="number" min="1" value="<%= aircraft ? aircraft.TotalSeat : '' %>" required><small>Capacity cannot be lower than the number of defined seat records.</small></label>
   <div class="form-actions"><button class="btn">Save aircraft</button><a class="btn btn-quiet" href="/aircraft">Cancel</a></div>

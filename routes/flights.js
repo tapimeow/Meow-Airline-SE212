@@ -1,1 +1,12 @@
-const r=require('express').Router(),c=require('../controllers/flightController');r.get('/',c.list);r.post('/',c.create);r.get('/:id',c.detail);r.post('/:id',c.update);r.post('/:id/delete',c.remove);module.exports=r;
+const router = require('express').Router();
+const controller = require('../controllers/flightController');
+
+router.get('/', controller.list);
+router.get('/new', controller.newForm);
+router.get('/:id/edit', controller.editForm);
+router.get('/:id', controller.detail);
+router.post('/', controller.create);
+router.post('/:id', controller.update);
+router.post('/:id/delete', controller.remove);
+
+module.exports = router;
