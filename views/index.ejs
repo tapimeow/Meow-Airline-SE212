@@ -1,7 +1,32 @@
 <%- include('partials/header', { title }) %>
 
-<h1>Meow Airline</h1>
-<p>Skeleton home page - replace this with the real landing page.</p>
-<p><a href="/passengers">Manage passengers &rarr;</a></p>
+<section class="pass" aria-label="Meow Airline welcome">
+  <div class="pass-main">
+    <h1>Meow Airline</h1>
+    <p>The passenger desk is open. Look people up, add new ones, and fix typos before anyone gets to the gate.</p>
+    <dl class="pass-fields">
+      <div><dt>From</dt><dd>Front desk</dd></div>
+      <div><dt>To</dt><dd>Passenger list</dd></div>
+      <div><dt>Gate</dt><dd>P1</dd></div>
+      <div><dt>Seat</dt><dd>Window</dd></div>
+    </dl>
+  </div>
+  <div class="pass-stub">
+    <svg class="pass-plane" viewBox="0 0 56 56" aria-hidden="true">
+      <path d="M6 26 50 6 38 50 28 33z" fill="#A9CCF4" stroke="#2A3566" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M28 33 50 6" fill="none" stroke="#2A3566" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <a class="btn" href="/passengers">Open passengers</a>
+    <div class="barcode" aria-hidden="true"></div>
+  </div>
+</section>
+
+<h2 class="terminal-title">Opening soon at the terminal</h2>
+<ul class="terminal">
+  <li><strong>Flights</strong><span>Routes and schedules</span><br><span class="soon-tag">Soon</span></li>
+  <li><strong>Bookings</strong><span>Reservations and tickets</span><br><span class="soon-tag">Soon</span></li>
+  <li><strong>Check-in</strong><span>Seats and baggage</span><br><span class="soon-tag">Soon</span></li>
+  <li><strong>Reports</strong><span>Numbers at a glance</span><br><span class="soon-tag">Soon</span></li>
+</ul>
 
 <%- include('partials/footer') %>
