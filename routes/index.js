@@ -1,6 +1,6 @@
 // routes/index.js
 //
-// The Overview (home) page: three record counts and shortcuts into each area.
+// The Home page: three record counts and shortcuts into each area.
 
 const express = require('express');
 const pool = require('../config/db');
@@ -13,7 +13,7 @@ router.get('/', async (req, res, next) => {
               (SELECT COUNT(*) FROM FLIGHT WHERE Status <> 'Cancelled' AND DepartureTime > NOW()) AS flights,
               (SELECT COUNT(*) FROM RESERVATION) AS reservations`
     );
-    res.render('index', { title: 'Overview', counts });
+    res.render('index', { title: 'Home', counts });
   } catch (err) {
     next(err);
   }
