@@ -5,6 +5,9 @@
 --
 --   mysql -u root -p meow_airline < db/seed.sql
 --
+-- It empties every table first, so it can also be run again on its own to
+-- reset the data (for example before the demo).
+--
 -- All people are fake (Lab 6 B4.3). Airport codes are real IATA codes.
 -- "Today" in this data is early October 2026:
 --   September flights have already flown (used for the "last month" report),
@@ -23,6 +26,19 @@
 --   - reservation 6: held, unpaid, no payments (safe to delete in Q17)
 
 USE meow_airline;
+
+-- Start from empty tables, so running this file again gives the same data
+-- instead of "Duplicate entry 'BKK'". TRUNCATE also restarts every
+-- AUTO_INCREMENT at 1, so the IDs below stay the same on every run.
+-- Foreign-key checks are off only while emptying; every INSERT is checked.
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE CHECKIN;     TRUNCATE TABLE BAGGAGE;      TRUNCATE TABLE PAYMENT;
+TRUNCATE TABLE TICKET;      TRUNCATE TABLE RESERVATION;  TRUNCATE TABLE FARE_RULE;
+TRUNCATE TABLE FARE_CONDITION; TRUNCATE TABLE FARE;      TRUNCATE TABLE FLIGHT;
+TRUNCATE TABLE ROUTE;       TRUNCATE TABLE SEAT;         TRUNCATE TABLE CHECKINSTAFF;
+TRUNCATE TABLE BOOKINGSTAFF; TRUNCATE TABLE STAFF;       TRUNCATE TABLE PASSENGER;
+TRUNCATE TABLE AIRCRAFT;    TRUNCATE TABLE AIRPORT;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- AIRPORT ------------------------------------------------------------
 INSERT INTO AIRPORT (AirportCode, City, Country) VALUES
