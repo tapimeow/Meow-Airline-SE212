@@ -1,6 +1,55 @@
 <%- include('../partials/header', { title }) %>
-<header class="page-head"><div><p class="eyebrow">Ticket #<%= ticket.TicketID %></p><h1><%= ticket.Traveller %></h1></div><a href="/reservations/<%= ticket.ReservationID %>">Back to reservation</a></header>
+<header class="page-head"><div><p class="eyebrow">Ticket #<%= ticket.TicketID %> · Reservation #<%= ticket.ReservationID %></p><h1>Ticket Details</h1></div><a href="/reservations/<%= ticket.ReservationID %>">Back to reservation</a></header>
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
-<article class="boarding-pass"><div><p class="eyebrow"><%= ticket.FlightNo %> · <%= ticket.TicketStatus %></p><h2>Ticket details</h2><p><%= ticket.Traveller %></p></div><dl><div><dt>Departure</dt><dd><%= formatFlightTime(ticket.DepartureTime) %></dd></div><div><dt>Arrival</dt><dd><%= formatFlightTime(ticket.ArrivalTime) %></dd></div><div><dt>Seat</dt><dd><%= ticket.SeatNo %> · <%= ticket.SeatClass %></dd></div><div><dt>Gate</dt><dd><%= ticket.Gate || 'To be announced' %></dd></div><div><dt>Fare</dt><dd><%= Number(ticket.Price).toFixed(2) %> THB</dd></div></dl></article>
-<div class="shortcut-grid ticket-shortcuts"><a href="/tickets/<%= ticket.TicketID %>/baggage"><strong>Baggage</strong><small><%= baggage.length %> bag(s) · manage allowance</small></a><a href="/checkin?reservationId=<%= ticket.ReservationID %>"><strong>Check-in</strong><small><%= checkin ? 'Checked in' : 'Find this ticket at check-in' %></small></a></div>
+
+<%# The ticket: route and traveller on the left, a tear-off stub with the seat on the right. %>
+<article class="ticket">
+  <div class="ticket-main">
+    <div class="ticket-top">
+      <p class="eyebrow"><%= ticket.FlightNo %> · <%= ticket.SeatClass %></p>
+      <span class="status-pill ticket-status-<%= ticket.TicketStatus %>"><%= ticket.TicketStatus %></span>
+    </div>
+    <div class="ticket-route">
+      <div><strong><%= ticket.OriginCode %></strong><span><%= ticket.OriginCity %></span></div>
+      <span class="ticket-plane" aria-hidden="true">✈</span>
+      <div><strong><%= ticket.DestinationCode %></strong><span><%= ticket.DestinationCity %></span></div>
+    </div>
+    <dl class="ticket-facts">
+      <div><dt>Passenger</dt><dd><%= ticket.Traveller %></dd></div>
+      <div><dt>Passport no.</dt><dd><%= ticket.PassportNo %></dd></div>
+      <div><dt>Departure</dt><dd><%= formatFlightTime(ticket.DepartureTime) %></dd></div>
+      <div><dt>Arrival</dt><dd><%= formatFlightTime(ticket.ArrivalTime) %></dd></div>
+    </dl>
+  </div>
+  <div class="ticket-stub">
+    <div><span>Seat</span><strong class="ticket-seat"><%= ticket.SeatNo %></strong></div>
+    <div><span>Gate</span><strong><%= ticket.Gate || 'TBA' %></strong></div>
+    <div><span>Fare</span><strong><%= Number(ticket.Price).toLocaleString('en-US', { minimumFractionDigits: 2 }) %> THB</strong></div>
+  </div>
+</article>
+
+<div class="ticket-actions">
+  <a class="ticket-action" href="/tickets/<%= ticket.TicketID %>/baggage"><strong>Baggage</strong><small><%= baggage.length %> bag(s) · manage allowance</small></a>
+  <% if (checkin) { %>
+    <a class="ticket-action" href="/checkin/<%= checkin.CheckInID %>/boarding-pass"><strong>Boarding pass</strong><small>Checked in · <%= checkin.BoardingPassNo %></small></a>
+  <% } else { %>
+    <a class="ticket-action" href="/checkin?reservationId=<%= ticket.ReservationID %>"><strong>Check-in</strong><small>Not checked in yet</small></a>
+  <% } %>
+</div>
+
+<% if (locals.others && others.length) { %>
+<section class="ticket-others">
+  <div class="section-title"><h2>Other travellers on this reservation</h2><p class="muted"><%= others.length + 1 %> tickets on reservation #<%= ticket.ReservationID %></p></div>
+  <div class="ticket-mini-grid">
+    <% others.forEach(function(o) { %>
+    <a class="ticket-mini" href="/tickets/<%= o.TicketID %>">
+      <div class="ticket-mini-head"><strong><%= o.Traveller %></strong><span class="status-pill ticket-status-<%= o.TicketStatus %>"><%= o.TicketStatus %></span></div>
+      <p class="muted">Passport <%= o.PassportNo %></p>
+      <p><%= o.FlightNo %> · <%= o.OriginCode %> → <%= o.DestinationCode %> · <%= formatFlightTime(o.DepartureTime) %></p>
+      <p class="ticket-mini-foot"><span>Seat <strong><%= o.SeatNo %></strong> · <%= o.SeatClass %><%= Number(o.CheckedIn) ? ' · checked in' : '' %></span><span class="ticket-mini-open">Ticket #<%= o.TicketID %> →</span></p>
+    </a>
+    <% }); %>
+  </div>
+</section>
+<% } %>
 <%- include('../partials/footer') %>
