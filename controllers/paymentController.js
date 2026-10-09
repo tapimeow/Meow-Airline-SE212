@@ -65,6 +65,11 @@ exports.refund = async (req, res, next) => {
     const payment = payments[0];
     if (payment.Status !== 'Paid') { await conn.rollback(); return showError(payment.ReservationID, 409, 'Only paid transactions can be refunded.'); }
 
+    // Same rule as cancelling: once a traveller has checked in (or flown), the money stays.
+    const [checkedIn] = await conn.execute(`SELECT t.TicketID FROM TICKET t LEFT JOIN CHECKIN c ON c.TicketID=t.TicketID
+      WHERE t.ReservationID=? AND (c.CheckInID IS NOT NULL OR t.TicketStatus='used') LIMIT 1`, [payment.ReservationID]);
+    if (checkedIn.length) { await conn.rollback(); return showError(payment.ReservationID, 409, 'This payment cannot be refunded because a ticket has already checked in.'); }
+
     // The schema has no link to a source payment, so retain the existing simple duplicate check.
     const [priorRefunds] = await conn.execute(`SELECT PaymentID FROM PAYMENT
       WHERE ReservationID=? AND Status='Refunded' AND TotalAmount=?`, [payment.ReservationID, payment.TotalAmount]);
@@ -77,6 +82,8 @@ exports.refund = async (req, res, next) => {
       COALESCE((SELECT SUM(f.Price) FROM TICKET t JOIN FARE f ON f.FareID=t.FareID WHERE t.ReservationID=? AND t.TicketStatus<>'cancelled'), 0) AS amountDue`, [payment.ReservationID, payment.ReservationID]);
     if (Number(amounts.amountPaid) < Number(amounts.amountDue)) {
       await conn.execute("UPDATE RESERVATION SET ReservationStatus='Held' WHERE ReservationID=? AND ReservationStatus='Confirmed'", [payment.ReservationID]);
+      // BR8: no issued ticket without full payment, so issued tickets go back to booked.
+      await conn.execute("UPDATE TICKET SET TicketStatus='booked', TicketIssueDate=NULL WHERE ReservationID=? AND TicketStatus='issued'", [payment.ReservationID]);
     }
     await conn.commit(); res.redirect(`/reservations/${payment.ReservationID}`);
   } catch (err) { if (conn) await conn.rollback(); next(err); }
