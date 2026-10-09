@@ -118,8 +118,8 @@ document.addEventListener('submit', function (event) {
   function renumber() {
     var rows = rowsBox.querySelectorAll('[data-ticket-row]');
     rows.forEach(function (row, i) {
-      row.querySelectorAll('select').forEach(function (select) {
-        select.name = select.name.replace(/^Tickets\[\d+\]/, 'Tickets[' + i + ']');
+      row.querySelectorAll('select, input').forEach(function (el) {
+        el.name = el.name.replace(/^Tickets\[\d+\]/, 'Tickets[' + i + ']');
       });
       // style.display, not hidden: style.css gives every button display:inline-block.
       row.querySelector('[data-remove-ticket-row]').style.display = rows.length === 1 ? 'none' : '';
@@ -128,9 +128,8 @@ document.addEventListener('submit', function (event) {
 
   form.querySelector('[data-add-ticket-row]').addEventListener('click', function () {
     var row = template.cloneNode(true);
-    row.querySelectorAll('select').forEach(function (select) { select.value = ''; });
+    row.querySelectorAll('select, input').forEach(function (el) { el.value = ''; });
     rowsBox.appendChild(row);
-    makeSearchable(row);
     fillFares(row);
     renumber();
     fillSeats();
@@ -158,7 +157,8 @@ document.addEventListener('submit', function (event) {
   (data.tickets || []).forEach(function (t, i) {
     if (i > 0) form.querySelector('[data-add-ticket-row]').click();
     var row = rowsBox.querySelectorAll('[data-ticket-row]')[i];
-    field(row, 'PassengerID').value = t.PassengerID || '';
+    row.querySelector('input[name$="[Name]"]').value = t.Name || '';
+    row.querySelector('input[name$="[PassportNo]"]').value = t.PassportNo || '';
     field(row, 'FlightID').value = t.FlightID || '';
     fillFares(row);
     field(row, 'FareID').value = t.FareID || '';
@@ -168,58 +168,3 @@ document.addEventListener('submit', function (event) {
   fillSeats();
 })();
 
-// Passenger pickers: a <select data-search> becomes a text box you can type a
-// name or passport number into. The <select> stays in the form (hidden), so
-// the form still sends PassengerID and the controllers do not change.
-function makeSearchable(root) {
-  root.querySelectorAll('select[data-search]').forEach(function (select) {
-    var input = select.previousElementSibling;
-    if (!select.hasAttribute('data-searchable')) {
-      select.setAttribute('data-searchable', '');
-      var list = document.createElement('datalist');
-      list.id = 'passenger-list-' + Math.random().toString(36).slice(2);
-      Array.prototype.forEach.call(select.options, function (o) {
-        if (o.value) list.appendChild(new Option(o.textContent.trim()));
-      });
-      input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'search-input';
-      input.setAttribute('list', list.id);
-      input.autocomplete = 'off';
-      input.placeholder = 'Type a name or passport number';
-      input.required = select.required;
-      select.required = false;
-      select.style.display = 'none'; // not .hidden: style.css sets display on form selects
-      select.parentNode.insertBefore(list, select);
-      select.parentNode.insertBefore(input, select);
-
-      // Match the full "Name · Passport" text, or just the name or the passport.
-      var pick = function () {
-        var typed = input.value.trim().toLowerCase();
-        var match = null;
-        Array.prototype.forEach.call(select.options, function (o) {
-          if (match || !o.value) return;
-          var text = o.textContent.trim();
-          var parts = text.split(' · ');
-          if ([text].concat(parts).some(function (t) { return t.toLowerCase() === typed; })) match = o;
-        });
-        if (match) input.value = match.textContent.trim();
-        input.setCustomValidity(typed && !match ? 'Choose a passenger from the list.' : '');
-        var value = match ? match.value : '';
-        if (select.value !== value) {
-          select.value = value;
-          select.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      };
-      input.addEventListener('change', pick);
-      input.addEventListener('input', function () {
-        if (!input.value) pick();
-        else input.setCustomValidity('');
-      });
-    }
-    // Show what the <select> already holds (a refused save, or ?passengerId=1).
-    var chosen = select.selectedOptions[0];
-    input.value = chosen && chosen.value ? chosen.textContent.trim() : '';
-  });
-}
-makeSearchable(document);

@@ -50,13 +50,17 @@ async function renderReservationDetail(req, res, statusCode = 200, error = null)
 
 exports.list = async (req, res, next) => {
   try {
-    const filters = { passengerId: req.query.passengerId || '', status: req.query.status || '' };
-    const [passengers] = await pool.execute('SELECT PassengerID, Name, PassportNo FROM PASSENGER ORDER BY Name');
+    const filters = { q: (req.query.q || '').trim(), status: req.query.status || '' };
+    // Typed name or passport number: matches the reservation's passenger or any traveller on it.
+    const like = `%${filters.q.replace(/[\\%_]/g, '\\$&')}%`;
     const [reservations] = await pool.execute(`SELECT r.*, p.Name AS PassengerName FROM RESERVATION r
       JOIN PASSENGER p ON p.PassengerID=r.PassengerID
-      WHERE (? = '' OR r.PassengerID = ?) AND (? = '' OR r.ReservationStatus = ?)
-      ORDER BY r.BookingDate DESC, r.ReservationID DESC`, [filters.passengerId, filters.passengerId, filters.status, filters.status]);
-    res.render('reservations/list', { title: 'Reservations', reservations, passengers, filters, error: null });
+      WHERE (? = '' OR p.Name LIKE ? OR p.PassportNo LIKE ? OR EXISTS (SELECT 1 FROM TICKET t
+        JOIN PASSENGER tp ON tp.PassengerID=t.PassengerID WHERE t.ReservationID=r.ReservationID
+        AND (tp.Name LIKE ? OR tp.PassportNo LIKE ?)))
+      AND (? = '' OR r.ReservationStatus = ?)
+      ORDER BY r.BookingDate DESC, r.ReservationID DESC`, [filters.q, like, like, like, like, filters.status, filters.status]);
+    res.render('reservations/list', { title: 'Reservations', reservations, filters, error: null });
   } catch (err) { next(err); }
 };
 
@@ -85,26 +89,48 @@ exports.create = async (req, res, next) => {
       return res.status(409).render('reservations/form', locals);
     } catch (err) { return next(err); }
   }
-  const invalid = !Number.isInteger(Number(body.PassengerID)) || Number(body.PassengerID) < 1 ||
-    !tickets.length || tickets.some((ticket) => !['PassengerID', 'FlightID', 'SeatID', 'FareID'].every((field) => Number.isInteger(Number(ticket[field])) && Number(ticket[field]) > 0));
-  if (invalid) {
-    const locals = await reservationFormLocals(body); locals.tickets = tickets; locals.error = 'Choose the booker and provide at least one complete traveller ticket.';
-    return res.status(400).render('reservations/form', locals);
-  }
+  const refuse = async (status, message) => {
+    const locals = await reservationFormLocals(body); locals.tickets = tickets; locals.error = message;
+    return res.status(status).render('reservations/form', locals);
+  };
+  // Each traveller is typed in as a name and passport number (no list of other passengers).
+  const text = (v) => (typeof v === 'string' ? v.trim() : '');
+  const invalid = !tickets.length || tickets.some((ticket) => !text(ticket.Name) || !text(ticket.PassportNo) ||
+    !['FlightID', 'SeatID', 'FareID'].every((field) => Number.isInteger(Number(ticket[field])) && Number(ticket[field]) > 0));
+  if (invalid) return refuse(400, 'Give every traveller a name, passport number, flight, fare and seat.');
+  const passports = tickets.map((t) => text(t.PassportNo).toUpperCase());
+  if (new Set(passports).size !== passports.length) return refuse(400, 'Each traveller needs a different passport number.');
 
   let conn;
   try {
     conn = await pool.getConnection(); await conn.beginTransaction();
-    const [reservation] = await conn.execute('INSERT INTO RESERVATION (PassengerID, BookingStaffID) VALUES (?, ?)', [Number(body.PassengerID), body.BookingStaffID || null]);
+    // A passport already on file is that passenger (the name must match);
+    // a new passport adds the traveller as a new passenger.
+    const travellerIds = [];
     for (const ticket of tickets) {
+      const name = text(ticket.Name); const passportNo = text(ticket.PassportNo);
+      const [[found]] = await conn.execute('SELECT PassengerID, Name FROM PASSENGER WHERE PassportNo=? FOR UPDATE', [passportNo]);
+      if (found && found.Name.toLowerCase() !== name.toLowerCase()) {
+        await conn.rollback();
+        return refuse(409, `Passport ${passportNo} is already registered under a different name. Check the name and passport number.`);
+      }
+      if (found) { travellerIds.push(found.PassengerID); continue; }
+      const [added] = await conn.execute('INSERT INTO PASSENGER (Name, PassportNo) VALUES (?, ?)', [name, passportNo]);
+      travellerIds.push(added.insertId);
+    }
+    // Booked by is the booking staff member, or NULL for an online booking; the
+    // reservation's passenger (RESERVATION.PassengerID) is the first traveller.
+    const [reservation] = await conn.execute('INSERT INTO RESERVATION (PassengerID, BookingStaffID) VALUES (?, ?)',
+      [travellerIds[0], Number(body.BookingStaffID) > 0 ? Number(body.BookingStaffID) : null]);
+    for (const [i, ticket] of tickets.entries()) {
       await conn.execute(`INSERT INTO TICKET (ReservationID, PassengerID, FlightID, SeatID, FareID, TicketStatus)
-        VALUES (?, ?, ?, ?, ?, 'booked')`, [reservation.insertId, Number(ticket.PassengerID), Number(ticket.FlightID), Number(ticket.SeatID), Number(ticket.FareID)]);
+        VALUES (?, ?, ?, ?, ?, 'booked')`, [reservation.insertId, travellerIds[i], Number(ticket.FlightID), Number(ticket.SeatID), Number(ticket.FareID)]);
     }
     await conn.commit(); res.redirect(`/reservations/${reservation.insertId}`);
   } catch (err) {
     if (conn) await conn.rollback();
     const message = errorMessage(err);
-    if (message) { const locals = await reservationFormLocals(body); locals.tickets = tickets; locals.error = message; return res.status(err.code === 'ER_DUP_ENTRY' ? 409 : 400).render('reservations/form', locals); }
+    if (message) return refuse(err.code === 'ER_DUP_ENTRY' ? 409 : 400, message);
     next(err);
   } finally { if (conn) conn.release(); }
 };
