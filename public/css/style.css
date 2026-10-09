@@ -838,3 +838,7 @@ button:active {
 
 /* Header logo: the heart-and-cat mark (public/images/logo-mark.png, transparent PNG). */
 .brand-logo { display: block; width: auto; height: 44px; flex: none; }
+
+/* Passenger search box (main.js makeSearchable) inside a booking row looks like the selects beside it. */
+.ticket-builder input.search-input { min-width: 0; padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font: inherit; }
+.filter-form input.search-input { min-width: min(100%, 320px); }

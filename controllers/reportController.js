@@ -49,10 +49,13 @@ exports.passengerBookings = async (req, res, next) => {
 exports.routeIncome = async (req, res, next) => {
   const month = req.query.month || '';
   try {
+    // The Month dropdown lists every month that has flights, e.g. '2026-10' -> 'October 2026'.
+    const [months] = await pool.execute(`SELECT DISTINCT DATE_FORMAT(DepartureTime,'%Y-%m') AS value,
+      DATE_FORMAT(DepartureTime,'%M %Y') AS label FROM FLIGHT ORDER BY value`);
     let routes = [];
     let fewestRoutes = [];
     if (month) {
-      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return res.status(400).render('reports/route-income', { title: 'Route income', month: '', routes, fewestRoutes, error: 'Choose a valid month.' });
+      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return res.status(400).render('reports/route-income', { title: 'Route income', month: '', months, routes, fewestRoutes, error: 'Choose a valid month.' });
       [routes] = await pool.execute(`SELECT r.OriginCode,r.DestinationCode,COUNT(t.TicketID) AS seats_sold,
         COALESCE(SUM(fa.Price),0) AS income FROM FLIGHT f JOIN ROUTE r ON r.FlightNo=f.FlightNo
         LEFT JOIN TICKET t ON t.FlightID=f.FlightID AND t.TicketStatus<>'cancelled'
@@ -64,6 +67,6 @@ exports.routeIncome = async (req, res, next) => {
         fewestRoutes = routes.filter((row) => Number(row.seats_sold) === minimum);
       }
     }
-    res.render('reports/route-income', { title: 'Route income', month, routes, fewestRoutes, error: null });
+    res.render('reports/route-income', { title: 'Route income', month, months, routes, fewestRoutes, error: null });
   } catch (err) { next(err); }
 };

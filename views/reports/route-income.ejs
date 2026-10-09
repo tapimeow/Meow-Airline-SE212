@@ -4,7 +4,7 @@
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
 <p class="page-intro">Compare fare revenue and tickets sold across routes for the selected month.</p>
 <form class="filter-form" action="/reports/route-income" method="GET">
-  <label for="month">Month</label><input id="month" name="month" type="month" value="<%= month || '' %>" required>
+  <label for="month">Month</label><select id="month" name="month" required><option value="">Choose a month</option><% (months || []).forEach(function(m) { %><option value="<%= m.value %>" <%= month === m.value ? 'selected' : '' %>><%= m.label %></option><% }); %></select>
   <button type="submit">Show route income</button>
 </form>
 

@@ -52,7 +52,7 @@ exports.checkIn = async (req, res, next) => {
 
 exports.boardingPass = async (req, res, next) => {
   try {
-    const [[boardingPass]] = await pool.execute(`SELECT c.*,t.TicketID,t.TicketStatus,p.Name AS Traveller,
+    const [[boardingPass]] = await pool.execute(`SELECT c.*,t.TicketID,t.TicketStatus,p.Name AS Traveller,p.PassportNo,
       f.FlightNo,f.DepartureTime,f.ArrivalTime,f.Gate,r.OriginCode,r.DestinationCode,s.SeatNo,s.SeatClass
       FROM CHECKIN c JOIN TICKET t ON t.TicketID=c.TicketID JOIN PASSENGER p ON p.PassengerID=t.PassengerID
       JOIN FLIGHT f ON f.FlightID=t.FlightID JOIN ROUTE r ON r.FlightNo=f.FlightNo
