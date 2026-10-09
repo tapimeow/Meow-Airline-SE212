@@ -5,7 +5,7 @@
 <p class="page-intro">Choose a passenger to review their reservations, itineraries and payment status.</p>
 <form class="filter-form" action="/reports/passenger-bookings" method="GET">
   <label for="passengerId">Passenger</label>
-  <select id="passengerId" name="passengerId" required>
+  <select id="passengerId" name="passengerId" required data-search>
     <option value="">Choose a passenger</option>
     <% (passengers || []).forEach(function(p) { %><option value="<%= p.PassengerID %>" <%= String(selectedPassengerId || '') === String(p.PassengerID) ? 'selected' : '' %>><%= p.Name %> · <%= p.PassportNo %></option><% }); %>
   </select>

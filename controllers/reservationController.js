@@ -51,7 +51,7 @@ async function renderReservationDetail(req, res, statusCode = 200, error = null)
 exports.list = async (req, res, next) => {
   try {
     const filters = { passengerId: req.query.passengerId || '', status: req.query.status || '' };
-    const [passengers] = await pool.execute('SELECT PassengerID, Name FROM PASSENGER ORDER BY Name');
+    const [passengers] = await pool.execute('SELECT PassengerID, Name, PassportNo FROM PASSENGER ORDER BY Name');
     const [reservations] = await pool.execute(`SELECT r.*, p.Name AS PassengerName FROM RESERVATION r
       JOIN PASSENGER p ON p.PassengerID=r.PassengerID
       WHERE (? = '' OR r.PassengerID = ?) AND (? = '' OR r.ReservationStatus = ?)
