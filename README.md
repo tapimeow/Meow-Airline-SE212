@@ -8,7 +8,7 @@ manager gets reports in seconds.
 **Team:** Patarawadee Kunna (682115034) · Kawintida Kantong (682115002) · Kornnaphat Uttama (682115001)
 **Stack:** MySQL · Node.js + Express · EJS/HTML/CSS/JS · Railway · GitHub · DBeaver / Workbench
 
-> 📅 **Presentation + Mango submission (slides, report, source code): Thursday 15 October 2026.**
+> 📅 **Report submission on Mango: Wednesday 14 October 2026. Presentation (with slides and source code): Thursday 15 October 2026.**
 > The day-by-day plan is in [`docs/PHASES.md`](docs/PHASES.md).
 
 ![Architecture: Browser ⇄ Express ⇄ MySQL](docs/architecture.png)
