@@ -4,11 +4,15 @@ const pool = require('../config/db');
 exports.detail = async (req, res, next) => {
   try {
     const [tickets] = await pool.execute(
-      `SELECT t.*, p.Name AS Traveller, f.FlightNo, f.DepartureTime,
-              f.ArrivalTime, f.Gate, s.SeatNo, s.SeatClass, fa.Price
+      `SELECT t.*, p.Name AS Traveller, p.PassportNo, f.FlightNo, f.DepartureTime,
+              f.ArrivalTime, f.Gate, s.SeatNo, s.SeatClass, fa.Price,
+              ro.OriginCode, ro.DestinationCode, ao.City AS OriginCity, ad.City AS DestinationCity
        FROM TICKET t
        JOIN PASSENGER p ON p.PassengerID = t.PassengerID
        JOIN FLIGHT f ON f.FlightID = t.FlightID
+       JOIN ROUTE ro ON ro.FlightNo = f.FlightNo
+       JOIN AIRPORT ao ON ao.AirportCode = ro.OriginCode
+       JOIN AIRPORT ad ON ad.AirportCode = ro.DestinationCode
        JOIN SEAT s ON s.SeatID = t.SeatID
        JOIN FARE fa ON fa.FareID = t.FareID
        WHERE t.TicketID = ?`,
@@ -22,11 +26,27 @@ exports.detail = async (req, res, next) => {
     const [checkins] = await pool.execute(
       'SELECT * FROM CHECKIN WHERE TicketID = ?', [req.params.id]
     );
+    // Every other traveller's ticket on the same reservation, one card each.
+    const [others] = await pool.execute(
+      `SELECT t.*, p.Name AS Traveller, p.PassportNo, f.FlightNo, f.DepartureTime,
+              f.ArrivalTime, f.Gate, s.SeatNo, s.SeatClass, fa.Price, ro.OriginCode, ro.DestinationCode,
+              (SELECT COUNT(*) FROM CHECKIN c WHERE c.TicketID = t.TicketID) AS CheckedIn
+       FROM TICKET t
+       JOIN PASSENGER p ON p.PassengerID = t.PassengerID
+       JOIN FLIGHT f ON f.FlightID = t.FlightID
+       JOIN ROUTE ro ON ro.FlightNo = f.FlightNo
+       JOIN SEAT s ON s.SeatID = t.SeatID
+       JOIN FARE fa ON fa.FareID = t.FareID
+       WHERE t.ReservationID = ? AND t.TicketID <> ?
+       ORDER BY f.DepartureTime, t.TicketID`,
+      [tickets[0].ReservationID, tickets[0].TicketID]
+    );
     res.render('tickets/detail', {
       title: `Ticket #${tickets[0].TicketID}`,
       ticket: tickets[0],
       baggage,
       checkin: checkins[0] || null,
+      others,
       error: null,
     });
   } catch (err) {
