@@ -2,15 +2,22 @@
 
 <header class="page-head"><div><p class="eyebrow">Report 02</p><h1>Passenger bookings</h1></div><a href="/reports">All reports</a></header>
 <% if (error) { %><p class="error-message"><%= error %></p><% } %>
-<p class="page-intro">Choose a passenger to review their reservations, itineraries and payment status.</p>
+<p class="page-intro">Type a passenger's name or passport number to review their reservations, itineraries and payment status.</p>
 <form class="filter-form" action="/reports/passenger-bookings" method="GET">
-  <label for="passengerId">Passenger</label>
-  <select id="passengerId" name="passengerId" required data-search>
-    <option value="">Choose a passenger</option>
-    <% (passengers || []).forEach(function(p) { %><option value="<%= p.PassengerID %>" <%= String(selectedPassengerId || '') === String(p.PassengerID) ? 'selected' : '' %>><%= p.Name %> · <%= p.PassportNo %></option><% }); %>
-  </select>
-  <button type="submit">Show bookings</button>
+  <label for="q">Passenger</label>
+  <input id="q" type="search" name="q" value="<%= locals.q || '' %>" placeholder="Type a name or passport number" autocomplete="off" required>
+  <button type="submit">Search</button>
 </form>
+
+<% if (locals.matches && matches.length > 1) { %>
+  <p class="summary-note"><%= matches.length %> passengers match "<%= q %>". Choose one:</p>
+  <div class="table-card report-table-wrap"><table class="data-table">
+    <thead><tr><th>Name</th><th>Passport no.</th><th></th></tr></thead>
+    <tbody><% matches.forEach(function(m) { %><tr><td data-label="Name"><%= m.Name %></td><td data-label="Passport no."><%= m.PassportNo %></td>
+      <td data-label="Open"><a class="btn btn-sm btn-quiet" href="/reports/passenger-bookings?passengerId=<%= m.PassengerID %>">Show bookings</a></td></tr><% }); %></tbody>
+  </table></div>
+<% } %>
+<% if (locals.passenger) { %><p class="summary-note">Bookings made by <strong><%= passenger.Name %></strong> · <%= passenger.PassportNo %></p><% } %>
 
 <% if (selectedPassengerId) { %>
   <% if (results && results.length) { %>

@@ -5,6 +5,12 @@
   <p class="error-message"><%= error %></p>
 <% } %>
 <p><a href="/passengers/new">+ Add passenger</a></p>
+<form class="filter-form" action="/passengers" method="GET">
+  <label>Passenger<input type="search" name="q" value="<%= locals.q || '' %>" placeholder="Type a name or passport number" autocomplete="off"></label>
+  <button class="btn btn-quiet">Search</button>
+  <% if (locals.q) { %><a href="/passengers">Show all</a><% } %>
+</form>
+<% if (locals.q && !passengers.length) { %><p class="empty-state">No passenger matches "<%= q %>".</p><% } %>
 
 <table class="data-table">
   <thead>

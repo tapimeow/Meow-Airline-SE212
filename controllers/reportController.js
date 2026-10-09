@@ -21,12 +21,27 @@ exports.freeSeats = async (req, res, next) => {
 };
 
 exports.passengerBookings = async (req, res, next) => {
-  const selectedPassengerId = req.query.passengerId || '';
+  let selectedPassengerId = req.query.passengerId || '';
+  let q = (req.query.q || '').trim();
   try {
-    const [passengers] = await pool.execute('SELECT PassengerID,Name,PassportNo FROM PASSENGER ORDER BY Name');
     let results = [];
+    let matches = [];
+    let passenger = null;
+    const render = (status, error) => res.status(status).render('reports/passenger-bookings',
+      { title: 'Passenger bookings', q, matches, passenger, selectedPassengerId, results, error });
+    if (!selectedPassengerId && q) {
+      const like = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
+      [matches] = await pool.execute(`SELECT PassengerID, Name, PassportNo FROM PASSENGER
+        WHERE Name LIKE ? OR PassportNo LIKE ? ORDER BY Name LIMIT 50`, [like, like]);
+      if (!matches.length) return render(404, `No passenger matches "${q}".`);
+      if (matches.length > 1) return render(200, null);
+      selectedPassengerId = String(matches[0].PassengerID);
+    }
     if (selectedPassengerId) {
-      if (!/^\d+$/.test(selectedPassengerId)) return res.status(400).render('reports/passenger-bookings', { title: 'Passenger bookings', passengers, selectedPassengerId: '', results, error: 'Choose a valid passenger.' });
+      if (!/^\d+$/.test(selectedPassengerId)) { selectedPassengerId = ''; return render(400, 'Choose a valid passenger.'); }
+      [[passenger]] = await pool.execute('SELECT PassengerID, Name, PassportNo FROM PASSENGER WHERE PassengerID=?', [selectedPassengerId]);
+      if (!passenger) { selectedPassengerId = ''; return render(404, 'Passenger not found.'); }
+      if (!q) q = `${passenger.Name}`;
       [results] = await pool.execute(`SELECT r.ReservationID,r.BookingDate,r.ReservationStatus,
         COALESCE(p.amount_paid,0) AS amount_paid,COALESCE(ft.total_due,0) AS total_due,
         CASE WHEN p.refund_count>0 AND COALESCE(p.amount_paid,0)<=0 THEN 'Refunded'
@@ -42,7 +57,7 @@ exports.passengerBookings = async (req, res, next) => {
         LEFT JOIN FLIGHT f ON f.FlightID=t.FlightID LEFT JOIN ROUTE ro ON ro.FlightNo=f.FlightNo
         WHERE r.PassengerID=? ORDER BY r.ReservationID,f.DepartureTime`, [selectedPassengerId]);
     }
-    res.render('reports/passenger-bookings', { title: 'Passenger bookings', passengers, selectedPassengerId, results, error: null });
+    render(200, null);
   } catch (err) { next(err); }
 };
 

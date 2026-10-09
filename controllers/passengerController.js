@@ -34,8 +34,12 @@ const checkRequired = (Name, PassportNo) =>
 // GET /passengers - show every passenger in a table
 exports.list = async (req, res, next) => {
   try {
-    const [passengers] = await pool.execute('SELECT * FROM PASSENGER ORDER BY PassengerID');
-    res.render('passengers/list', { title: 'Passengers', passengers, error: null });
+    // Typed name or passport number narrows the list; empty shows everyone.
+    const q = (req.query.q || '').trim();
+    const like = `%${q.replace(/[\\%_]/g, '\\$&')}%`;
+    const [passengers] = await pool.execute(`SELECT * FROM PASSENGER
+      WHERE ? = '' OR Name LIKE ? OR PassportNo LIKE ? ORDER BY PassengerID`, [q, like, like]);
+    res.render('passengers/list', { title: 'Passengers', passengers, q, error: null });
   } catch (err) {
     next(err);
   }
