@@ -22,7 +22,7 @@ screenshots of the MySQL Workbench window.
 | Q7 | 3 | MW101 has three issued passengers in seats 2A–2C. ![Q7 boarding list](../db/pic/Queries/q7.png) |
 | Q8 | 0 | No flight-seat pair has multiple live tickets. ![Q8 duplicate-seat check](../db/pic/Queries/q8.png) |
 | Q8b | 0 | Every staff member has a matching subtype row. ![Q8b staff subtype check](../db/pic/Queries/q8b.png) |
-| Q9 | 2 | Two booking staff members appear; they created 17 and 15 reservations. ![Q9 bookings by staff](../db/pic/Queries/q9.png) |
+| Q9 | 2 | Two booking staff members appear: Anan Wongsa created 56 reservations and Ploy Srisuk 49 (re-captured Fri 9 Oct with the November–December bookings). ![Q9 bookings by staff](../db/pic/Queries/q9.png) |
 | Q19 | 5 | MW101 has five fare-condition rows across Economy and Business fares. ![Q19 fare conditions](../db/pic/Queries/q19.png) |
 
 **Evidence note:** Q8 and Q8b return zero rows as expected. Their current images
