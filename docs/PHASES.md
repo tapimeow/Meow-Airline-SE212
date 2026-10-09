@@ -2,8 +2,8 @@
 
 Sources: Lab 6 Part B (B5), Lab 7 §5, Lectures 7–10.
 
-> **Hard deadline: Thursday 15 October 2026. Presentation, plus slides, report
-> and source code on Mango** (Lecture 10). Today is Thu 8 Oct, so there are
+> **Deadlines: the report is sent on Wednesday 14 October 2026; the presentation,
+> with slides and source code on Mango, is on Thursday 15 October 2026** (Lecture 10). Today is Thu 8 Oct, so there are
 > **7 days**. The Lab 6 / Lab 7 week numbers are replaced by the dates below.
 > Confirm the date with Aj. Pree. The same slide also shows an old final-exam
 > date ("17 Oct 2021").
@@ -18,6 +18,7 @@ Sources: Lab 6 Part B (B5), Lab 7 §5, Lectures 7–10.
 | 5a | `queries.sql` (report §7) | Fri 9 – Sun 11 | **Kawintida + Kornnaphat** | Patarawadee |
 | 5b | Frontend pages + 3 report pages | Sat 10 – Mon 12 | **Kornnaphat** | Patarawadee |
 | 6 | Report doc, slides, rehearsal, Mango upload | Tue 13 – Wed 14 | **All** (see `docs/REPORT.md`) | — |
+| — | **Report submission** | **Wed 14 Oct** | **All** | — |
 | — | **Presentation** | **Thu 15 Oct** | **All** | — |
 
 If time runs out, follow the priority order in [`docs/REPORT.md`](REPORT.md#priority-order-if-time-runs-out).
@@ -90,5 +91,5 @@ Order (stop wherever time runs out): flights/fares → **reservations + tickets 
 
 ## Open items
 
-- [ ] Confirm the 15 Oct presentation date and the final report format with Aj. Pree
+- [x] Dates confirmed (Fri 9 Oct): report sent Wed 14 Oct, presentation Thu 15 Oct. Still to confirm with Aj. Pree: the report file format
 - [x] Decide the second M:N relationship: FARE ⇄ FARE_CONDITION

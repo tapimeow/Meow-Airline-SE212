@@ -1,6 +1,6 @@
 # Final report, slides, and submission
 
-**Presentation day: Thursday 15 October 2026** (Lecture 10).
+**Report submission: Wednesday 14 October 2026. Presentation day: Thursday 15 October 2026** (Lecture 10).
 Submit to **Mango**: the slides, the report document, and the source code.
 Every member uploads (same rule as Lab 7).
 
