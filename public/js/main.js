@@ -69,7 +69,11 @@ document.addEventListener('submit', function (event) {
     fare.appendChild(option('', 'Choose fare'));
     data.fares.forEach(function (f) {
       if (String(f.FlightID) === flightId) {
-        fare.appendChild(option(f.FareID, f.Class + ' · ' + Number(f.Price).toFixed(2) + ' THB'));
+        // Mark a class with no free seat; saving it gets a clear "full" message back.
+        var hasSeat = data.seats.some(function (s) {
+          return String(s.FlightID) === flightId && s.SeatClass === f.Class;
+        });
+        fare.appendChild(option(f.FareID, f.Class + ' · ' + Number(f.Price).toFixed(2) + ' THB' + (hasSeat ? '' : ' · full')));
       }
     });
     fare.value = keep;
@@ -92,6 +96,7 @@ document.addEventListener('submit', function (event) {
       });
 
       seat.innerHTML = '';
+      seat.required = true;
       if (!flightId) { seat.appendChild(option('', 'Select flight first')); return; }
       if (!fare) { seat.appendChild(option('', 'Select fare first')); return; }
 
@@ -100,6 +105,9 @@ document.addEventListener('submit', function (event) {
           takenElsewhere.indexOf(String(s.SeatID)) === -1;
       });
       seat.appendChild(option('', free.length ? 'Choose seat' : 'No free ' + fare.Class + ' seats'));
+      // No free seat in this class: let Create send the form anyway, so the
+      // server can answer with which flight and class is full.
+      seat.required = free.length > 0;
       free.forEach(function (s) { seat.appendChild(option(s.SeatID, s.SeatNo + ' · ' + s.SeatClass)); });
       seat.value = keep;
       if (seat.value !== keep) seat.value = '';
@@ -143,5 +151,18 @@ document.addEventListener('submit', function (event) {
   // A flight passed in the URL (/reservations/new?flightId=6) is already selected.
   rowsBox.querySelectorAll('[data-ticket-row]').forEach(fillFares);
   renumber();
+  fillSeats();
+
+  // After a refused save, put every traveller back the way the agent left them.
+  (data.tickets || []).forEach(function (t, i) {
+    if (i > 0) form.querySelector('[data-add-ticket-row]').click();
+    var row = rowsBox.querySelectorAll('[data-ticket-row]')[i];
+    field(row, 'PassengerID').value = t.PassengerID || '';
+    field(row, 'FlightID').value = t.FlightID || '';
+    fillFares(row);
+    field(row, 'FareID').value = t.FareID || '';
+    fillSeats();
+    field(row, 'SeatID').value = t.SeatID || '';
+  });
   fillSeats();
 })();
