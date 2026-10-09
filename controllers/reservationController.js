@@ -71,10 +71,24 @@ exports.newForm = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   const body = req.body;
   const tickets = Array.isArray(body.Tickets) ? body.Tickets : (body.Tickets ? Object.values(body.Tickets) : []);
+  // A ticket needs a seat (SeatID is NOT NULL, BR10). When a traveller's flight and
+  // fare are picked but the class has no free seat, say which flight and class is full.
+  const seatless = tickets.filter((t) => Number(t.FlightID) > 0 && Number(t.FareID) > 0 && !(Number(t.SeatID) > 0));
+  if (seatless.length) {
+    try {
+      const [full] = await pool.query(`SELECT DISTINCT f.FlightNo, fa.Class FROM FARE fa JOIN FLIGHT f ON f.FlightID=fa.FlightID
+        WHERE fa.FareID IN (?)`, [seatless.map((t) => Number(t.FareID))]);
+      const locals = await reservationFormLocals(body);
+      locals.tickets = tickets;
+      locals.error = full.map((r) => `${r.FlightNo} has no free ${r.Class} seats.`).join(' ') +
+        ' Choose another fare or flight for that traveller.';
+      return res.status(409).render('reservations/form', locals);
+    } catch (err) { return next(err); }
+  }
   const invalid = !Number.isInteger(Number(body.PassengerID)) || Number(body.PassengerID) < 1 ||
     !tickets.length || tickets.some((ticket) => !['PassengerID', 'FlightID', 'SeatID', 'FareID'].every((field) => Number.isInteger(Number(ticket[field])) && Number(ticket[field]) > 0));
   if (invalid) {
-    const locals = await reservationFormLocals(body); locals.error = 'Choose the booker and provide at least one complete traveller ticket.';
+    const locals = await reservationFormLocals(body); locals.tickets = tickets; locals.error = 'Choose the booker and provide at least one complete traveller ticket.';
     return res.status(400).render('reservations/form', locals);
   }
 
@@ -90,7 +104,7 @@ exports.create = async (req, res, next) => {
   } catch (err) {
     if (conn) await conn.rollback();
     const message = errorMessage(err);
-    if (message) { const locals = await reservationFormLocals(body); locals.error = message; return res.status(err.code === 'ER_DUP_ENTRY' ? 409 : 400).render('reservations/form', locals); }
+    if (message) { const locals = await reservationFormLocals(body); locals.tickets = tickets; locals.error = message; return res.status(err.code === 'ER_DUP_ENTRY' ? 409 : 400).render('reservations/form', locals); }
     next(err);
   } finally { if (conn) conn.release(); }
 };
