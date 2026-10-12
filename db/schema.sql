@@ -1,6 +1,6 @@
 -- db/schema.sql
 --
--- [Phase 3 · Database · Patarawadee] Report sections 5–6 (Lecture 8):
+-- Report sections 5–6:
 -- CREATE DATABASE + CREATE TABLE for every table in the relational model.
 -- Design notes and the reason for each FK action: docs/DATABASE.md.
 --

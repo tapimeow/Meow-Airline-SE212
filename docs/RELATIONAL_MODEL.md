@@ -1,8 +1,8 @@
 # Relational model (report §4)
 
-**Owner:** Patarawadee (Phase 2). Built from the EER in [`docs/erd/`](erd/) and checked against
+Built from the EER in [`docs/erd/`](erd/) and checked against
 [`db/schema.sql`](../db/schema.sql) on MySQL 8.0. The FDs and the 3NF check are in
-[`docs/DATABASE.md`](DATABASE.md#functional-dependencies--3nf-check-patarawadee-fills-this-in-lecture-7).
+[`docs/DATABASE.md`](DATABASE.md#functional-dependencies--3nf-check-lecture-7).
 
 **Notation:** <u>underlined</u> = primary key · *italic* = foreign key (→ the table it references) ·
 `UQ` = other candidate key (`UNIQUE`). 17 relations, listed parents first (the create order).

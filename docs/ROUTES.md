@@ -1,15 +1,10 @@
-# Route ↔ page contract
+# Routes and pages
 
-**Owners:** Kawintida (backend) and Kornnaphat (frontend) agree on this list
-**before** Phase 4 starts. After that, a change is pushed straight to `main`
-(see `RULES.md` 1.5).
-
-Each route file in `routes/` lists its planned URLs in its header comment. This
-table gives the overview.
+An overview of the URLs, the controller that handles them, and the views they render.
 
 | Area | Main URLs | Controller | Views folder | BRs |
 |---|---|---|---|---|
-| Passengers *(Phase 0 practice, done)* | `/passengers` CRUD | passengerController | `views/passengers/` | BR5 |
+| Passengers | `/passengers` CRUD | passengerController | `views/passengers/` | BR5 |
 | Airports | `/airports` CRUD | airportController | `views/airports/` | BR1, BR2, BR7 |
 | Routes | `/routes` CRUD | apiAdminController | `views/flights/` | BR1, BR2, BR7 |
 | Aircraft + seats | `/aircraft` CRUD, `/aircraft/:id/seats` | aircraftController, seatController | `views/aircraft/`, `views/seats/` | BR3, BR4, BR11 |
@@ -24,10 +19,10 @@ table gives the overview.
 
 ## Conventions
 
-The agreed browser experience is server-rendered EJS, matching the Passenger CRUD; Namtan owns the templates. Browser-facing GET handlers render the agreed views, and successful form submissions redirect to the relevant list or detail page. The required view names and locals are documented in [`EJS_VIEW_CONTRACT.md`](EJS_VIEW_CONTRACT.md).
+Pages are server-rendered EJS. Browser-facing GET handlers render a view, and successful form submissions redirect to the relevant list or detail page.
 
 All updates use POST so they work with plain HTML forms. Express parses `application/x-www-form-urlencoded` form fields (including `Tickets[0][FlightID]`) with `extended: true`. A reservation includes `PassengerID`, optional `BookingStaffID`, and indexed ticket fields for `PassengerID`, `FlightID`, `SeatID`, and `FareID`. Flight search accepts optional `origin`, `destination` and `date=YYYY-MM-DD` parameters. Fare forms submit `Class`, `Price`, and indexed `Rules[...][ConditionID]` / `Rules[...][Fee]` fields. Staff forms submit `StaffName`, `StaffRole`, and the matching subtype field (`SalesOffice` or `CounterNo`). Reports take `flightId`, `passengerId`, or `month=YYYY-MM` as appropriate.
 
 - Forms use `POST` (HTML forms cannot send PUT or DELETE): `POST /x/:id` updates, `POST /x/:id/delete` deletes.
-- Each controller passes `title` and the data the page needs. The names of the variables passed to a view are written in the view folder's README once they are agreed.
+- Each controller passes `title` and the data the page needs.
 - Errors: the controller re-renders the form with an `error` string, and the view shows it at the top.

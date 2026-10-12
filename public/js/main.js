@@ -1,6 +1,6 @@
 // public/js/main.js
 //
-// [Phase 5 · Frontend · Kornnaphat] Small browser-side helpers, loaded on every
+// Small browser-side helpers, loaded on every
 // page from views/partials/footer.ejs. No database or business logic here:
 // the controllers and MySQL check every rule again when the form is saved.
 

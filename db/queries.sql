@@ -3,12 +3,9 @@
 -- Report section 7: "SQL source code for queries" (Lecture 8).
 -- Run after schema.sql + seed.sql. The whole file runs top to bottom without
 -- errors. The statements that are SUPPOSED to fail (to show a constraint
--- working) are commented out. Run each of those on its own and screenshot
--- the error.
+-- working) are commented out. Run each of those on its own to see the error.
 --
--- Owners (Phase 5a): each person checks their queries against the data,
--- takes the result screenshots for the report, and explains them in the
--- presentation.
+-- Authors:
 --   Kawintida  : Q1–Q9 (incl. Q8b), Q19
 --   Kornnaphat : Q10–Q18, Q20
 --

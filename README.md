@@ -5,60 +5,80 @@ regional airline with eight aircraft. It replaces the shared Excel file and LINE
 chats with one MySQL database, so seats can't be double-booked and the
 manager gets reports in seconds.
 
-**Team:** Patarawadee Kunna (682115034) · Kawintida Kantong (682115002) · Kornnaphat Uttama (682115001)
-**Stack:** MySQL · Node.js + Express · EJS/HTML/CSS/JS · Railway · GitHub · DBeaver / Workbench
-
-> 📅 **Report submission on Mango: Wednesday 14 October 2026. Presentation (with slides and source code): Thursday 15 October 2026.**
-> The day-by-day plan is in [`docs/PHASES.md`](docs/PHASES.md).
+**Stack:** MySQL 8 · Node.js + Express · EJS / HTML / CSS / JavaScript · MySQL Workbench / DBeaver · draw.io
 
 ![Architecture: Browser ⇄ Express ⇄ MySQL](docs/architecture.png)
 
-## Status: skeleton
+## Team
 
-**Done:** the database. `db/schema.sql`, `db/seed.sql` and `db/queries.sql` run on MySQL 8.0,
-and the **Passenger CRUD** works (the Phase 0 practice page).
-Every other app file contains only comments that say **who** builds it,
-**in which phase**, and **which business rules** it must enforce.
+| Member | Student ID | Role | Main work |
+|---|---|---|---|
+| Patarawadee Kunna | 682115034 | Database | EER, relational model, FDs and 3NF, `db/schema.sql`, `db/seed.sql`, `config/db.js` |
+| Kawintida Kantong | 682115002 | Backend | `routes/`, `controllers/`, `server.js`, queries Q1–Q9 and Q19 |
+| Kornnaphat Uttama | 682115001 | Frontend | `views/`, `public/`, report pages, queries Q10–Q18 and Q20 |
 
-## Read these first
+## Goals
 
-| File | What's in it |
-|---|---|
-| [`RULES.md`](RULES.md) | Team rules: branches, PRs, who may edit what, coding rules |
-| [`docs/PHASES.md`](docs/PHASES.md) | Phases 0–6, owner and reviewer for each, checklists |
-| [`docs/TEAM.md`](docs/TEAM.md) | Who owns which files and how to find your TODOs |
-| [`docs/DATABASE.md`](docs/DATABASE.md) | Tables, relationships, ERD review fixes, where each BR is enforced, open questions, 3NF table |
-| [`docs/RELATIONAL_MODEL.md`](docs/RELATIONAL_MODEL.md) | Relational model for report §4: every table, PK, FK and FK action, and how the EER maps to tables |
-| [`docs/TABLE_CREATION.md`](docs/TABLE_CREATION.md) | Report §5–6: how `schema.sql` was built, step by step (types, NULL, UNIQUE, PK/FK, defaults, CHECKs) |
-| [`docs/REPORT.md`](docs/REPORT.md) | Final report sections and owners, lecture checklists, slides, priority order |
-| [`docs/erd/`](docs/erd/) | The EER diagram: `meow-airline-eer.png`, editable `meow-airline-eer.drawio` |
-| [`docs/ROUTES.md`](docs/ROUTES.md) | URL ↔ controller ↔ page contract for the backend and frontend |
+- **O1** Zero double-booked seats
+- **O2** One booking in under 2 minutes (it used to take about 8)
+- **O3** Seats sold and income per route in under 10 seconds
+- **O4** Live free seats per flight, by class
 
-## Goals (from the proposal)
+The system answers the airline's three key questions, each as a report page:
 
-- **O1** Zero double-booked seats in the first month
-- **O2** One booking in under 2 minutes (currently about 8)
-- **O3** Seats-sold-and-income report for any flight in under 10 seconds
-- **O4** Real-time free seats per flight, by class
-
-Reports the system must answer:
 1. How many seats are still free on flight MW101 on 20 October, and in which class?
 2. Which bookings has this passenger made, and which are not paid yet?
 3. How much did each route earn last month, and which route sold the fewest seats?
 
+## What it does
+
+- **Booking:** book several travellers on one reservation in a single transaction; only free seats of the fare's class can be picked.
+- **Payments and tickets:** payments are kept as a ledger (a refund is a new row); tickets are issued only once the reservation is fully paid (BR8).
+- **Check-in and baggage:** check in issued tickets before departure, print a boarding pass, and record bags within the class weight limit.
+- **Admin:** airports, routes, aircraft and seats, flights and fares, staff, passengers.
+- **Reports:** free seats by class, a passenger's bookings and payment status, income per route.
+
+| Booking form | Boarding pass | Route income report |
+|---|---|---|
+| ![Booking form](docs/ui/02-booking-form.png) | ![Boarding pass](docs/ui/05-boarding-pass.png) | ![Route income](docs/ui/08-report-route-income.png) |
+
+More screenshots are in [`docs/ui/`](docs/ui/).
+
+## The database rules itself
+
+MySQL refuses bad data even if the app has a bug. For example:
+
+- **No double booking (BR10):** `TICKET.ActiveSeat` is 1 for a live ticket and NULL for a cancelled one, and `UNIQUE (FlightID, SeatID, ActiveSeat)` rejects a second live ticket for the same seat.
+- **Seat and fare must fit the flight:** triggers on TICKET refuse a seat from another aircraft or a seat class that doesn't match the fare.
+- **Disjoint staff roles (BR14):** a composite FK on `(StaffID, StaffRole)` stops a staff member from being both booking and check-in staff.
+
+Rules that need totals or the current time (BR8, BR11, BR12, BR13) are checked in the controllers inside transactions.
+
+## Documentation
+
+| File | What's in it |
+|---|---|
+| [`docs/BUSINESS_RULES.md`](docs/BUSINESS_RULES.md) | Business rules BR1–BR19 and where each is enforced |
+| [`docs/erd/`](docs/erd/) | The EER diagram (`meow-airline-eer.png`, editable `meow-airline-eer.drawio`) |
+| [`docs/RELATIONAL_MODEL.md`](docs/RELATIONAL_MODEL.md) | Every table, PK, FK and FK action, and how the EER maps to tables |
+| [`docs/DATABASE.md`](docs/DATABASE.md) | Design notes, relationships, functional dependencies and the 3NF check |
+| [`docs/TABLE_CREATION.md`](docs/TABLE_CREATION.md) | How `schema.sql` was built, step by step |
+| [`docs/API_REPORT.md`](docs/API_REPORT.md) | The Express API: features, endpoints, transactions |
+| [`docs/ROUTES.md`](docs/ROUTES.md) | URL ↔ controller ↔ page table |
+
 ## Folder structure
 
 ```
-config/db.js            MySQL pool, the only place credentials are read      [Patarawadee]
-db/schema.sql           CREATE TABLEs (17 tables, 2 M:N bridges)            [Patarawadee, Phase 3]
-db/seed.sql             Fake sample data                                     [Patarawadee, Phase 3]
-db/queries.sql          20 queries for report section 7                      [Kawintida + Kornnaphat, Phase 5a]
-routes/                 One file per entity: URL list                        [Kawintida, Phase 4]
-controllers/            One file per entity: SQL + business rules            [Kawintida, Phase 4]
-views/                  One folder per entity (each has a README of pages)   [Kornnaphat, Phase 5]
-public/css, public/js   Styling and small browser helpers                    [Kornnaphat, Phase 5]
-server.js               Wires routes together                                [Kawintida, Phase 4]
-docs/                   Plans and design notes                               [All]
+config/db.js        MySQL connection pool (credentials come from .env)
+db/schema.sql       CREATE DATABASE + 17 tables, triggers
+db/seed.sql         Fake sample data for every table
+db/queries.sql      20 report queries (Q1–Q20)
+routes/             One file per area: the URL list
+controllers/        One file per area: SQL + business rules
+views/              EJS pages, one folder per area, shared partials
+public/             CSS, browser-side JavaScript, images
+server.js           App entry point: wires everything together
+docs/               Design documents, EER diagram, screenshots
 ```
 
 ## Running locally
@@ -72,7 +92,7 @@ docs/                   Plans and design notes                               [Al
    mysql -u root -p meow_airline < db/queries.sql   # optional: runs every report query
    ```
    Running `schema.sql` again resets all the data.
-4. `npm run dev`, then open http://localhost:3000/passengers
+4. `npm run dev`, then open http://localhost:3000
 
 ## Out of scope
 

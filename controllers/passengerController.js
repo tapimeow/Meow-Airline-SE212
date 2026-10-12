@@ -1,11 +1,7 @@
 // controllers/passengerController.js
 //
-// [Phase 4 · Backend · Kawintida] Reference implementation for the practice CRUD page.
-// Every function follows the same shape: run a query against `pool`, then
-// render or redirect. Copy this pattern for the real entities - reports
-// (seats sold, empty seats, income) are just a `list`-style function that
-// renders a different view with the report queries from db/queries.sql
-// instead of a plain SELECT.
+// Passenger CRUD. Every function runs a query against `pool`, then renders a
+// page or redirects.
 //
 // Error handling: Express 4 does not catch errors thrown inside an async
 // function, and an uncaught one crashes the whole server. So every async

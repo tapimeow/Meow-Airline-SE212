@@ -1,9 +1,7 @@
 /* public/css/style.css
-   [Phase 5 · Frontend · Kornnaphat] Bare-minimum styling so the skeleton isn't
-   unstyled HTML - replace all of this with the real design. Keep the
-   phone-width rule in mind (the proposal's scope says every page must be
-   usable on a phone screen), so this file starts mobile-first: no fixed
-   widths, a max-width wrapper, and a nav that wraps instead of overflowing. */
+   Every page must be usable on a phone screen, so this file is mobile-first:
+   no fixed widths, a max-width wrapper, and a nav that wraps instead of
+   overflowing. */
 
 :root {
   --ink: #2a3566;

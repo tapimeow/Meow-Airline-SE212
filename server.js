@@ -20,9 +20,8 @@ const routeFiles = [
 
 const app = express();
 
-// [Phase 5 · Frontend · Kornnaphat] Templates live in views/, using EJS. Shared markup
-// (nav, header, footer) belongs in views/partials/ so it's not repeated on
-// every page - see views/partials/header.ejs and footer.ejs.
+// Templates live in views/, using EJS. Shared markup (nav, header, footer)
+// is in views/partials/ so it's not repeated on every page.
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.formatFlightTime = (value) => {
@@ -44,12 +43,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Mount routes. Keep each entity's routes in its own file under routes/.
+// Mount routes. Each area's routes live in their own file under routes/.
 app.use('/', indexRoutes);
 app.use('/passengers', passengerRoutes);
 for (const [prefix, routePath] of routeFiles) app.use(prefix, require(routePath));
 
-// Basic 404 - customize this page under views/ if you want it styled.
+// Basic 404.
 app.use((req, res) => {
   res.status(404).send('Page not found');
 });

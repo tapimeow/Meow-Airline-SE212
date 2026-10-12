@@ -1,9 +1,6 @@
 # Database design notes
 
-**Owner:** Patarawadee (Phase 2 lead, Phase 3). All three members decide the open questions.
-**Sources:** Lab 7 §3, Lab 6 B3, the ERDs in [`docs/erd/`](erd/), Lectures 7–10.
-
-Only Patarawadee changes `db/schema.sql`. Anyone may suggest changes to this file through a PR.
+**Sources:** the EER in [`docs/erd/`](erd/), Lectures 7–10.
 
 ![Architecture](architecture.png)
 
@@ -11,7 +8,7 @@ Only Patarawadee changes `db/schema.sql`. Anyone may suggest changes to this fil
 
 Implemented in [`db/schema.sql`](../db/schema.sql) and tested on MySQL 8.0. The staff FKs on
 RESERVATION and CHECKIN come from the EER's **Created** and **Processes** relationships.
-Columns in **bold** were added in the SQL. Checked against the EER (Phase 3): the first three are
+Columns in **bold** were added in the SQL. Checked against the EER: the first three are
 already in the diagram, and the next two are implementation helpers that Chen notation does not draw.
 The last three come from the team decisions of Tue 6 Oct and were added to the EER on Wed 7 Oct.
 
@@ -107,8 +104,7 @@ error 1452 when a ticketed flight was renumbered.
 ## ERD review: done in `docs/erd/meow-airline-eer.drawio`
 
 The new EER ([`erd/meow-airline-eer.png`](erd/meow-airline-eer.png), editable source
-`erd/meow-airline-eer.drawio`) fixes everything found in the first drafts
-(`eer-chen.webp`, `erd-crowsfoot.png`, kept for history):
+`erd/meow-airline-eer.drawio`) fixes everything found in the first drafts:
 
 1. ✅ **Second M:N added:** FARE_CONDITION entity + **HasRule** (FARE M : N FARE_CONDITION) with **Fee** on the relationship. The `Rule` oval is gone from FARE.
 2. ✅ **TravelsOn added** (PASSENGER 1 : N TICKET, BR18), plus **Sells** (FARE 1 : N TICKET, the `TICKET.FareID` FK).
@@ -124,8 +120,6 @@ diagram, open the `.drawio` file in draw.io (File → Open), then File → Expor
 over `meow-airline-eer.png`.
 
 ## Business rules: where each one is enforced
-
-The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase 4).
 
 | BR | Rule (short) | Enforced in |
 |---|---|---|
@@ -148,17 +142,17 @@ The DB layer is Patarawadee's (Phase 3). The backend layer is Kawintida's (Phase
 | *new* BR18 | A Passenger may travel on many Tickets; each Ticket is for exactly one Passenger, who holds at most one live Ticket per Flight | **DB:** FK `TICKET.PassengerID` + `TICKET_Passenger_On_Flight_UQ` |
 | *new* BR19 | A Fare may have many FareConditions and a FareCondition may apply to many Fares; each pairing records its Fee | **DB:** FARE_RULE composite PK + 2 FKs, `CHECK (Fee >= 0)` |
 
-## Open design questions: decide Mon 5 Oct (all three members)
+## Design questions and how they were resolved
 
 1. ~~Second M:N relationship~~ **Resolved:** FARE ⇄ FARE_CONDITION through the FARE_RULE bridge (BR19). STAFF ⇄ FLIGHT duty was rejected because Lab 7 §2.2 puts staff scheduling out of scope. A fare can be both refundable and changeable, so the single `FARE.Rule` value also broke 1NF.
 2. ~~Who handled a booking or check-in?~~ **Resolved by the EER:** `BookingStaffID` and `CheckInStaffID` FKs.
-3. ~~Ticket price~~ **Resolved in the SQL:** `TICKET.FareID`. Revert if the team disagrees.
+3. ~~Ticket price~~ **Resolved in the SQL:** `TICKET.FareID`.
 4. ~~Income per route~~ **Resolved in the SQL:** income = the fare price of each live ticket, grouped by the ticket's flight route (`queries.sql` Q3). Payments are used only for paid/unpaid status.
 5. ~~Subtype attributes~~ **Resolved (Tue 6 Oct):** BOOKINGSTAFF stores `SalesOffice` (the office the staff member sells from) and CHECKINSTAFF stores `CounterNo` (their check-in counter). Each subtype also has a relationship STAFF does not: BookingStaff **Created** reservations (BR16) and CheckInStaff **Processes** check-ins (BR17).
 6. ~~Baggage limits~~ **Resolved (Tue 6 Oct):** Economy 20 kg, Business 30 kg, FirstClass 40 kg (BR12), as used in `queries.sql` Q11.
 7. ~~Who is the traveller on each ticket?~~ **Resolved:** `TICKET.PassengerID` → PASSENGER (BR18). RESERVATION.PassengerID is the booker; each ticket names who flies. Shown as **TravelsOn** (PASSENGER 1:N TICKET) in the EER.
 
-## Functional dependencies + 3NF check: Patarawadee fills this in (Lecture 7)
+## Functional dependencies + 3NF check (Lecture 7)
 
 Write one FD per business rule: *determinant → dependents*. Then check each table:
 **1NF** (atomic values, no repeating groups) → **2NF** (no partial dependency on part of a composite key) → **3NF** (no transitive dependency, non-key → non-key).

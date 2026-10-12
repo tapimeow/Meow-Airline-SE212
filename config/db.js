@@ -1,14 +1,11 @@
 // config/db.js
 //
-// [Phase 3 · Database · Patarawadee] This is the one place the app's MySQL connection lives.
-// Everyone else imports `pool` from here instead of opening their own
-// connection - that way there's only one set of credentials to update when
-// we move from a local database to the shared Railway one.
+// The one place the app's MySQL connection lives. Every controller imports
+// `pool` from here, so the credentials (from .env) are read in one place.
 //
-// [Phase 4 · Backend · Kawintida] Use `pool.query(...)` (or `pool.execute(...)` for
-// parameterised queries) inside your controllers. Always pass values as a
-// second array argument - never build SQL strings with string concatenation
-// or template literals, or the app is open to SQL injection.
+// Controllers always pass values as a second array argument
+// (`pool.execute(sql, [values])`) and never build SQL strings with
+// concatenation or template literals, so user input can't run as SQL.
 
 require('dotenv').config();
 const mysql = require('mysql2/promise');
@@ -28,8 +25,8 @@ const pool = mysql.createPool({
 });
 
 // Say at startup which database the app uses (never the password), and try
-// one query. Without DB_HOST, mysql2 quietly falls back to localhost, which on
-// Railway shows up later as ECONNREFUSED 127.0.0.1:3306 on every page.
+// one query. Without DB_HOST, mysql2 quietly falls back to localhost, which
+// shows up later as ECONNREFUSED 127.0.0.1:3306 on every page.
 if (!process.env.DB_HOST) {
   console.warn('DB_HOST is not set: check .env locally or the Variables tab on Railway.');
 }
@@ -37,11 +34,5 @@ console.log(`Database: ${process.env.DB_USER}@${process.env.DB_HOST}:${process.e
 pool.query('SELECT 1')
   .then(() => console.log('Database connection OK'))
   .catch((err) => console.error(`Database connection failed: ${err.code} ${err.message}`));
-
-// Example of the safe pattern to copy in controllers:
-//   const [rows] = await pool.execute(
-//     'SELECT * FROM PASSENGER WHERE PassengerID = ?',
-//     [passengerId]
-//   );
 
 module.exports = pool;

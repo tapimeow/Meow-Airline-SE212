@@ -1,6 +1,6 @@
 # How the tables were built (report §5–6)
 
-**Owner:** Patarawadee (Phase 3). The SQL itself is [`db/schema.sql`](../db/schema.sql). This file
+The SQL itself is [`db/schema.sql`](../db/schema.sql). This file
 explains the steps behind it for report §6, following the Lecture 8 order:
 **data types → nullable → unique → PK/FK → defaults → domain checks**.
 Every example below was checked against the live schema on MySQL 8.0.

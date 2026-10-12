@@ -1,6 +1,6 @@
 -- db/seed.sql
 --
--- [Phase 3 · Database · Patarawadee] Sample data for every table (report
+-- Sample data for every table (report
 -- section 7: "INSERT sample data for every table"). Run it after schema.sql:
 --
 --   mysql -u root -p meow_airline < db/seed.sql
@@ -8,7 +8,7 @@
 -- It empties every table first, so it can also be run again on its own to
 -- reset the data (for example before the demo).
 --
--- All people are fake (Lab 6 B4.3). Airport codes are real IATA codes.
+-- All people are fake. Airport codes are real IATA codes.
 -- "Today" in this data is early October 2026:
 --   September flights have already flown (used for the "last month" report),
 --   October flights are still to come (used for booking and check-in),
@@ -80,7 +80,7 @@ INSERT INTO PASSENGER (Name, PassportNo, PhoneNo, Email, MembershipStatus) VALUE
   ('Mint Saetang',       'AC2223336', NULL,          NULL,                     'Normal'),  -- 7 (family, child: no phone/email)
   ('Daniel Tan',         'SG7788990', '+6591234567', 'daniel.tan@example.sg',  'Gold');    -- 8
 
--- 9-100: 92 more passengers (100 in total), all FAKE (RULES.md 1.3), fixed seed.
+-- 9-100: 92 more passengers (100 in total), all fake, fixed seed.
 --         72 Thai, 10 Lao, 10 Singaporean; 64 Normal, 18 Silver, 10 Gold. Everyone has
 --         an email and no one is a Saetang, so Q5a/Q5b keep the same result.
 INSERT INTO PASSENGER (Name, PassportNo, PhoneNo, Email, MembershipStatus) VALUES

@@ -1,13 +1,7 @@
 // routes/passengers.js
 //
-// [Phase 0 · Practice · All three members] Already working: run it
-// locally once before starting your own phase (docs/PHASES.md).
-//
-// This is the practice round from the build plan: a full CRUD flow for one
-// entity, working end to end (route -> controller -> database -> EJS view)
-// before anyone starts the real booking features. Copy this file's shape
-// for every other entity's routes - e.g. routes/flights.js, then
-// controllers/flightController.js, then views/flights/.
+// Passenger CRUD: list, add, edit and delete passengers
+// (route -> controller -> database -> EJS view).
 
 const express = require('express');
 const router = express.Router();

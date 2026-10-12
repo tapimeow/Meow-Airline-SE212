@@ -1,6 +1,6 @@
 # RESTful CRUD API (report section 8)
 
-The Meow Airline web server uses Node.js and Express with MySQL persistence. `server.js` configures JSON and HTML-form request parsing, serves static assets, and mounts the feature routers. Browser-facing GET routes render EJS pages; successful form submissions redirect to the relevant list or detail page. Controllers validate input, run parameterized statements through the shared MySQL pool in `config/db.js`, and enforce business rules that span rows. Validation and database errors are shown on the relevant page. The shared view names and locals are documented in [`EJS_VIEW_CONTRACT.md`](EJS_VIEW_CONTRACT.md).
+The Meow Airline web server uses Node.js and Express with MySQL persistence. `server.js` configures JSON and HTML-form request parsing, serves static assets, and mounts the feature routers. Browser-facing GET routes render EJS pages; successful form submissions redirect to the relevant list or detail page. Controllers validate input, run parameterized statements through the shared MySQL pool in `config/db.js`, and enforce business rules that span rows. Validation and database errors are shown on the relevant page.
 
 The API is grouped by feature:
 
