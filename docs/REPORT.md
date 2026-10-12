@@ -23,7 +23,7 @@ Each section has one owner. The owner writes it. Everyone proofreads it on Tue 1
 
 ### 1.1 Business background
 
-Meow Airline is a small regional airline operating a six-aircraft fleet and scheduled routes between cities in Thailand and nearby countries. Its day-to-day work includes maintaining flight schedules and fares, booking seats for individual passengers and families, recording payments, issuing tickets, and checking passengers in before departure. The project models these activities in one database-backed booking system.
+Meow Airline is a small regional airline operating an eight-aircraft fleet, two of them wide-bodies with First class, on scheduled routes in Thailand and to Singapore, Vientiane, Tokyo and Hong Kong. Its day-to-day work includes maintaining flight schedules and fares, booking seats for individual passengers and families, recording payments, issuing tickets, and checking passengers in before departure. The project models these activities in one database-backed booking system.
 
 ### 1.2 Problem and motivation
 
@@ -44,7 +44,7 @@ The application uses MySQL for persistent data, Node.js and Express for request 
 
 **Suggested speaking notes (about 45–60 seconds):**
 
-> Meow Airline is a small regional carrier with six aircraft. Its staff coordinate schedules, bookings, and payment details, and the project addresses the operational risk of keeping those records in separate spreadsheets and LINE conversations. When two agents cannot see the same current seat inventory, a seat may be offered twice; manual lookups also make booking and reporting slower. Our users are booking staff, check-in staff, and the airline manager. We are building one MySQL-backed system with rules that block duplicate live seat assignments and pages for booking and check-in. Our goals are to prevent double bookings, bring a booking from about eight minutes to under two, produce seats-sold and income reports in under ten seconds, and show free seats by class. The rest of the presentation explains the data model and demonstrates these workflows.
+> Meow Airline is a small regional carrier with eight aircraft. Its staff coordinate schedules, bookings, and payment details, and the project addresses the operational risk of keeping those records in separate spreadsheets and LINE conversations. When two agents cannot see the same current seat inventory, a seat may be offered twice; manual lookups also make booking and reporting slower. Our users are booking staff, check-in staff, and the airline manager. We are building one MySQL-backed system with rules that block duplicate live seat assignments and pages for booking and check-in. Our goals are to prevent double bookings, bring a booking from about eight minutes to under two, produce seats-sold and income reports in under ten seconds, and show free seats by class. The rest of the presentation explains the data model and demonstrates these workflows.
 
 **Slide outline:**
 

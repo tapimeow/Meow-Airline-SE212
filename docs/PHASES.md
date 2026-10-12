@@ -50,7 +50,7 @@ Lecture 7: functional dependencies come from **business rules**, not sample data
 
 - [x] `db/schema.sql`: all tables, with every constraint from the checklist in `docs/REPORT.md` (PK, FK + ON DELETE/UPDATE, CHECK, DEFAULT). Tested on MySQL 8.0
 - [x] Patarawadee reviews the columns added in the SQL (`docs/DATABASE.md` → Entities) and adds them to the EER (already covered, no diagram change needed)
-- [x] `db/seed.sql`: `INSERT` for **every** table (6 aircraft, real airport codes, fake passengers)
+- [x] `db/seed.sql`: `INSERT` for **every** table (8 aircraft since Fri 9 Oct, real airport codes, fake passengers)
 - [x] Runs top to bottom on an empty database. Re-checked Tue 6 Oct in Workbench on MySQL 8.4: `schema.sql` then `seed.sql`, 0 errors, and the app reads the data
 - [x] Screenshot the tables in Workbench / DBeaver for the report (Wed 7 Oct: `db/pic/Schema` + `db/pic/Seed`, in report §5–§6)
 - [x] **Thu evening:** tell the team the schema is frozen. After this point, schema changes go through Patarawadee only (frozen early, Wed 7 Oct, with the updated EER)

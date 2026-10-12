@@ -1,7 +1,7 @@
 # Meow Airline ✈️🐱
 
 SE212 / 953212 term project: a booking system for **Meow Airline**, a small
-regional airline with six aircraft. It replaces the shared Excel file and LINE
+regional airline with eight aircraft. It replaces the shared Excel file and LINE
 chats with one MySQL database, so seats can't be double-booked and the
 manager gets reports in seconds.
 
