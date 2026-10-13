@@ -10,7 +10,7 @@ router.get('/', async (req, res, next) => {
   try {
     const [[counts]] = await pool.query(
       `SELECT (SELECT COUNT(*) FROM PASSENGER) AS passengers,
-              (SELECT COUNT(*) FROM FLIGHT WHERE Status <> 'Cancelled' AND DepartureTime > NOW()) AS flights,
+              (SELECT COUNT(*) FROM FLIGHT WHERE Status <> 'Canceled' AND DepartureTime > NOW()) AS flights,
               (SELECT COUNT(*) FROM RESERVATION) AS reservations`
     );
     res.render('index', { title: 'Home', counts });
