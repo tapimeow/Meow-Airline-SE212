@@ -238,7 +238,9 @@ exports.flightsList = async (req, res, next) => {
   try {
     const filters = { origin: req.query.origin || '', destination: req.query.destination || '', date: req.query.date || '' };
     const [airports] = await pool.execute('SELECT * FROM AIRPORT ORDER BY AirportCode');
-    const [flights] = await pool.execute(`SELECT f.*, ro.OriginCode, ro.DestinationCode FROM FLIGHT f
+    const [flights] = await pool.execute(`SELECT f.*, ro.OriginCode, ro.DestinationCode,
+      CASE WHEN f.Status <> 'Canceled' AND f.DepartureTime > NOW() THEN 1 ELSE 0 END AS CanBook
+      FROM FLIGHT f
       JOIN ROUTE ro ON ro.FlightNo = f.FlightNo WHERE (? = '' OR ro.OriginCode = ?)
       AND (? = '' OR ro.DestinationCode = ?) AND (? = '' OR DATE(f.DepartureTime) = ?)
       ORDER BY f.DepartureTime`, [filters.origin, filters.origin, filters.destination, filters.destination, filters.date, filters.date]);
@@ -311,7 +313,9 @@ exports.flightsRemove = async (req, res, next) => {
     const [result] = await pool.execute('DELETE FROM FLIGHT WHERE FlightID = ?', [req.params.id]);
     if (!result.affectedRows) return res.status(404).send('Flight not found.');
     res.redirect('/flights');
-  } catch (err) { const message = dbMessage(err); if (message) { const [flights] = await pool.execute(`SELECT f.*, r.OriginCode, r.DestinationCode FROM FLIGHT f JOIN ROUTE r ON r.FlightNo=f.FlightNo ORDER BY f.DepartureTime`); const [airports] = await pool.execute('SELECT * FROM AIRPORT ORDER BY AirportCode'); return res.status(409).render('flights/list', { title: 'Flights', flights, airports, filters: {}, error: message }); } next(err); }
+  } catch (err) { const message = dbMessage(err); if (message) { const [flights] = await pool.execute(`SELECT f.*, r.OriginCode, r.DestinationCode,
+    CASE WHEN f.Status <> 'Canceled' AND f.DepartureTime > NOW() THEN 1 ELSE 0 END AS CanBook
+    FROM FLIGHT f JOIN ROUTE r ON r.FlightNo=f.FlightNo ORDER BY f.DepartureTime`); const [airports] = await pool.execute('SELECT * FROM AIRPORT ORDER BY AirportCode'); return res.status(409).render('flights/list', { title: 'Flights', flights, airports, filters: {}, error: message }); } next(err); }
 };
 
 // Fares
