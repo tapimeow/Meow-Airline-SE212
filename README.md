@@ -7,6 +7,8 @@ manager gets reports in seconds.
 
 **Stack:** MySQL 8 · Node.js + Express · EJS / HTML / CSS / JavaScript · MySQL Workbench / DBeaver · draw.io
 
+**Live site:** https://meow-airline.up.railway.app (hosted on Railway, redeployed on every push to `main`)
+
 ![Architecture: Browser ⇄ Express ⇄ MySQL](docs/architecture.png)
 
 ## Team
