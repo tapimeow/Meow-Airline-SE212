@@ -9,8 +9,6 @@ manager gets reports in seconds.
 
 **Live site:** https://meow-airline.up.railway.app (hosted on Railway, redeployed on every push to `main`)
 
-![Architecture: Browser ⇄ Express ⇄ MySQL](docs/architecture.png)
-
 ## Team
 
 | Member | Student ID | Role | Main work |
@@ -40,12 +38,6 @@ The system answers the airline's three key questions, each as a report page:
 - **Admin:** airports, routes, aircraft and seats, flights and fares, staff, passengers.
 - **Reports:** free seats by class, a passenger's bookings and payment status, income per route.
 
-| Booking form | Boarding pass | Route income report |
-|---|---|---|
-| ![Booking form](docs/ui/02-booking-form.png) | ![Boarding pass](docs/ui/05-boarding-pass.png) | ![Route income](docs/ui/08-report-route-income.png) |
-
-More screenshots are in [`docs/ui/`](docs/ui/).
-
 ## The database rules itself
 
 MySQL refuses bad data even if the app has a bug. For example:
@@ -55,18 +47,6 @@ MySQL refuses bad data even if the app has a bug. For example:
 - **Disjoint staff roles (BR14):** a composite FK on `(StaffID, StaffRole)` stops a staff member from being both booking and check-in staff.
 
 Rules that need totals or the current time (BR8, BR11, BR12, BR13) are checked in the controllers inside transactions.
-
-## Documentation
-
-| File | What's in it |
-|---|---|
-| [`docs/BUSINESS_RULES.md`](docs/BUSINESS_RULES.md) | Business rules BR1–BR19 and where each is enforced |
-| [`docs/erd/`](docs/erd/) | The EER diagram (`meow-airline-eer.png`, editable `meow-airline-eer.drawio`) |
-| [`docs/RELATIONAL_MODEL.md`](docs/RELATIONAL_MODEL.md) | Every table, PK, FK and FK action, and how the EER maps to tables |
-| [`docs/DATABASE.md`](docs/DATABASE.md) | Design notes, relationships, functional dependencies and the 3NF check |
-| [`docs/TABLE_CREATION.md`](docs/TABLE_CREATION.md) | How `schema.sql` was built, step by step |
-| [`docs/API_REPORT.md`](docs/API_REPORT.md) | The Express API: features, endpoints, transactions |
-| [`docs/ROUTES.md`](docs/ROUTES.md) | URL ↔ controller ↔ page table |
 
 ## Folder structure
 
@@ -80,7 +60,6 @@ controllers/        One file per area: SQL + business rules
 views/              EJS pages, one folder per area, shared partials
 public/             CSS, browser-side JavaScript, images
 server.js           App entry point: wires everything together
-docs/               Design documents, EER diagram, screenshots
 ```
 
 ## Running locally

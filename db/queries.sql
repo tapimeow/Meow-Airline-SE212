@@ -227,7 +227,7 @@ ORDER BY s.SeatNo;
 
 -- Q11 [Kornnaphat] Total baggage weight per ticket vs. its class limit (BR12)
 --     Limits: Economy 20 kg, Business 30 kg, FirstClass 40 kg
---     (agreed by the team, docs/DATABASE.md open question 6)
+--     (agreed by the team)
 SELECT t.TicketID, s.SeatClass,
        COUNT(b.BaggageID) AS bags,
        SUM(b.Weight)      AS total_kg,

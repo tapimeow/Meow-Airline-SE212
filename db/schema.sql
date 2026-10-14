@@ -2,7 +2,6 @@
 --
 -- Report sections 5–6:
 -- CREATE DATABASE + CREATE TABLE for every table in the relational model.
--- Design notes and the reason for each FK action: docs/DATABASE.md.
 --
 -- Run top to bottom (it drops and recreates every table, so the sample data
 -- is reset too):
@@ -133,8 +132,8 @@ CREATE TABLE SEAT (
 );
 
 -- ROUTE --------------------------------------------------------------
--- A flight number always flies the same route (decision C in
--- docs/DATABASE.md), so FlightNo -> OriginCode, DestinationCode. Keeping
+-- A flight number always flies the same route, so
+-- FlightNo -> OriginCode, DestinationCode. Keeping
 -- those columns in FLIGHT would repeat the route on every dated flight
 -- (a transitive dependency, so not 3NF). The route lives here once.
 CREATE TABLE ROUTE (
